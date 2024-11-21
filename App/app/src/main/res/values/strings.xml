@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Projeto-3</string>
+    <string name="typeEmailHint">Endereço de e-mail</string>
+    <string name="typePasswordHint">Senha</string>
+    <string name="loginButtonText">Entrar</string>
 </resources>
