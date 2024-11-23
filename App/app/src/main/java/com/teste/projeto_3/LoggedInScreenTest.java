@@ -6,16 +6,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LoggedInScreenTest extends AppCompatActivity{
 
     String typedEmail;
     String typedPassword;
+
+    public Connection connection;
+    String connectionResult;
 
     private String serverIP = "time.nist.gov";
     private int serverPort = 13;
@@ -40,6 +49,32 @@ public class LoggedInScreenTest extends AppCompatActivity{
     }
     public void voltar(View v){
         this.finish();
+    }
+
+    public void getEmailPassword(View v){
+
+        TextView test1 = findViewById(R.id.test1);
+
+
+        try{
+            DatabaseConnection databaseConnection = new DatabaseConnection();
+            connection = databaseConnection.connectionClass();
+            if (connection != null) {
+                String query = "Select * from testemailpassword";
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery(query);
+
+                while(resultSet.next()){
+                    test1.setText(resultSet.getString(1));
+                }
+            } else {
+                connectionResult = "Connection failed";
+                test1.setText("while condition");
+            }
+        } catch (Exception e) {
+
+        }
+
     }
 
     public void onClickedTempo(View v){

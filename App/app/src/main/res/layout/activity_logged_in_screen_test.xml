@@ -37,6 +37,13 @@
             android:text="Horário obtido através de um servidor"
             android:textAlignment="center" />
 
+        <TextView
+            android:id="@+id/test1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="test1"
+            android:textAlignment="center" />
+
         <Button
             android:id="@+id/buttonGetTime"
             android:layout_width="match_parent"
@@ -50,5 +57,12 @@
             android:layout_height="wrap_content"
             android:onClick="voltar"
             android:text="Voltar teste" />
+
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="getEmailPassword"
+            android:text="Obter email e senha" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
