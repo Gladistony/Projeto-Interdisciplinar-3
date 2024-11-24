@@ -8,7 +8,7 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,47 +16,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutTypeEmail"
+        <TextView
+            android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/typeEmail"
-                android:layout_width="match_parent"
-                android:layout_height="54dp"
-                android:hint="@string/typeEmailHint" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutTypePassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            app:endIconMode="password_toggle">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/typePassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/typePasswordHint"
-                android:inputType="textPassword" />
-        </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginBottom="64dp"
+            android:textAlignment="center"
+            android:textSize="25dp"
+            android:text="@string/tituloBemVindo" />
 
         <Button
-            android:id="@+id/button"
+            android:id="@+id/botaoAbrirTelaLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginRight="16dp"
-            android:onClick="nextScreen"
-            android:text="@string/loginButtonText" />
-    </LinearLayout>
+            android:layout_marginBottom="10dp"
+            android:onClick="abrirTelaLogin"
+            android:text="@string/entrar" />
 
+        <Button
+            android:id="@+id/botaoAbrirTelaCadastro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/cadastre_se" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
