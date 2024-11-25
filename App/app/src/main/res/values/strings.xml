@@ -4,7 +4,11 @@
     <string name="cadastrar">Cadastrar</string>
     <string name="cadastre_se">Cadastre-se</string>
     <string name="title_cadastro">Cadastre-se</string>
-    <string name="emailLoginDigitar">Endereço de e-mail</string>
-    <string name="senhaLoginDigitar">Senha</string>
-    <string name="tituloBemVindo">Bem-vindo(a) ao (nome do app)!</string>
+    <string name="type_email_login">Endereço de e-mail</string>
+    <string name="type_senha_login">Senha</string>
+    <string name="title_bem_vindo">Bem-vindo(a) ao (nome do app)!</string>
+    <string name="type_codigo_validacao">Código de validação</string>
+    <string name="title_validacao_conta">Validação de conta</string>
+    <string name="validar_conta">Validar minha conta</string>
+
 </resources>

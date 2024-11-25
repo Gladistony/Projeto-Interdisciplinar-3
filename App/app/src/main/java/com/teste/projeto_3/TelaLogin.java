@@ -1,13 +1,17 @@
 package com.teste.projeto_3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 public class TelaLogin extends AppCompatActivity {
 
@@ -27,6 +31,13 @@ public class TelaLogin extends AppCompatActivity {
     }
 
     public void logar(View v){
-        finish();
+        Intent intent = new Intent(this, TelaValidacao.class);
+        TextInputLayout emailLayout = findViewById(R.id.layoutTypeEmail);
+        TextInputLayout senhaLayout = findViewById(R.id.layoutTypePassword);
+        emailDigitado = String.valueOf(emailLayout.getEditText().getText());
+        senhaDigitada = String.valueOf(senhaLayout.getEditText().getText());
+        intent.putExtra("email", emailDigitado);
+        intent.putExtra("senha", senhaDigitada);
+        startActivity(intent);
     }
 }

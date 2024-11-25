@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".TelaValidacao">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -17,26 +17,42 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/tituloValidarConta"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="64dp"
-            android:text="@string/title_bem_vindo"
+            android:text="@string/type_codigo_validacao"
             android:textAlignment="center"
-            android:textSize="25dp" />
+            android:textSize="32sp" />
 
-        <Button
-            android:id="@+id/botaoAbrirTelaLogin"
+        <TextView
+            android:id="@+id/descricaoValidacao"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:onClick="abrirTelaLogin"
-            android:text="@string/entrar" />
+            android:layout_margin="16dp"
+            android:text="@string/title_validacao_conta" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:hint="@string/type_codigo_validacao" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Button
-            android:id="@+id/botaoAbrirTelaCadastro"
+            android:id="@+id/button2"
+            style="@style/Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/cadastre_se" />
+            android:layout_margin="10dp"
+            android:background="@drawable/button"
+            android:onClick="validar"
+            android:text="@string/validar_conta"
+            android:textColorLink="@color/blue2" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
