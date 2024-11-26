@@ -10,5 +10,5 @@
     <string name="type_codigo_validacao">Código de validação</string>
     <string name="title_validacao_conta">Validação de conta</string>
     <string name="validar_conta">Validar minha conta</string>
-
+    <string name="title_cadastro">Cadastre-se</string>
 </resources>
