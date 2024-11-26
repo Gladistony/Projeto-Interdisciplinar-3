@@ -41,7 +41,7 @@
         android:id="@+id/edit_nome"
         style="@style/Edit_text"
         android:hint="Nome"
-        android:inputType="text"
+        android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="@id/containerComponents"
         app:layout_constraintEnd_toEndOf="@id/containerComponents"
         app:layout_constraintTop_toTopOf="@id/containerComponents"
