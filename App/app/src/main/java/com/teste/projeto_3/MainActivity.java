@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void abrirTelaLogin(View v){
-        Intent intentLoginTeste = new Intent(this, TelaLogin.class);
-        startActivity(intentLoginTeste);
+        Intent intentLogin = new Intent(this, TelaLogin.class);
+        startActivity(intentLogin);
     }
 }

@@ -28,7 +28,6 @@ public class TelaValidacao extends AppCompatActivity {
     }
 
     public void descricaoAviso() {
-        // testar se vai precisar do View v como parâmetro
         String email = getIntent().getStringExtra("email");
         TextView descricaoValidacao = findViewById(R.id.descricaoValidacao);
         String textoAviso = "Um código de validação foi enviado para " + email +
