@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../Estilos/estiloTelaDeCadastro.css">
+    <title> Cadastro </title>
+</head>
+<body>
+    <main>
+        <form action="" id="FormDeCadastro" class="">
+            <input type="text" placeholder="Coloque o seu Nome e Sobrenome" autocomplete="off" class="">
+            <input type="email" placeholder="Coloque o seu e-mail" class="">
+            <input type="password" placeholder="Coloque a sua senha" minlength="8" maxlength="20" id="Senha" class="">
+            <input type="password" placeholder="Confirme a sua senha" id="confirmeASenha" class="">
+            <button type="submit" class="">Cadastrar</button>
+        </form>
+        <div>
+            <p>Já tem cadastro? <span><a href="./index.html" class="texto-link">Entrar</a></span></p>
+        </div>
+        <div id="loading" class="loading-spinner" style="display: none;"></div>
+        <div>
+            <p class="mensagemDeErro"></p>
+        </div>
+    </main>
+</body>
+</html>
