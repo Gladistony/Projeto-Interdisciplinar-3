@@ -2,26 +2,43 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="../Styles/estiloTelaDeCadastro.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../Estilos/estiloTelaDeCadastro.css">
-    <title> Cadastro </title>
+    <title>Cadastro</title>
 </head>
 <body>
     <main>
-        <form action="" id="FormDeCadastro" class="">
-            <input type="text" placeholder="Coloque o seu Nome e Sobrenome" autocomplete="off" class="">
-            <input type="email" placeholder="Coloque o seu e-mail" class="">
-            <input type="password" placeholder="Coloque a sua senha" minlength="8" maxlength="20" id="Senha" class="">
-            <input type="password" placeholder="Confirme a sua senha" id="confirmeASenha" class="">
-            <button type="submit" class="">Cadastrar</button>
+        <form action="" id="FormDeCadastro">
+            <div>
+                <label for="nome">Nome:</label>
+                <input type="text" placeholder="Coloque o seu Nome e Sobrenome" autocomplete="off" id="nome">
+                <span class="mensagemDeErro"></span>
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" placeholder="Coloque o seu e-mail" id="email">
+                <span class="mensagemDeErro"></span>
+            </div>
+            <div>
+                <label for="senha">Senha:</label>
+                <input type="password" placeholder="Coloque a sua senha" minlength="8" maxlength="20" id="senha">
+                <span class="mensagemDeErro"></span>
+            </div>
+            <div>
+                <label for="confirmeASenha">Confirme a Senha:</label>
+                <input type="password" placeholder="Confirme a sua senha" id="confirmeASenha">
+                <span class="mensagemDeErro"></span>
+            </div>
+            <button type="submit">Cadastrar</button>
         </form>
         <div>
-            <p>Já tem cadastro? <span><a href="./index.html" class="texto-link">Entrar</a></span></p>
+            <p>Já tem cadastro? <span><a href="./index.html">Entrar</a></span></p>
         </div>
-        <div id="loading" class="loading-spinner" style="display: none;"></div>
+        <div id="loading" style="display: none;"></div>
         <div>
-            <p class="mensagemDeErro"></p>
+            <p class="mensagemDeErro" id="mensagemDeErro"></p>
         </div>
     </main>
+    <script src="../Scripts/telaDeCadastro.js"></script>
 </body>
 </html>
