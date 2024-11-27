@@ -6,14 +6,12 @@
         <item name="android:layout_height">250dp</item>
         <item name="android:background">@drawable/container_components</item>
         <item name="android:layout_margin">20dp</item>
-
     </style>
 
     <style name="ContainerPerfil">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">280dp</item>
         <item name="android:background">@drawable/container_perfil</item>
-
     </style>
 
     <style name="Edit_text">
