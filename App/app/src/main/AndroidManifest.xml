@@ -19,14 +19,16 @@
             android:name=".TelaLogin"
             android:exported="false" />
         <activity
-            android:name=".TelaValidacao"
             android:name=".TelaPrincipal"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".FormCadastro"
             android:exported="false" />
         <activity
-            android:name=".FormCadastro"
+            android:name=".TelaValidacao"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
