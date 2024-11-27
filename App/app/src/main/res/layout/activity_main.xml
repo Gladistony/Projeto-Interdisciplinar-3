@@ -49,8 +49,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
+        android:onClick="abrirTelaCadastro"
         android:text="@string/cadastre_se"
-        app:layout_constraintTop_toBottomOf="@+id/botaoAbrirTelaLogin"
-        tools:layout_editor_absoluteX="130dp" />
+        app:layout_constraintEnd_toEndOf="@+id/containerComponents"
+        app:layout_constraintStart_toStartOf="@+id/containerComponents"
+        app:layout_constraintTop_toBottomOf="@+id/botaoAbrirTelaLogin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

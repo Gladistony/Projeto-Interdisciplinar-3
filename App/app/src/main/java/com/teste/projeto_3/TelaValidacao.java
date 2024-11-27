@@ -1,8 +1,11 @@
 package com.teste.projeto_3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,6 +39,13 @@ public class TelaValidacao extends AppCompatActivity {
     }
 
     public void validar(View v){
-        finish();
+        EditText validacao = findViewById(R.id.codigo_validacao);
+        if (validacao.getText().toString().equals("")) {
+            Toast.makeText(getApplicationContext(), "Insira o código de validação antes de prosseguir", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent verificado = new Intent(this, TelaPrincipal.class);
+            startActivity(verificado);
+        }
+
     }
 }

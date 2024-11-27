@@ -29,11 +29,11 @@ public class TelaLogin extends AppCompatActivity {
     }
 
     public void logar(View v){
-        EditText email = findViewById(R.id.email);
-        EditText senha = findViewById(R.id.senha);
-        Intent intent = new Intent(this, TelaValidacao.class);
-        intent.putExtra("email", email.getText().toString());
-        intent.putExtra("senha", senha.getText().toString());
+        //EditText email = findViewById(R.id.email);
+        //EditText senha = findViewById(R.id.senha);
+        Intent intent = new Intent(this, TelaPrincipal.class);
+        //intent.putExtra("email", email.getText().toString());
+        //intent.putExtra("senha", senha.getText().toString());
         startActivity(intent);
     }
 
@@ -60,6 +60,10 @@ public class TelaLogin extends AppCompatActivity {
         // volta o cursor para a mesma posição antes de ocultar/exibir
         caixaTexto.setSelection(posicaoCursor);
 
+    }
+
+    public void voltar(View v) {
+        finish();
     }
 
 }

@@ -27,4 +27,10 @@ public class MainActivity extends AppCompatActivity {
         Intent intentLogin = new Intent(this, TelaLogin.class);
         startActivity(intentLogin);
     }
+
+    public void abrirTelaCadastro(View v){
+        Intent intentCadastro = new Intent(this, FormCadastro.class);
+        startActivity(intentCadastro);
+    }
+
 }
