@@ -5,23 +5,38 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/green"
     tools:context=".TelaPrincipal">
 
-    <View
-        android:id="@+id/containerPerfil"
-        style="@style/ContainerPerfil"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+    <TextView
+        android:id="@+id/textPerfil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Profile"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_marginTop="40dp"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         />
+
+
+    <View
+        android:id="@+id/containerComponentsPerfil"
+        style="@style/ContainerComponents"
+        android:layout_height="530dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <View
         android:id="@+id/containerUser"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:background="@drawable/container_user"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="130dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -37,26 +52,6 @@
         app:layout_constraintBottom_toBottomOf="@id/containerUser"
         />
 
-    <View
-        android:id="@+id/containerComponentsPerfil"
-        style="@style/ContainerComponents"
-        android:elevation="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/containerUser" />
-
-    <ImageView
-        android:id="@+id/iconeUser"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_user"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"
-        app:layout_constraintTop_toBottomOf="@id/containerUser"
-        app:layout_constraintStart_toStartOf="parent"
-        android:elevation="11dp"
-        />
-
     <TextView
         android:id="@+id/textNomeUsuario"
         android:layout_width="wrap_content"
@@ -65,23 +60,10 @@
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintTop_toBottomOf="@id/containerUser"
-        app:layout_constraintStart_toEndOf="@id/iconeUser"
-        android:elevation="11dp"
-        />
-
-    <ImageView
-        android:id="@+id/iconeEmail"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_email"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toBottomOf="@id/iconeUser"
-        app:layout_constraintStart_toStartOf="parent"
-        android:elevation="11dp"
+        app:layout_constraintRight_toRightOf="@id/containerUser"
+        app:layout_constraintLeft_toLeftOf="@id/containerUser"
         />
 
     <TextView
@@ -92,17 +74,19 @@
         android:textColor="@color/black"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintRight_toRightOf="@id/containerUser"
+        app:layout_constraintLeft_toLeftOf="@id/containerUser"
         app:layout_constraintTop_toBottomOf="@id/textNomeUsuario"
-        app:layout_constraintStart_toEndOf="@id/iconeEmail"
-        android:elevation="11dp"
+
         />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         android:backgroundTint="@color/black"
         android:onClick="deslogar"
         android:padding="20dp"
@@ -111,6 +95,19 @@
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/containerComponentsPerfil" />
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/button_voltar"
+        style="@style/ButtonArrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/ic_arrow_back"
+        android:text="@string/voltar"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/white"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

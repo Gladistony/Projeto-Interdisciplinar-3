@@ -3,15 +3,23 @@
 
     <style name="ContainerComponents">
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">250dp</item>
         <item name="android:background">@drawable/container_components</item>
-        <item name="android:layout_margin">20dp</item>
     </style>
 
     <style name="ContainerPerfil">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">280dp</item>
         <item name="android:background">@drawable/container_perfil</item>
+    </style>
+
+    <style name="ContainerLoginCadastro">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_login_cadastro</item>
+    </style>
+
+    <style name="ContainerBottomLoginCadastro">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_bottom_login_cadastro</item>
     </style>
 
     <style name="Edit_text">
@@ -31,7 +39,7 @@
         <item name="android:layout_marginRight">40dp</item>
         <item name="android:layout_marginTop">15dp</item>
         <item name="android:padding">20dp</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/black</item>
         <item name="android:textSize">20sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textAllCaps">false</item>
