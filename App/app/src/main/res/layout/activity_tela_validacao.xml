@@ -32,7 +32,7 @@
     <View
         android:id="@+id/containerComponents"
         style="@style/ContainerComponents"
-        android:layout_height="250dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,11 +40,9 @@
 
     <TextView
         android:id="@+id/descricaoValidacao"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
         android:layout_marginTop="15dp"
-        android:layout_marginRight="10dp"
         android:text="@string/validar_conta"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
@@ -74,7 +72,8 @@
         android:text="@string/validar_conta"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
         app:layout_constraintStart_toStartOf="@+id/containerComponents"
-        app:layout_constraintTop_toBottomOf="@+id/codigo_validacao" />
+        app:layout_constraintTop_toBottomOf="@+id/codigo_validacao"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

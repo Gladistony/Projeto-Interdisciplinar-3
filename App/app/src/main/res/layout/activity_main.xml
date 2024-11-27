@@ -26,7 +26,7 @@
     <View
         android:id="@+id/containerComponents"
         style="@style/ContainerComponents"
-        android:layout_height="180dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,6 +39,7 @@
         android:layout_height="wrap_content"
         android:onClick="abrirTelaLogin"
         android:text="@string/entrar"
+        android:layout_marginTop="50dp"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
         app:layout_constraintStart_toStartOf="@+id/containerComponents"
         app:layout_constraintTop_toTopOf="@+id/containerComponents" />
