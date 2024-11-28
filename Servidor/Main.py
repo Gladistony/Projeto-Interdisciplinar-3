@@ -1,5 +1,7 @@
 
 from Classes.BancoDeDados import BancoDeDados
+from flask import Flask, request, jsonify
+import uuid
 
 #Dados da conexão com o banco de dados
 host='127.0.0.1'  # Substitua pelo endereço IP do WSL
@@ -9,11 +11,28 @@ user='servidor'
 password='159753'
 #API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
+EMAIL_PADRAO = "Esse é seu codigo de ativacao: CODIGO"
 
 
 #Conectar com o banco de dados
-database = BancoDeDados(host, port, database, user, password)
+database = BancoDeDados(host, port, database, user, password, EMAIL_PADRAO)
 database.create_connection()
+
+
+#Configurações do flash
+app = Flask(__name__)
+
+#Rotina de processamento
+@app.route('/data_request', methods=['POST'])
+def data_request():
+    #Informação recebida
+    data = request.json
+    ID = uuid.uuid4()
+    #Resposta
+    response = {}
+    response['status'] = 'ok'
+    response['data'] = data
+    return jsonify(response)
 
 #Loop de opções do usuario
 while True:
