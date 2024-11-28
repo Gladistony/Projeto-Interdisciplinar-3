@@ -8,11 +8,13 @@
 </head>
 <body>
     <form action="" method="post">
-        <input type="text" id="caixaDeAtivacao" placeholder="Coloque o código de Ativação" id="codigoDeAtivacao">
+        <div>
+            <label for="codigoDeAtivacao"> Ative o codigo </label>
+            <input type="text" id="caixaDeAtivacao" placeholder="Coloque o código de Ativação" id="codigoDeAtivacao">
+        </div>
+             <button type="submit" class="" id="BotaoDeAtivar"> Continuar</button>
     </form>
-    <div>
-        <button type="submit" class="" id="BotaoDeAtivar"> Continuar</button>
-    </div>
+
     <div><p class="mensagemDeErro"> </p> </div>
     <div id="loading" class="loading-spinner" style="display: none;"></div>
 </body>
