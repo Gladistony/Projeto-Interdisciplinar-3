@@ -3,6 +3,7 @@ from Classes.Coneccao import ManageConect
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
+from mangum import Mangum
 
 #Dados da conexão com o banco de dados
 host=  '127.0.0.1'  # Substitua pelo endereço IP do WSL
@@ -10,7 +11,7 @@ linkhost = '100.24.48.200'
 port=3306
 database='Projeto3'
 user='servidor'
-password='senha1234'#'159753'
+password='159753'
 #API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
 EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO \\n Você pode ativar sua conta em: http://{linkhost}:8000/ativar/USUARIO/CODIGO"
@@ -25,6 +26,7 @@ manage_conect = ManageConect()
 #Ativar API
 
 app = FastAPI()
+handler = Mangum(app)
 
 @app.get("/")
 def read_root():
@@ -109,6 +111,6 @@ def processarrequerimento(item):
     else:
         return {"status": "Requisicao invalida"}
 
-if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+#if __name__ == '__main__':
+    #import uvicorn
+    #uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
