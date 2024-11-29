@@ -109,8 +109,10 @@ class BancoDeDados:
                                 cursor.execute(sql_update_query, (codigo_ativacao, nome_usuario))
                                 self.connection.commit()
                                 #Enviar email com o código de ativação
-                                string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao) 
-                                emailGmail.codigoAtivacao(string_cod, conta[4])
+                                string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao)
+                                string_final = string_cod.replace("USUARIO", nome_usuario)
+                                print(string_final)
+                                emailGmail.codigoAtivacao(string_final , conta[4])
                                 return {"status": "erro", "code":2, "message":"Conta bloqueada por excesso de tentativas de senha incorreta, ativação novamente necessária"}
                 else:
                     return {"status": "erro", "code":3, "message":"Conta não está ativa"}
@@ -153,8 +155,12 @@ class BancoDeDados:
                 self.connection.commit()
                 #Enviar email com o código de ativação
                 string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao)
+                string_final = string_cod.replace("USUARIO", nome_usuario)
                 emailGmail.codigoAtivacao(string_cod, email)
-                return {"status": "sucesso", "code":0, "message":"Conta criada com sucesso"}
+                sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
+                cursor.execute(sql_select_query, (nome_usuario,))
+                conta = cursor.fetchone()
+                return {"status": "sucesso", "code":0, "message":"Conta criada com sucesso", "data":conta}
         else:
             return {"status": "erro", "code":5, "message":"Conexão com o banco de dados não foi estabelecida"}
     

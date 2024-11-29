@@ -5,14 +5,15 @@ from pydantic import BaseModel
 from typing import Optional
 
 #Dados da conexão com o banco de dados
-host='127.0.0.1'  # Substitua pelo endereço IP do WSL
+host=  '127.0.0.1'  # Substitua pelo endereço IP do WSL
+linkhost = '100.24.48.200'
 port=3306
 database='Projeto3'
 user='servidor'
-password='159753'
+password='senha1234'#'159753'
 #API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
-EMAIL_PADRAO = "Esse é seu codigo de ativacao: CODIGO"
+EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO \\n Você pode ativar sua conta em: http://{linkhost}:8000/ativar/USUARIO/CODIGO"
 
 
 #Conectar com o banco de dados
@@ -64,7 +65,7 @@ def create_item(item: Item):
         else:
             return {"status": "Id invalido"}
 
-@app.get("/ativar/{usuario}/{id}")
+@app.get("/ativar/{usuario}/{codigo}")
 def ativar_conta(usuario: str, codigo: str):
     return database.ativar_conta(usuario, codigo)
 
@@ -81,10 +82,7 @@ def processarrequerimento(item):
         nome_completo = item.nome_completo
         anotacoes = ""
         numero_telefone = ""
-        dados = database.criar_conta(nome_usuario, senha, email, nome_completo, anotacoes, numero_telefone)
-        if dados["code"] == 0:
-            conec.data = dados["data"]
-        return dados
+        return database.criar_conta(nome_usuario, senha, email, nome_completo, anotacoes, numero_telefone)
     elif item.request == "login" and item.usuario != None and item.senha != None:
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
