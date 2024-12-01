@@ -1,5 +1,12 @@
 plugins {
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.kapt") // Adiciona o Kapt
     alias(libs.plugins.android.application)
+}
+
+kapt {
+    correctErrorTypes = true
+    useBuildCache = true
 }
 
 android {
@@ -29,6 +36,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+    kotlinOptions {
+        jvmTarget = "11" // Configurar para 11
+    }
 }
 
 dependencies {
@@ -46,7 +56,7 @@ dependencies {
 
     // ROOM PARA BANCO DE DADOS LOCAL
     implementation("androidx.room:room-runtime:2.5.2") // Última versão
-    kapt("androidx.room:room-compiler:2.5.2")          // Para geração de código
+    kapt("androidx.room:room-compiler:2.5.2")        // Para geração de código
     implementation("androidx.room:room-ktx:2.5.2")     // Extensões Kotlin para Room
 
     androidTestImplementation(libs.ext.junit)
