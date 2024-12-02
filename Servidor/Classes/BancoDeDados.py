@@ -141,7 +141,7 @@ class BancoDeDados:
                 if " " in nome_usuario:
                     return {"status": "erro", "code":9, "message":"Nome de usuário não pode conter espaços"}
                 if len(senha) < 8 or len(senha) > 20:
-                    return {"status": "erro", "code":8, "message":"Senha deve ter entre 6 e 20 caracteres"}
+                    return {"status": "erro", "code":8, "message":"Senha deve ter entre 8 e 20 caracteres"}
                 #Consultar se o provedor de email é valido
                 if self.is_valid_email(email) == False:
                     return {"status": "erro", "code":9, "message":"Email inválido"}
@@ -155,7 +155,7 @@ class BancoDeDados:
                 self.connection.commit()
                 #Enviar email com o código de ativação
                 string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao)
-                string_final = string_cod.replace("USUARIO", nome_usuario)
+                string_cod = string_cod.replace("USUARIO", nome_usuario)
                 emailGmail.codigoAtivacao(string_cod, email)
                 sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
                 cursor.execute(sql_select_query, (nome_usuario,))

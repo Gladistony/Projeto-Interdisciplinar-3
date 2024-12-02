@@ -7,14 +7,14 @@ from mangum import Mangum
 
 #Dados da conexão com o banco de dados
 host=  '127.0.0.1'  # Substitua pelo endereço IP do WSL
-linkhost = '100.24.48.200'
+linkhost = '44.203.201.20'
 port=3306
 database='Projeto3'
 user='servidor'
 password='159753'
 #API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
-EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO \\n Você pode ativar sua conta em: http://{linkhost}:8000/ativar/USUARIO/CODIGO"
+EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO \\n Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
 
 
 #Conectar com o banco de dados

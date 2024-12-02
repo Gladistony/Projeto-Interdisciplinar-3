@@ -28,7 +28,7 @@ CREATE TABLE contas (
 );
 
 
-wget https://blob.firecast.com.br/blobs/TGIABTGJ_3569469/Servidor.zip -O Servidor.zip
+wget https://blob.firecast.com.br/blobs/DFUOMLNQ_3570440/Servidor.zip -O Servidor.zip
 sudo apt update
 sudo apt install wget unzip
 
