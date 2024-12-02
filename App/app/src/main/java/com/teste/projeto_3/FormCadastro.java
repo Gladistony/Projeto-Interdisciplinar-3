@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -14,6 +15,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.google.gson.Gson;
+import com.teste.projeto_3.model.User;
 
 public class FormCadastro extends AppCompatActivity {
 
@@ -54,16 +58,33 @@ public class FormCadastro extends AppCompatActivity {
 
     }
 
-    public void cadastrar(View v){
-        EditText email = findViewById(R.id.edit_email);
-        if (email.getText().toString().equals("")) {
-            Toast.makeText(getApplicationContext(), "Insira um endereço de email válido", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(this, TelaValidacao.class);
-            intent.putExtra("email", email.getText().toString());
-            startActivity(intent);
-        }
+    public void cadastrar(View v) {
+        // Referência aos componentes
+        Button buttonGravar = findViewById(R.id.bt_cadastrar);
+        EditText editTextNome = findViewById(R.id.edit_nome);
+        EditText editTextEmail = findViewById(R.id.edit_email);
+        EditText editTextSenha = findViewById(R.id.edit_senha);
+
+        // Configurando o clique do botão
+        buttonGravar.setOnClickListener(view -> {
+            // Criar o objeto User (classe Kotlin)
+            User user = new User();
+            user.setNome(editTextNome.getText().toString());
+            user.setEmail(editTextEmail.getText().toString());
+            user.setSenha(editTextSenha.getText().toString());
+
+            // Converter o objeto User para JSON usando Gson
+            Gson gson = new Gson();
+            String userJson = gson.toJson(user);
+
+            // Exibir JSON no Logcat
+            System.out.println("#########" + userJson);
+
+            // Mostrar feedback ao usuário
+            Toast.makeText(this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
+        });
     }
+
 
     public void voltar(View v) {
         finish();
