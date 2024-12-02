@@ -1,6 +1,5 @@
 package com.teste.projeto_3;
 
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,7 +16,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.gson.Gson;
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
 public class FormCadastro extends AppCompatActivity {
@@ -70,7 +68,7 @@ public class FormCadastro extends AppCompatActivity {
         buttonGravar.setOnClickListener(view -> {
             // Criar o objeto User (classe Kotlin)
             User user = new User();
-            user.setNome(editTextNome.getText().toString());
+            user.setNome_completo(editTextNome.getText().toString());
             user.setEmail(editTextEmail.getText().toString());
             user.setSenha(editTextSenha.getText().toString());
 
