@@ -55,6 +55,8 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.11.0") // Atualizado
 
     // ROOM PARA BANCO DE DADOS LOCAL
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.room:room-runtime:2.5.2") // Última versão
     kapt("androidx.room:room-compiler:2.5.2")        // Para geração de código
     implementation("androidx.room:room-ktx:2.5.2")     // Extensões Kotlin para Room

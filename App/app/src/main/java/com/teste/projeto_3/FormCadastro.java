@@ -17,6 +17,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.gson.Gson;
+import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
 public class FormCadastro extends AppCompatActivity {
@@ -78,7 +79,7 @@ public class FormCadastro extends AppCompatActivity {
             String userJson = gson.toJson(user);
 
             // Exibir JSON no Logcat
-            System.out.println("#########" + userJson);
+            System.out.println(userJson);
 
             // Mostrar feedback ao usuário
             Toast.makeText(this, "Usuário cadastrado com sucesso!", Toast.LENGTH_SHORT).show();
