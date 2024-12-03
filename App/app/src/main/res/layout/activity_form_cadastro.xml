@@ -34,17 +34,17 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <TextView
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="5dp"
             android:id="@+id/title_cadastrese"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/title_cadastro"
-            android:textSize="40sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="@id/ContainerLoginCadastro"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <EditText
             android:id="@+id/edit_usuario"
@@ -119,6 +119,18 @@
             android:layout_marginTop="5dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/logo"
+            android:src="@drawable/ic_logo_stockview"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            app:layout_constraintBottom_toBottomOf="@id/ContainerLoginCadastro"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="10dp"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
