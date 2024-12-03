@@ -63,10 +63,10 @@ public class FormCadastro extends AppCompatActivity {
         EditText editTextSenha = findViewById(R.id.edit_senha);
         EditText editTextUsuario = findViewById(R.id.edit_usuario);
 
-        // Criar o objeto User
+        // Criar o objeto User para a primeira requisição
         User user = new User();
         user.setId(null); // ID inicial deve ser null
-        user.setRequest("cadastro"); // Definir o tipo de requisição
+        user.setRequest("cadastro"); // Tipo de requisição
         user.setNome_completo(editTextNome.getText().toString());
         user.setEmail(editTextEmail.getText().toString());
         user.setSenha(editTextSenha.getText().toString());
@@ -79,33 +79,53 @@ public class FormCadastro extends AppCompatActivity {
             return;
         }
 
-        // Converter o objeto User para JSON usando Gson
+        // Converter o objeto User para JSON
         Gson gson = new Gson();
         String userJson = gson.toJson(user);
 
-        // Enviar requisição para o servidor
+        // Fazer a primeira requisição
+        enviarRequisicao(userJson, response -> {
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+            } else {
+                // Processar resposta da primeira requisição
+                User responseUser = gson.fromJson(response, User.class);
+                String userId = responseUser.getId(); // Captura o ID
+
+                // Salvar o ID localmente
+                salvarIdConexao(userId);
+
+                // Criar uma nova requisição com o ID retornado
+                User userAtualizado = new User();
+                userAtualizado.setId(userId);
+                userAtualizado.setRequest("outra_acao");
+                String updatedUserJson = gson.toJson(userAtualizado);
+
+                // Fazer a segunda requisição
+                enviarRequisicao(updatedUserJson, updateResponse -> {
+                    if (updateResponse.startsWith("Erro")) {
+                        runOnUiThread(() -> Toast.makeText(this, updateResponse, Toast.LENGTH_LONG).show());
+                    } else {
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Requisição subsequente realizada com sucesso!", Toast.LENGTH_SHORT).show();
+                            abrirTelaLogin(); // Navegar para a próxima tela
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    // Método auxiliar para enviar requisições
+    private void enviarRequisicao(String json, Callback callback) {
         new Thread(() -> {
             HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(userJson); // Envia o JSON para a API
-
-            // Atualizar a interface com o resultado
-            runOnUiThread(() -> {
-                if (response.startsWith("Erro")) {
-                    Toast.makeText(this, response, Toast.LENGTH_LONG).show();
-                } else {
-                    User responseUser = gson.fromJson(response, User.class);
-                    Toast.makeText(this, "Cadastro realizado com sucesso! ID: " + responseUser.getId(), Toast.LENGTH_LONG).show();
-
-                    salvarIdConexao(responseUser.getId());
-
-                    // Navegar para a próxima tela (ex: tela de login)
-                    abrirTelaLogin(); // Método genérico para navegação
-                }
-            });
+            String response = httpHelper.post(json);
+            callback.onResponse(response);
         }).start();
     }
 
-    // Método para salvar a ID de conexão localmente
+    // Método para salvar o ID de conexão localmente
     private void salvarIdConexao(@NotNull String idConexao) {
         getSharedPreferences("AppPrefs", MODE_PRIVATE)
                 .edit()
@@ -118,6 +138,11 @@ public class FormCadastro extends AppCompatActivity {
         Intent intent = new Intent(this, TelaLogin.class);
         startActivity(intent);
         finish(); // Fecha a atividade atual
+    }
+
+    // Interface de callback para tratar respostas
+    interface Callback {
+        void onResponse(String response);
     }
 
     // Método para voltar à tela anterior

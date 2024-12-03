@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">http://44.203.201.20:80</domain>
+        <domain includeSubdomains="true">http://44.203.201.20</domain>
     </domain-config>
 </network-security-config>
