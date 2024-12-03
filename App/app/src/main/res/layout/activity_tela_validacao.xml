@@ -25,18 +25,20 @@
         android:textSize="40sp"
         android:textColor="@color/white"
         android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/containerComponents"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/containerComponents"
-        style="@style/ContainerComponents"
-        android:layout_height="wrap_content"
+        style="@style/ContainerTop"
+        android:layout_height="3000dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tituloValidacao" />
+        app:layout_constraintTop_toBottomOf="@+id/tituloValidacao"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
         android:id="@+id/descricaoValidacao"

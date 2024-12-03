@@ -8,29 +8,36 @@
     android:background="@drawable/background"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
-        android:text="@string/title_bem_vindo"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-
     <View
-        android:id="@+id/containerComponents"
-        style="@style/ContainerComponents"
-        android:layout_height="wrap_content"
+        android:id="@+id/containerTop"
+        style="@style/ContainerTop"
+        android:layout_height="250dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:src="@drawable/ic_principal_logo_stockview"
+        android:layout_width="wrap_content"
+        android:layout_height="210dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/containerTop"
+        />
+
+    <View
+        android:id="@+id/ContainerBottomLoginCadastro"
+        style="@style/ContainerBottomLoginCadastro"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoAbrirTelaLogin"
@@ -40,9 +47,8 @@
         android:onClick="abrirTelaLogin"
         android:text="@string/entrar"
         android:layout_marginTop="50dp"
-        app:layout_constraintEnd_toEndOf="@+id/containerComponents"
-        app:layout_constraintStart_toStartOf="@+id/containerComponents"
-        app:layout_constraintTop_toTopOf="@+id/containerComponents" />
+        app:layout_constraintTop_toBottomOf="@+id/containerTop"
+        />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoAbrirTelaCadastro"
@@ -52,8 +58,7 @@
         android:layout_marginTop="15dp"
         android:onClick="abrirTelaCadastro"
         android:text="@string/cadastre_se"
-        app:layout_constraintEnd_toEndOf="@+id/containerComponents"
-        app:layout_constraintStart_toStartOf="@+id/containerComponents"
-        app:layout_constraintTop_toBottomOf="@+id/botaoAbrirTelaLogin" />
+        app:layout_constraintTop_toBottomOf="@+id/botaoAbrirTelaLogin"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
