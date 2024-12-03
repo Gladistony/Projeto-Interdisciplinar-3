@@ -1,17 +1,14 @@
 package com.teste.projeto_3.model
 
 class User {
-
-    var id = ""
-    var request = ""
-    var usuario = ""
-    var nome_completo = ""
-    var email = ""
-    var senha = ""
+    var id: String? = null               // ID
+    var request: String = ""             // Request é configurado no uso
+    var usuario: String = ""             // Nome de usuário
+    var nome_completo: String = ""       // Nome completo do usuário
+    var email: String = ""               // E-mail do usuário
+    var senha: String = ""               // Senha do usuário
 
     override fun toString(): String {
-        return "User(id='$id', request='$request', usuario='$usuario', senha='$senha', email='$email', nome_completo='$nome_completo')"
+        return "User(id='$id', request='$request', usuario='$usuario', nome_completo='$nome_completo', email='$email', senha='$senha')"
     }
-
-
 }
