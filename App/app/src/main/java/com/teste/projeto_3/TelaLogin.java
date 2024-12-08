@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -19,6 +20,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
@@ -40,6 +42,50 @@ public class TelaLogin extends AppCompatActivity {
     }
 
     public void logar(View v) {
+        gerarNovoID();
+        EditText usuario = findViewById(R.id.usuario);
+        EditText senha = findViewById(R.id.senha);
+
+        // Criar o objeto User para a primeira requisição
+        User user = new User();
+        user.setRequest("login");
+        user.setUsuario(usuario.getText().toString());
+        user.setSenha(senha.getText().toString());
+        user.setId(obterIdConexao());
+
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(user);
+        System.out.println("nada");
+
+        // Fazer a primeira requisição
+        enviarRequisicao(userJson, response -> {
+            // Verificar o conteúdo do JSON recebido
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+            } else {
+                try {
+                    User responseUser = gson.fromJson(response, User.class);
+                    String userId = responseUser.getId(); // Captura o ID
+                } catch (JsonSyntaxException e) {
+                    runOnUiThread(() -> Toast.makeText(this, "Resposta inválida do servidor: " + response, Toast.LENGTH_LONG).show());
+                }
+            }
+        });
+    }
+
+
+    // Método auxiliar para enviar requisições
+    private void enviarRequisicao(String json, FormCadastro.Callback callback) {
+        new Thread(() -> {
+            HttpHelper httpHelper = new HttpHelper();
+            String response = httpHelper.post(json);
+            callback.onResponse(response);
+        }).start();
+    }
+
+    private void gerarNovoID() {
+        String retorno = "Erro na obtenção de um ID.";
         // Criar o objeto User para a primeira requisição
         User user = new User();
         user.setId("null");
@@ -56,45 +102,23 @@ public class TelaLogin extends AppCompatActivity {
                 // Processar resposta da primeira requisição
                 User responseUser = gson.fromJson(response, User.class);
                 String userId = responseUser.getId(); // Captura o ID
-
-                EditText usuario = findViewById(R.id.usuario);
-                EditText senha = findViewById(R.id.senha);
-
-                // Criar uma nova requisição com o ID retornado
-                User userAtualizado = new User();
-                userAtualizado.setId(userId);
-                userAtualizado.setUsuario(usuario.getText().toString());
-                userAtualizado.setSenha(senha.getText().toString());
-                userAtualizado.setRequest("login");
-
-                String updatedUserJson = gson.toJson(userAtualizado);
-
-                enviarRequisicao(updatedUserJson, updateResponse -> {
-                    if (updateResponse.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, updateResponse, Toast.LENGTH_LONG).show());
-                    } else {
-                        User responseUserLogin = gson.fromJson(response, User.class);
-                        System.out.println("funcionou");
-                    }
-                });
-
-
+                salvarIdConexao(userId);
             }
         });
     }
-    // Método auxiliar para enviar requisições
-    private void enviarRequisicao(String json, FormCadastro.Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(json);
-            callback.onResponse(response);
-        }).start();
+
+    // Método para salvar o ID de conexão localmente
+    private void salvarIdConexao(@NotNull String idConexao) {
+        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .edit()
+                .putString("idConexao", idConexao)
+                .apply();
     }
 
 
     private String obterIdConexao() {
         return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString("idConexao", null);
+                .getString("idConexao", "defaultString");
     }
 
     public void togglePassword(View v){
