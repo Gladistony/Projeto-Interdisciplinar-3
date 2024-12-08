@@ -65,7 +65,7 @@ public class FormCadastro extends AppCompatActivity {
 
         // Criar o objeto User para a primeira requisição
         User user = new User();
-        user.setId(null); // ID inicial deve ser null
+        user.setId("null"); // ID inicial deve ser null
         user.setRequest("cadastro"); // Tipo de requisição
         user.setNome_completo(editTextNome.getText().toString());
         user.setEmail(editTextEmail.getText().toString());

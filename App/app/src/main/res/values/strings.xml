@@ -4,7 +4,7 @@
     <string name="cadastrar">Cadastrar</string>
     <string name="cadastre_se">Cadastre-se</string>
     <string name="title_cadastro">Cadastre-se</string>
-    <string name="type_email_login">Endereço de e-mail</string>
+    <string name="type_usuario_login">Usuário</string>
     <string name="type_senha_login">Senha</string>
     <string name="title_bem_vindo">StockView</string>
     <string name="type_codigo_validacao">Código de validação</string>

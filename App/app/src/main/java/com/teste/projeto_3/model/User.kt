@@ -1,7 +1,7 @@
 package com.teste.projeto_3.model
 
 class User {
-    var id: String? = null               // ID
+    var id: String = ""             // ID
     var request: String = ""             // Request é configurado no uso
     var usuario: String = ""             // Nome de usuário
     var nome_completo: String = ""       // Nome completo do usuário
