@@ -11,6 +11,21 @@ class conect:
         self.data = None
         self.lastconection = datetime.datetime.now()
     
+    def get_data(self):
+        if self.data == None:
+            return {"status": "Usuario nao logado"}
+        jsonretorno = {}
+        jsonretorno["usuario"] = self.data[1]
+        jsonretorno["email"] = self.data[4]
+        jsonretorno["nome_completo"] = self.data[9]
+        jsonretorno["criacao"] = self.data[3]
+        jsonretorno["ultimo_login"] = self.data[8]
+        jsonretorno["url_foto"] = self.data[10]
+        jsonretorno["status"] = "Usuario logado"
+        return jsonretorno
+        #sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
+
+
     def get_id(self):
         return self.id
     

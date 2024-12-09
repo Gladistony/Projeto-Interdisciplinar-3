@@ -43,6 +43,7 @@ class Item(BaseModel):
     senha: Optional[str] = None
     nome_completo : Optional[str] = None
     email: Optional[str] = None
+    url_foto: Optional[str] = None
 
 
 @app.post("/give/")
@@ -92,6 +93,10 @@ def processarrequerimento(item):
         dados = database.tentativa_login(item.usuario, item.senha)
         if dados["code"] == 0:
             conec.data = dados["data"]
+        #removar o campo data
+        dados.pop("data")
+        info = conec.get_data()
+        dados.update(info)
         return dados
     elif item.request == "ativar" and item.usuario != None and item.senha != None:
         return database.ativar_conta(item.usuario, item.senha)
@@ -105,9 +110,20 @@ def processarrequerimento(item):
     elif item.request == "get_dados":
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
-            return conec.data
+            return conec.get_data()
         else:
             return {"status": "Usuario nao logado"}
+    elif item.request == "set_img" and item.url_foto != None:
+        conec = manage_conect.conects[item.id]
+        if conec.get_ja_logado():
+            status = database.set_img(conec.data[0], item.url_foto)
+            if status["status"] == "sucesso":
+                conec.data = database.get_data(conec.data[0])
+            return status
+        else:
+            return {"status": "Usuario nao logado"}
+    elif item.request == "recover" and item.usuario != None:
+        return database.recover(item.usuario)
     else:
         return {"status": "Requisicao invalida"}
 

@@ -15,6 +15,58 @@ class BancoDeDados:
         self.password = password
         self.connection = None
         self.msgpadrao = msgpadrao
+    
+    def get_data(self, id_conta):
+        """Retorna os dados de uma conta."""
+        try:
+            cursor = self.connection.cursor()
+            sql_select_query = """SELECT * FROM contas WHERE id = %s"""
+            cursor.execute(sql_select_query, (id_conta,))
+            return cursor.fetchone()
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                cursor.execute(sql_select_query, (id_conta,))
+                return cursor.fetchone()
+
+    def recover(self, usuario):
+        cursor = self.connection.cursor()
+        conta = self.selecionar_conta(cursor, usuario)
+        if not conta:
+            return {"status": "erro", "code":4, "message":"Conta não encontrada"}
+        if conta[6]:  # Conta bloqueada
+            return {"status": "erro", "code":3, "message":"Conta não está ativa"}
+        codigo_ativacao = self.bloquear_conta(cursor, usuario)
+        #mudar a senha para o codigo de ativação
+        sql_update_query = """UPDATE contas SET senha = %s WHERE nome_usuario = %s"""
+        cursor = self.connection.cursor()
+        cursor.execute(sql_update_query, (codigo_ativacao, usuario))
+        self.connection.commit()
+        #enviar email com o codigo de ativação
+        self.enviar_email_ativacao(emailGmail, self.msgpadrao, usuario, codigo_ativacao, conta[4])
+
+            
+
+    def set_img(self, id_conta, url):
+        """Define a URL da imagem de perfil de uma conta."""
+        #if not self.connection:
+        #    return {"status": "erro", "code":5, "message":"Conexão com o banco de dados não foi estabelecida"}
+
+        sql_update_query = """UPDATE contas SET anotacoes = %s WHERE id = %s"""
+        try:
+            cursor = self.connection.cursor()
+            cursor.execute(sql_update_query, (url, id_conta))
+            self.connection.commit()
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                cursor.execute(sql_update_query, (url, id_conta))
+                self.connection.commit()
+        return {"status": "sucesso", "code":0, "message":"URL da imagem de perfil definida com sucesso"}
 
     def is_valid_email(self, email):
         # Verifica se o formato do e-mail é válido
@@ -53,23 +105,51 @@ class BancoDeDados:
             print(f"Erro ao conectar ao MySQL: {e}")
 
     def selecionar_conta(self, cursor, nome_usuario):
-        sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
-        cursor.execute(sql_select_query, (nome_usuario,))
-        return cursor.fetchone()
+        try:
+            sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
+            cursor.execute(sql_select_query, (nome_usuario,))
+            return cursor.fetchone()
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                return self.selecionar_conta(cursor, nome_usuario)
 
     def atualizar_login(self, cursor, nome_usuario):
-        sql_update_query = """UPDATE contas SET data_ultimo_login = NOW(), tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
-        cursor.execute(sql_update_query, (nome_usuario,))
+        try:
+            sql_update_query = """UPDATE contas SET data_ultimo_login = NOW(), tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
+            cursor.execute(sql_update_query, (nome_usuario,))
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                return self.atualizar_login(cursor, nome_usuario)
 
     def incrementar_tentativas(self, cursor, nome_usuario):
-        sql_update_query = """UPDATE contas SET tentativas_senha_incorreta = tentativas_senha_incorreta + 1 WHERE nome_usuario = %s"""
-        cursor.execute(sql_update_query, (nome_usuario,))
+        try:
+            sql_update_query = """UPDATE contas SET tentativas_senha_incorreta = tentativas_senha_incorreta + 1 WHERE nome_usuario = %s"""
+            cursor.execute(sql_update_query, (nome_usuario,))
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                return self.incrementar_tentativas(cursor, nome_usuario)
 
     def bloquear_conta(self, cursor, nome_usuario):
-        codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
-        sql_update_query = """UPDATE contas SET conta_bloqueada = 1, codigo_ativacao = %s WHERE nome_usuario = %s"""
-        cursor.execute(sql_update_query, (codigo_ativacao, nome_usuario))
-        return codigo_ativacao
+        try:
+            codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
+            sql_update_query = """UPDATE contas SET conta_bloqueada = 1, codigo_ativacao = %s WHERE nome_usuario = %s"""
+            cursor.execute(sql_update_query, (codigo_ativacao, nome_usuario))
+            return codigo_ativacao
+        except Error as e:
+            #Verificar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                return self.bloquear_conta(cursor, nome_usuario)
 
     def enviar_email_ativacao(self, emailGmail, msgpadrao, nome_usuario, codigo_ativacao, email):
         string_cod = msgpadrao.replace("CODIGO", codigo_ativacao)
@@ -149,8 +229,15 @@ class BancoDeDados:
 
         codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
         sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
-        cursor.execute(sql_insert_query, (nome_usuario, senha, email, codigo_ativacao, nome_completo, anotacoes, numero_telefone))
-        self.connection.commit()
+        try:
+            cursor.execute(sql_insert_query, (nome_usuario, senha, email, codigo_ativacao, nome_completo, anotacoes, numero_telefone))
+            self.connection.commit()
+        except Error as e:
+            #Testar se a conexao foi fechada e reabrir ela
+            if self.connection.is_connected() == False:
+                self.create_connection()
+                cursor = self.connection.cursor()
+                cursor.execute(sql_insert_query, (nome_usuario, senha, email, codigo_ativacao, nome_completo, anotacoes, numero_telefone))
 
         self.enviar_email_ativacao(emailGmail, self.msgpadrao, nome_usuario, codigo_ativacao, email)
         conta = self.selecionar_conta(cursor, nome_usuario)
@@ -172,8 +259,16 @@ class BancoDeDados:
 
         if conta[5] == codigo_ativacao:
             sql_update_query = """UPDATE contas SET conta_bloqueada = 0, tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
-            cursor.execute(sql_update_query, (nome_usuario,))
-            self.connection.commit()
+            try:
+                cursor.execute(sql_update_query, (nome_usuario,))
+                self.connection.commit()
+            except Error as e:
+                #Verificar se a conexao foi fechada e reabrir ela
+                if self.connection.is_connected() == False:
+                    self.create_connection()
+                    cursor = self.connection.cursor()
+                    cursor.execute(sql_update_query, (nome_usuario,))
+                    self.connection.commit()
             return {"status": "sucesso", "code":0, "message":"Conta ativada com sucesso"}
         else:
             return {"status": "erro", "code":7, "message":"Código de ativação incorreto"}
