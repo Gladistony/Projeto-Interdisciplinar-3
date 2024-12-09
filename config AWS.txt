@@ -21,3 +21,6 @@ server {
 }
 
 sudo service nginx restart
+
+python -m uvicorn Main:app
+python3 uvicorn Main:app

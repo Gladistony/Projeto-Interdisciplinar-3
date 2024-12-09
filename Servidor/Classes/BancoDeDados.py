@@ -51,145 +51,133 @@ class BancoDeDados:
                 print("Conexão ao banco de dados MySQL foi bem-sucedida")
         except Error as e:
             print(f"Erro ao conectar ao MySQL: {e}")
-    
+
+    def selecionar_conta(self, cursor, nome_usuario):
+        sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
+        cursor.execute(sql_select_query, (nome_usuario,))
+        return cursor.fetchone()
+
+    def atualizar_login(self, cursor, nome_usuario):
+        sql_update_query = """UPDATE contas SET data_ultimo_login = NOW(), tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
+        cursor.execute(sql_update_query, (nome_usuario,))
+
+    def incrementar_tentativas(self, cursor, nome_usuario):
+        sql_update_query = """UPDATE contas SET tentativas_senha_incorreta = tentativas_senha_incorreta + 1 WHERE nome_usuario = %s"""
+        cursor.execute(sql_update_query, (nome_usuario,))
+
+    def bloquear_conta(self, cursor, nome_usuario):
+        codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        sql_update_query = """UPDATE contas SET conta_bloqueada = 1, codigo_ativacao = %s WHERE nome_usuario = %s"""
+        cursor.execute(sql_update_query, (codigo_ativacao, nome_usuario))
+        return codigo_ativacao
+
+    def enviar_email_ativacao(self, emailGmail, msgpadrao, nome_usuario, codigo_ativacao, email):
+        string_cod = msgpadrao.replace("CODIGO", codigo_ativacao)
+        string_final = string_cod.replace("USUARIO", nome_usuario)
+        print(string_final)
+        emailGmail.codigoAtivacao(string_final, email)
+
     def tentativa_login(self, nome_usuario, senha):
         """Tenta fazer login com um usuário e senha."""
-        if self.connection:
-            cursor = self.connection.cursor()
-            #Tentar selecionar a conta
-            sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
-            cursor.execute(sql_select_query, (nome_usuario,))
-            conta = cursor.fetchone()
-            if conta:
-                #Verificar se a conta não está bloqueada
-                if conta[6] == False:
-                    #Verificar se o numero de tentativas de senha incorreta é menor que 3
-                    if conta[7] < 3:
-                        #Verificar se a senha está correta
-                        if conta[2] == senha:
-                            #Atualizar a data do ultimo login e limpar o numero de tentativas de senha incorreta
-                            sql_update_query = """UPDATE contas SET data_ultimo_login = NOW(), tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
-                            cursor.execute(sql_update_query, (nome_usuario,))
-                            self.connection.commit()
-                            return {"status": "sucesso", "code":0, "data":conta, "message":"Login bem-sucedido"}
-                        else:
-                            #Incrementar o numero de tentativas de senha incorreta
-                            sql_update_query = """UPDATE contas SET tentativas_senha_incorreta = tentativas_senha_incorreta + 1 WHERE nome_usuario = %s"""
-                            cursor.execute(sql_update_query, (nome_usuario,))
-                            self.connection.commit()
-                            return {"status": "erro", "code":1, "message":"Senha incorreta"}
-                    else:
-                        ultima_tentativa = conta[8]
-                        tempo_atual = datetime.now()
-                        diferenca = tempo_atual - ultima_tentativa
-                        diferenca_em_segundos = diferenca.total_seconds()
-                        if diferenca_em_segundos < 300:
-                            return {"status": "erro", "code":2, "message":"Conta bloqueada por excesso de tentativas de senha incorreta, aguarde 5 minutos", "restante": 300 - diferenca_em_segundos}
-                        else:
-                            #Verificar se o numero de tentativas de senha incorreta é menor que 6
-                            if conta[7] < 6:
-                                if conta[2] == senha:
-                                    #Atualizar a data do ultimo login e limpar o numero de tentativas de senha incorreta
-                                    sql_update_query = """UPDATE contas SET data_ultimo_login = NOW(), tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
-                                    cursor.execute(sql_update_query, (nome_usuario,))
-                                    self.connection.commit()
-                                    return {"status": "sucesso", "code":0, "data":conta, "message":"Login bem-sucedido"}
-                                else:
-                                    #Incrementar o numero de tentativas de senha incorreta
-                                    sql_update_query = """UPDATE contas SET tentativas_senha_incorreta = tentativas_senha_incorreta + 1 WHERE nome_usuario = %s"""
-                                    cursor.execute(sql_update_query, (nome_usuario,))
-                                    self.connection.commit()
-                                    return {"status": "erro", "code":1, "message":"Senha incorreta"}
-                            else:
-                                #Bloquear a conta e mandar novo código de ativação
-                                codigo_ativacao = ""
-                                for i in range(6):
-                                    codigo_ativacao += str(random.randint(0, 9))
-                                sql_update_query = """UPDATE contas SET conta_bloqueada = 1, codigo_ativacao = %s WHERE nome_usuario = %s"""
-                                cursor.execute(sql_update_query, (codigo_ativacao, nome_usuario))
-                                self.connection.commit()
-                                #Enviar email com o código de ativação
-                                string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao)
-                                string_final = string_cod.replace("USUARIO", nome_usuario)
-                                print(string_final)
-                                emailGmail.codigoAtivacao(string_final , conta[4])
-                                return {"status": "erro", "code":2, "message":"Conta bloqueada por excesso de tentativas de senha incorreta, ativação novamente necessária"}
-                else:
-                    return {"status": "erro", "code":3, "message":"Conta não está ativa"}
-            else:
-                return {"status": "erro", "code":4, "message":"Conta não encontrada"}
-        else:
+        if not self.connection:
             return {"status": "erro", "code":5, "message":"Conexão com o banco de dados não foi estabelecida"}
-    
+
+        cursor = self.connection.cursor()
+        conta = self.selecionar_conta(cursor, nome_usuario)
+
+        if not conta:
+            return {"status": "erro", "code":4, "message":"Conta não encontrada"}
+
+        if conta[6]:  # Conta bloqueada
+            return {"status": "erro", "code":3, "message":"Conta não está ativa"}
+
+        if conta[7] < 3:  # Menos de 3 tentativas incorretas
+            if conta[2] == senha:
+                self.atualizar_login(cursor, nome_usuario)
+                self.connection.commit()
+                return {"status": "sucesso", "code":0, "data":conta, "message":"Login bem-sucedido"}
+            else:
+                self.incrementar_tentativas(cursor, nome_usuario)
+                self.connection.commit()
+                return {"status": "erro", "code":1, "message":"Senha incorreta"}
+
+        ultima_tentativa = conta[8]
+        tempo_atual = datetime.now()
+        diferenca_em_segundos = (tempo_atual - ultima_tentativa).total_seconds()
+
+        if diferenca_em_segundos < 300:
+            return {"status": "erro", "code":2, "message":"Conta bloqueada por excesso de tentativas de senha incorreta, aguarde 5 minutos", "restante": 300 - diferenca_em_segundos}
+
+        if conta[7] < 6:  # Menos de 6 tentativas incorretas
+            if conta[2] == senha:
+                self.atualizar_login(cursor, nome_usuario)
+                self.connection.commit()
+                return {"status": "sucesso", "code":0, "data":conta, "message":"Login bem-sucedido"}
+            else:
+                self.incrementar_tentativas(cursor, nome_usuario)
+                self.connection.commit()
+                return {"status": "erro", "code":1, "message":"Senha incorreta"}
+
+        # Bloquear a conta e enviar código de ativação
+        codigo_ativacao = self.bloquear_conta(cursor, nome_usuario)
+        self.connection.commit()
+        self.enviar_email_ativacao(emailGmail, self.msgpadrao, nome_usuario, codigo_ativacao, conta[4])
+        return {"status": "erro", "code":2, "message":"Conta bloqueada por excesso de tentativas de senha incorreta, ativação novamente necessária"}
+
     def criar_conta(self, nome_usuario, senha, email, nome_completo, anotacoes, numero_telefone):
         """Cria uma nova conta."""
-        if self.connection:
-            cursor = self.connection.cursor()
-            #Verificar se a conta já existe
-            sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
-            cursor.execute(sql_select_query, (nome_usuario,))
-            conta = cursor.fetchone()
-            if conta:
-                return {"status": "erro", "code":6, "message":"Conta já existe"}
-            else:
-                #Verificar se as informaçoes são válidas
-                if len(nome_usuario) < 8 or len(nome_usuario) > 20:
-                    return {"status": "erro", "code":7, "message":"Nome de usuário deve ter entre 8 e 20 caracteres"}
-                #Verificar se o nome de usuário só contém letras e números e não espaços
-                if not nome_usuario.isalnum():
-                    return {"status": "erro", "code":8, "message":"Nome de usuário deve conter apenas letras e números"}
-                if " " in nome_usuario:
-                    return {"status": "erro", "code":9, "message":"Nome de usuário não pode conter espaços"}
-                if len(senha) < 8 or len(senha) > 20:
-                    return {"status": "erro", "code":8, "message":"Senha deve ter entre 8 e 20 caracteres"}
-                #Consultar se o provedor de email é valido
-                if self.is_valid_email(email) == False:
-                    return {"status": "erro", "code":9, "message":"Email inválido"}
-                #Gerar codigo de 6 digitos para ativação da conta
-                codigo_ativacao = ""
-                for i in range(6):
-                    codigo_ativacao += str(random.randint(0, 9))
-                #Inserir a nova conta
-                sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
-                cursor.execute(sql_insert_query, (nome_usuario, senha, email, codigo_ativacao, nome_completo, anotacoes, numero_telefone))
-                self.connection.commit()
-                #Enviar email com o código de ativação
-                string_cod = self.msgpadrao.replace("CODIGO", codigo_ativacao)
-                string_cod = string_cod.replace("USUARIO", nome_usuario)
-                emailGmail.codigoAtivacao(string_cod, email)
-                sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
-                cursor.execute(sql_select_query, (nome_usuario,))
-                conta = cursor.fetchone()
-                return {"status": "sucesso", "code":0, "message":"Conta criada com sucesso", "data":conta}
-        else:
+        if not self.connection:
             return {"status": "erro", "code":5, "message":"Conexão com o banco de dados não foi estabelecida"}
-    
+
+        cursor = self.connection.cursor()
+        conta = self.selecionar_conta(cursor, nome_usuario)
+
+        if conta:
+            return {"status": "erro", "code":6, "message":"Conta já existe"}
+
+        if len(nome_usuario) < 8 or len(nome_usuario) > 20:
+            return {"status": "erro", "code":7, "message":"Nome de usuário deve ter entre 8 e 20 caracteres"}
+
+        if not nome_usuario.isalnum() or " " in nome_usuario:
+            return {"status": "erro", "code":8, "message":"Nome de usuário deve conter apenas letras e números e não pode conter espaços"}
+
+        if len(senha) < 8 or len(senha) > 20:
+            return {"status": "erro", "code":9, "message":"Senha deve ter entre 8 e 20 caracteres"}
+
+        if not self.is_valid_email(email):
+            return {"status": "erro", "code":10, "message":"Email inválido"}
+
+        codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
+        sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
+        cursor.execute(sql_insert_query, (nome_usuario, senha, email, codigo_ativacao, nome_completo, anotacoes, numero_telefone))
+        self.connection.commit()
+
+        self.enviar_email_ativacao(emailGmail, self.msgpadrao, nome_usuario, codigo_ativacao, email)
+        conta = self.selecionar_conta(cursor, nome_usuario)
+        return {"status": "sucesso", "code":0, "message":"Conta criada com sucesso", "data":conta}
+
     def ativar_conta(self, nome_usuario, codigo_ativacao):
         """Ativa uma conta."""
-        if self.connection:
-            cursor = self.connection.cursor()
-            #Verificar se a conta existe
-            sql_select_query = """SELECT * FROM contas WHERE nome_usuario = %s"""
-            cursor.execute(sql_select_query, (nome_usuario,))
-            conta = cursor.fetchone()
-            if conta:
-                #Verificar se a conta já está ativa
-                if conta[6] == True:
-                    #Verificar se o código de ativação está correto
-                    if conta[5] == codigo_ativacao:
-                        #Ativar a conta e limpa numero de tentativas de senha incorreta
-                        sql_update_query = """UPDATE contas SET conta_bloqueada = 0, tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
-                        cursor.execute(sql_update_query, (nome_usuario,))
-                        self.connection.commit()
-                        return {"status": "sucesso", "code":0, "message":"Conta ativada com sucesso"}
-                    else:
-                        return {"status": "erro", "code":7, "message":"Código de ativação incorreto"}
-                else:
-                    return {"status": "erro", "code":8, "message":"Conta já está ativa"}
-            else:
-                return {"status": "erro", "code":4, "message":"Conta não encontrada"}
-        else:
+        if not self.connection:
             return {"status": "erro", "code":5, "message":"Conexão com o banco de dados não foi estabelecida"}
+
+        cursor = self.connection.cursor()
+        conta = self.selecionar_conta(cursor, nome_usuario)
+
+        if not conta:
+            return {"status": "erro", "code":4, "message":"Conta não encontrada"}
+
+        if not conta[6]:  # Conta já está ativa
+            return {"status": "erro", "code":8, "message":"Conta já está ativa"}
+
+        if conta[5] == codigo_ativacao:
+            sql_update_query = """UPDATE contas SET conta_bloqueada = 0, tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
+            cursor.execute(sql_update_query, (nome_usuario,))
+            self.connection.commit()
+            return {"status": "sucesso", "code":0, "message":"Conta ativada com sucesso"}
+        else:
+            return {"status": "erro", "code":7, "message":"Código de ativação incorreto"}
+
 
 
 # Exemplo de uso da classe BancoDeDados
