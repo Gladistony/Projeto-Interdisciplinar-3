@@ -64,9 +64,10 @@ public class TelaLogin extends AppCompatActivity {
             if (response.startsWith("Erro")) {
                 runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
             } else {
+                ServerStatus responseUser = gson.fromJson(response, ServerStatus.class);
+                String requestCode = responseUser.getCode(); // Captura o resultado código da requisição
+                System.out.println(requestCode);
                 try {
-                    User responseUser = gson.fromJson(response, User.class);
-                    String userId = responseUser.getId(); // Captura o ID
                 } catch (JsonSyntaxException e) {
                     runOnUiThread(() -> Toast.makeText(this, "Resposta inválida do servidor: " + response, Toast.LENGTH_LONG).show());
                 }
