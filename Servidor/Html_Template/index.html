@@ -78,14 +78,14 @@
 <body>
     <main>
         <section class="conteiner">
-            <h1 class="texto1">Bem Vindo.</h1>
+            <h1 class="texto1">Bem Vindo</h1>
             <form id="loginForm" class="" method="post" onsubmit="event.preventDefault(); enviarLogin();">
                 <div class="caixa-texto">
-                    <label for="Usuario"></label>
+                    <label for="Usuario" class="texto-Palavra"> Usuário</label>
                     <input type="text" placeholder="Coloque o seu usuario" class="" id="emailLogin" required>
                 </div>
                 <div class="caixa-texto">
-                    <label for="senha"></label>
+                    <label for="senha" class="texto-Palavra">Senha</label>
                     <input type="password" placeholder="Coloque a sua senha" id="senhaLogin" required>
                     <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha
                             senha</span></a>
@@ -125,7 +125,7 @@
         flex-direction: column;
         align-items: center;
         padding: 20px;
-        height: 300px;
+        height: auto;
         width: 350px;
         text-align: start;
         border-radius: 10px;
