@@ -13,7 +13,7 @@ class conect:
     
     def get_data(self):
         if self.data == None:
-            return {"status": "Usuario nao logado"}
+            return {"status": "erro", "message": "Usuario nao logado", "code": 15}
         jsonretorno = {}
         jsonretorno["usuario"] = self.data[1]
         jsonretorno["email"] = self.data[4]
@@ -21,7 +21,9 @@ class conect:
         jsonretorno["criacao"] = self.data[3]
         jsonretorno["ultimo_login"] = self.data[8]
         jsonretorno["url_foto"] = self.data[10]
-        jsonretorno["status"] = "Usuario logado"
+        jsonretorno["message"] = "Dados do usuario enviados"
+        jsonretorno["status"] = "sucesso"
+        jsonretorno["code"] = 0
         return jsonretorno
         #sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
 
@@ -59,6 +61,7 @@ class ManageConect:
     def create_instance(self):
         con = conect()
         self.conects[con.get_id()] = con
+        print(f"Numero de conexoes ativas {len(self.conects)}")
         return con.get_id()
     
     def clear_database(self):
