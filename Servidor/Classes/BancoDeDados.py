@@ -219,13 +219,13 @@ class BancoDeDados:
             return {"status": "erro", "code":7, "message":"Nome de usuário deve ter entre 8 e 20 caracteres"}
 
         if not nome_usuario.isalnum() or " " in nome_usuario:
-            return {"status": "erro", "code":8, "message":"Nome de usuário deve conter apenas letras e números e não pode conter espaços"}
+            return {"status": "erro", "code":7, "message":"Nome de usuário deve conter apenas letras e números e não pode conter espaços"}
 
         if len(senha) < 8 or len(senha) > 20:
-            return {"status": "erro", "code":9, "message":"Senha deve ter entre 8 e 20 caracteres"}
+            return {"status": "erro", "code":8, "message":"Senha deve ter entre 8 e 20 caracteres"}
 
         if not self.is_valid_email(email):
-            return {"status": "erro", "code":10, "message":"Email inválido"}
+            return {"status": "erro", "code":9, "message":"Email inválido"}
 
         codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
         sql_insert_query = """INSERT INTO contas (nome_usuario, senha, data_criacao, email, codigo_ativacao, conta_bloqueada, tentativas_senha_incorreta, data_ultimo_login, nome_completo, anotacoes, numero_telefone) VALUES (%s, %s, NOW(), %s, %s, 1, 0, NOW(), %s, %s, %s)"""
@@ -255,7 +255,7 @@ class BancoDeDados:
             return {"status": "erro", "code":4, "message":"Conta não encontrada"}
 
         if not conta[6]:  # Conta já está ativa
-            return {"status": "erro", "code":8, "message":"Conta já está ativa"}
+            return {"status": "erro", "code":11, "message":"Conta já está ativa"}
 
         if conta[5] == codigo_ativacao:
             sql_update_query = """UPDATE contas SET conta_bloqueada = 0, tentativas_senha_incorreta = 0 WHERE nome_usuario = %s"""
@@ -271,7 +271,7 @@ class BancoDeDados:
                     self.connection.commit()
             return {"status": "sucesso", "code":0, "message":"Conta ativada com sucesso"}
         else:
-            return {"status": "erro", "code":7, "message":"Código de ativação incorreto"}
+            return {"status": "erro", "code":10, "message":"Código de ativação incorreto"}
 
 
 

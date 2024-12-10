@@ -65,9 +65,9 @@ def create_item(item: Item):
                 #Verificar se a requisição é vazia
                 return processarrequerimento(item)
             else:
-                return {"status": "Conexao nao encontrada"}
+                return {"message": "Conexao nao encontrada", "code": 12, "status": "erro"}
         else:
-            return {"status": "Id invalido"}
+            return {"message": "Id invalido", "code": 12, "status": "erro"}
 
 @app.get("/ativar/{usuario}/{codigo}")
 def ativar_conta(usuario: str, codigo: str):
@@ -80,11 +80,11 @@ def ativar_conta(usuario: str, codigo: str):
 
 def processarrequerimento(item):
     if item.request == "null" or item.request == None:
-        return {"status": "Requisicao vazia"}
+        return {"message": "Requisicao vazia", "status": "erro", "code": 13}
     elif item.request == "cadastro" and item.usuario != None and item.senha != None and item.email != None and item.nome_completo != None:
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
-            return {"status": "Usuario ja logado"}
+            return {"message": "Usuario ja logado", "status": "erro", "code": 14}
         nome_usuario = item.usuario
         senha = item.senha
         email = item.email
@@ -95,7 +95,7 @@ def processarrequerimento(item):
     elif item.request == "login" and item.usuario != None and item.senha != None:
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
-            return {"status": "Usuario ja logado"}
+            return {"message": "Usuario ja logado", "status": "erro", "code": 14}
         dados = database.tentativa_login(item.usuario, item.senha)
         if dados["code"] == 0:
             conec.data = dados["data"]
@@ -110,15 +110,15 @@ def processarrequerimento(item):
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
             conec.data = None
-            return {"status": "Usuario deslogado"}
+            return {"message": "Usuario deslogado", "status": "sucesso", "code": 0}
         else:
-            return {"status": "Usuario nao logado"}
+            return {"message": "Usuario nao logado", "status": "erro", "code": 15}
     elif item.request == "get_dados":
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
             return conec.get_data()
         else:
-            return {"status": "Usuario nao logado"}
+            return {"message": "Usuario nao logado", "status": "erro", "code": 15}
     elif item.request == "set_img" and item.url_foto != None:
         conec = manage_conect.conects[item.id]
         if conec.get_ja_logado():
@@ -127,11 +127,11 @@ def processarrequerimento(item):
                 conec.data = database.get_data(conec.data[0])
             return status
         else:
-            return {"status": "Usuario nao logado"}
+            return {"message": "Usuario nao logado", "status": "erro", "code": 15}
     elif item.request == "recover" and item.usuario != None:
         return database.recover(item.usuario)
     else:
-        return {"status": "Requisicao invalida"}
+        return {"message": "Requisicao invalida", "status": "erro", "code": 13}
 
 if __name__ == '__main__':
     import uvicorn
