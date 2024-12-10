@@ -1,0 +1,26 @@
+sudo apt install -y python3-pip nginx
+
+pip install fastapi
+pip install pydantic
+pip install mysql-connector-python
+pip install validate_email_address
+pip install dnspython
+pip install uvicorn
+pip install mangum
+
+pip install fastapi pydantic mysql-connector-python validate_email_address dnspython uvicorn mangum
+
+sudo vim /etc/nginx/sites-enabled/fastapi_nginx
+
+server {
+    listen 80;   
+    server_name 44.203.201.20;    
+    location / {        
+        proxy_pass http://127.0.0.1:8000;    
+    }
+}
+
+sudo service nginx restart
+
+python -m uvicorn Main:app
+python3 uvicorn Main:app
