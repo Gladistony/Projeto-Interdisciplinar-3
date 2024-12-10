@@ -28,10 +28,11 @@
 
             try {
                 // Obter ID de conexão
-                const idResponse = await fetch('http://localhost:3000/api/give', {
+                const idResponse = await fetch('http://44.203.201.20/give', {
                     method: 'POST',
+                    mode:  'no-cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: null }) // Solicita o ID inicial
+                    body: { 'id': 'null' } // Solicita o ID inicial
                 });
 
                 if (!idResponse.ok) {
@@ -59,8 +60,9 @@
                     throw new Error('Usuário e senha não podem conter espaços!');
                 }
 
-                const cadastroResponse = await fetch('http://localhost:3000/api/give', {
+                const cadastroResponse = await fetch('http://44.203.201.20/give', {
                     method: 'POST',
+                    mode:  'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(cadastroData)
                 });
