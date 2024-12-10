@@ -8,14 +8,14 @@
 <body>
     <main>
         <section class="conteiner">
-            <h1 class="texto1">Bem Vindo.</h1>
+            <h1 class="texto1">Bem Vindo</h1>
             <form action="/login" id="loginForm" class="" method="post">
                 <div class="caixa-texto">
-                    <label for="email"></label>
+                    <label for="email" class="texto-Palavra"> E-mail</label>
                     <input type="email" placeholder="Coloque o seu e-mail" class="" id="emailLogin">
                 </div>
                 <div class="caixa-texto">
-                    <label for="senha"></label>
+                    <label for="senha"  class="texto-Palavra" class="texto-Palavra">Senha</label>
                     <input type="password" placeholder="Coloque a sua senha" id="senhaLogin">
                     <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha senha</span></a>
                 </div>
@@ -29,7 +29,7 @@
     <script src="../Scripts/telaDeLogin.js"></script>
 </body>
 <style>
-    *{
+   *{
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -41,8 +41,6 @@ body{
     justify-content: center;
     align-items: center;
     background-color: #f2f2f2;
-
-
 }
 .conteiner{
     background-color: #2ecc71;
@@ -50,12 +48,11 @@ body{
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    height: 300px;
+    height: auto; /* Ajustar altura automaticamente */
     width: 350px;
     text-align: start;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-
 }
 
 .texto1{
@@ -63,7 +60,6 @@ body{
     text-align: center;
     margin-bottom: 20px;
     color: #ffffff;
-
 }
 
 .listaDeCaixasDeTexto {
@@ -76,6 +72,7 @@ body{
 .caixa-texto {
     width: 250px;
     margin-bottom: 5px;
+    position: relative;
 }
 
 .caixa-texto input {
@@ -91,9 +88,8 @@ body{
 .texto-Palavra {
     font-weight: 500;
     font-size: small;
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 10px;
+    display: block; /* Garantir que a label ocupe toda a largura do contêiner */
+    margin-bottom: 5px; /* Espaço entre a label e o input */
 }
 
 .esqueciSenha {
@@ -120,6 +116,7 @@ button {
     cursor: pointer;
     width: 100%;
     font-size: 0.9em;
+    margin-bottom: 10px;
 }
 
 button:hover {
@@ -154,48 +151,47 @@ button:hover {
     text-decoration: underline;
 }
 
-
-/* .erro input {
-    background-color: #f0f0f0;
-    border: 1px solid #ce3939;
+/* .erro input { 
+    background-color: #f0f0f0; 
+    border: 1px solid #ce3939; 
 }
 
-#mensagem-erroLogin {
-    display: block;
-    /* colocar em display block */
-/*     background-color: #ce3939;
-    margin: auto;
-    width: 200px;
-    height: auto;
-    position: relative;
-    text-align: center;
-    font-size: small;
-    margin-top: -20px;
-    color: #edf0f1;
-    border-radius: 10px;
-    word-wrap: break-word;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-    .loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #007bff;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin: 20px auto;
+#mensagem-erroLogin { 
+    display: block; /* colocar em display block */ 
+/*     background-color: #ce3939; 
+    margin: auto; 
+    width: 200px; 
+    height: auto; 
+    position: relative; 
+    text-align: center; 
+    font-size: small; 
+    margin-top: -20px; 
+    color: #edf0f1; 
+    border-radius: 10px; 
+    word-wrap: break-word; 
+    overflow: hidden; 
+    margin-bottom: 20px; */ 
+/* }
+
+.loading-spinner { 
+    border: 4px solid rgba(0, 0, 0, 0.1); 
+    border-left-color: #007bff; 
+    border-radius: 50%; 
+    width: 40px; 
+    height: 40px; 
+    animation: spin 1s linear infinite; 
+    margin: 20px auto; 
 }
 
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
+@keyframes spin { 
+    0% { 
+        transform: rotate(0deg); 
+    } 
+    100% { 
+        transform: rotate(360deg); 
+    } 
 }
  */
+
 </style>
 </html>
