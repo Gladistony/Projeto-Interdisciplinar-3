@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.gson.Gson;
+import com.teste.projeto_3.database.AppDatabase;
 import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
@@ -95,6 +96,9 @@ public class FormCadastro extends AppCompatActivity {
                 // Salvar o ID localmente
                 salvarIdConexao(userId);
 
+                // Adicionar o salvamento no banco local
+                salvarUsuarioNoBanco(responseUser);
+
                 // Criar uma nova requisição com o ID retornado
                 User userAtualizado = new User();
                 userAtualizado.setId(userId);
@@ -122,6 +126,18 @@ public class FormCadastro extends AppCompatActivity {
             HttpHelper httpHelper = new HttpHelper();
             String response = httpHelper.post(json);
             callback.onResponse(response);
+        }).start();
+    }
+
+    // Método para salvar o usuário no banco local
+    private void salvarUsuarioNoBanco(User user) {
+        new Thread(() -> {
+            try {
+                AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+                db.userDao().insertUser(user);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 
