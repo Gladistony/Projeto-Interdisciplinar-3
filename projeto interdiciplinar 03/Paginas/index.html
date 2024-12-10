@@ -1,10 +1,50 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
     <title>Login</title>
+    <script>
+        async function enviarLogin() {
+            const email = document.getElementById('emailLogin').value;
+            const senha = document.getElementById('senhaLogin').value;
+
+            if (email === '' || senha === '') {
+                document.querySelector('.mensagemDeErro').innerHTML = 'Preencha todos os campos';
+                return;
+            }
+
+        }
+
+        async function enviarRequisicao() {
+            console.log('Enviando requisição');
+            let id = localStorage.getItem('id');
+            if (!id) {
+                const response = await fetch('http://127.0.0.1:8000/give/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: 'null' })
+                });
+                console.log(response);
+
+                if (!response.ok) {
+                    throw new Error(`Erro ao obter ID: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                id = data.id;
+                localStorage.setItem('id', id);
+            }
+            console.log(`ID: ${id}`);
+            return id;
+        }
+
+        document.addEventListener('DOMContentLoaded', enviarRequisicao);
+    </script>
 </head>
+
 <body>
     <main>
         <section class="conteiner">
@@ -21,12 +61,14 @@
                 </div>
                 <button type="submit" id="entrarDologin" class="">Entrar</button>
             </form>
-            <p>Não tem cadastro? <span><a href="./telaDeCadastro.html" class="linkParaCadastro">Cadastre-se já</a></span></p>
-            <div><p class="mensagemDeErro"></p></div>
+            <p>Não tem cadastro? <span><a href="./telaDeCadastro.html" class="linkParaCadastro">Cadastre-se
+                        já</a></span></p>
+            <div>
+                <p class="mensagemDeErro"></p>
+            </div>
             <div id="loading" class="loading-spinner" style="display: none;"></div>
         </section>
     </main>
-    <script src="../Scripts/telaDeLogin.js"></script>
 </body>
 <style>
    *{
@@ -62,12 +104,7 @@ body{
     color: #ffffff;
 }
 
-.listaDeCaixasDeTexto {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 0;
-}
+    }
 
 .caixa-texto {
     width: 250px;
@@ -75,15 +112,11 @@ body{
     position: relative;
 }
 
-.caixa-texto input {
-    background-color: #edf0f1;
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 60px;
-    box-sizing: border-box;
-    margin-bottom: 15px;
-}
+
+    .caixa-texto {
+        width: 250px;
+        margin-bottom: 5px;
+    }
 
 .texto-Palavra {
     font-weight: 500;
@@ -92,20 +125,24 @@ body{
     margin-bottom: 5px; /* Espaço entre a label e o input */
 }
 
-.esqueciSenha {
-    display: flex;
-    justify-content: flex-end;
-    align-self: flex-end;
-    font-size: x-small;
-    color: #10648c;
-    text-decoration: none;
-    margin-bottom: 30px;
-    margin-top: -10px;
-}
+    .texto-Palavra {
+        font-weight: 500;
+        font-size: small;
+        display: flex;
+        justify-content: flex-start;
+        margin-bottom: 10px;
+    }
 
-.esqueciSenha:hover {
-    text-decoration: underline;
-}
+    .esqueciSenha {
+        display: flex;
+        justify-content: flex-end;
+        align-self: flex-end;
+        font-size: x-small;
+        color: #10648c;
+        text-decoration: none;
+        margin-bottom: 30px;
+        margin-top: -10px;
+    }
 
 button {
     background-color: #f1c40f;
@@ -118,38 +155,48 @@ button {
     font-size: 0.9em;
     margin-bottom: 10px;
 }
+    button {
+        background-color: #f1c40f;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 0.9em;
+    }
 
-button:hover {
-    background-color: #3498db;
-}
+    button:hover {
+        background-color: #3498db;
+    }
 
-.full-width-button {
-    margin-top: 10px;
-}
+    .full-width-button {
+        margin-top: 10px;
+    }
 
-.loading-spinner {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 50px;
-}
+    .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 50px;
+    }
 
-.linkParaCadastro {
-    text-align: center;
-    font-size: small;
-    margin-top: 20px;
-    text-decoration: none;
-}
+    .linkParaCadastro {
+        text-align: center;
+        font-size: small;
+        margin-top: 20px;
+        text-decoration: none;
+    }
 
-.linkParaCadastro a {
-    color: #10648c;
-    text-decoration: none;
-}
+    .linkParaCadastro a {
+        color: #10648c;
+        text-decoration: none;
+    }
 
-.linkParaCadastro a:hover {
-    text-decoration: underline;
-}
+    .linkParaCadastro a:hover {
+        text-decoration: underline;
+    }
 
 /* .erro input { 
     background-color: #f0f0f0; 
@@ -194,4 +241,5 @@ button:hover {
  */
 
 </style>
+
 </html>

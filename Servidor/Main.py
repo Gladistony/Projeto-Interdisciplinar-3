@@ -31,7 +31,8 @@ handler = Mangum(app)
 
 @app.get("/")
 def read_root():
-    return {"message": "Olá, bem vindo ao API do Projeto 3!"}
+    html = open("Html_Template/index.html", "r")
+    return HTMLResponse(content=html.read(), status_code=200)
 
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
