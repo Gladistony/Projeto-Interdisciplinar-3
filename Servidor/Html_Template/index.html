@@ -7,6 +7,9 @@
     <link rel="icon" href="data:,">
     <title>Login</title>
     <script>
+        //Constante da url do servidor
+        const url = 'http://127.0.0.1:8000/give/';
+
         async function enviarLogin() {
             const email = document.getElementById('emailLogin').value;
             const senha = document.getElementById('senhaLogin').value;
@@ -16,18 +19,30 @@
                 return;
             }
 
+            const id = await enviarRequisicao();
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, request: 'login', usuario: email, senha: senha })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Erro ao fazer login: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log(data);
+
         }
 
         async function enviarRequisicao() {
-            console.log('Enviando requisição');
             let id = localStorage.getItem('id');
             if (!id) {
-                const response = await fetch('http://127.0.0.1:8000/give/', {
+                const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: 'null' })
                 });
-                console.log(response);
 
                 if (!response.ok) {
                     throw new Error(`Erro ao obter ID: ${response.statusText}`);
@@ -36,8 +51,23 @@
                 const data = await response.json();
                 id = data.id;
                 localStorage.setItem('id', id);
+            } else {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, request: 'get_dados' })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro ao obter dados: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                if (data.code === 12) {
+                    localStorage.removeItem('id');
+                    id = await enviarRequisicao();
+                }
             }
-            console.log(`ID: ${id}`);
             return id;
         }
 
@@ -51,8 +81,8 @@
             <h1 class="texto1">Bem Vindo.</h1>
             <form id="loginForm" class="" method="post" onsubmit="event.preventDefault(); enviarLogin();">
                 <div class="caixa-texto">
-                    <label for="email"></label>
-                    <input type="email" placeholder="Coloque o seu e-mail" class="" id="emailLogin" required>
+                    <label for="Usuario"></label>
+                    <input type="text" placeholder="Coloque o seu usuario" class="" id="emailLogin" required>
                 </div>
                 <div class="caixa-texto">
                     <label for="senha"></label>
