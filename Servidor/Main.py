@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional
 from mangum import Mangum
+from fastapi.responses import HTMLResponse
 
 #Dados da conexão com o banco de dados
 host=  '127.0.0.1'  # Substitua pelo endereço IP do WSL
@@ -14,7 +15,7 @@ user='servidor'
 password='159753'
 #API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
-EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO \\n Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
+EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO <br> Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
 
 
 #Conectar com o banco de dados
@@ -70,7 +71,12 @@ def create_item(item: Item):
 
 @app.get("/ativar/{usuario}/{codigo}")
 def ativar_conta(usuario: str, codigo: str):
-    return database.ativar_conta(usuario, codigo)
+    resposta = database.ativar_conta(usuario, codigo)
+    arqhtml = open("Html_Template/ativar.html", "r")
+    html = arqhtml.read()
+    #substituir o valor STATUSCODE pelo status da ativação
+    html = html.replace("STATUSCODE", resposta["message"])
+    return HTMLResponse(content=html, status_code=200)
 
 def processarrequerimento(item):
     if item.request == "null" or item.request == None:
@@ -127,6 +133,6 @@ def processarrequerimento(item):
     else:
         return {"status": "Requisicao invalida"}
 
-#if __name__ == '__main__':
-#    import uvicorn
-#    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
