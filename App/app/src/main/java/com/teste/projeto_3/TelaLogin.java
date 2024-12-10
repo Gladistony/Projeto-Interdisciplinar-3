@@ -1,18 +1,11 @@
 package com.teste.projeto_3;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,9 +15,15 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.teste.projeto_3.http.HttpHelper;
+import com.teste.projeto_3.model.PostModel;
+import com.teste.projeto_3.model.RequestLogin;
 import com.teste.projeto_3.model.User;
-
+import com.teste.projeto_3.retrofitconnection.ApiInterface;
+import com.teste.projeto_3.retrofitconnection.RetrofitClient;
 import org.jetbrains.annotations.NotNull;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class TelaLogin extends AppCompatActivity {
 
@@ -64,9 +63,7 @@ public class TelaLogin extends AppCompatActivity {
             if (response.startsWith("Erro")) {
                 runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
             } else {
-                ServerStatus responseUser = gson.fromJson(response, ServerStatus.class);
-                String requestCode = responseUser.getCode(); // Captura o resultado código da requisição
-                System.out.println(requestCode);
+                User responseUser = gson.fromJson(response, User.class);
                 try {
                 } catch (JsonSyntaxException e) {
                     runOnUiThread(() -> Toast.makeText(this, "Resposta inválida do servidor: " + response, Toast.LENGTH_LONG).show());
@@ -122,7 +119,7 @@ public class TelaLogin extends AppCompatActivity {
                 .getString("idConexao", "defaultString");
     }
 
-    public void togglePassword(View v){
+    public void togglePassword(View v) {
         EditText caixaTexto = findViewById(R.id.senha);
         int posicaoCursor = caixaTexto.getSelectionStart();
 
@@ -151,4 +148,38 @@ public class TelaLogin extends AppCompatActivity {
         finish();
     }
 
+    public void sendData(View v) {
+        ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
+
+        // Cria o JSON a ser enviado
+        final PostModel postModel = new PostModel("cb46dfc2-298a-4a2d-8317-1e9c584313c6", "login", "usuarioaqui", "senhaaqui");
+
+        // Chama a API
+        Call<RequestLogin> call = apiInterface.postData(postModel);
+
+        call.enqueue(new Callback<RequestLogin>() {
+            @Override
+            public void onResponse(Call<RequestLogin> call, Response<RequestLogin> response) {
+                if (response.isSuccessful()) {
+                    try {
+                        // Recebe a resposta
+                        RequestLogin requestLoginResponse = response.body();
+                        if (requestLoginResponse != null) {
+                            System.out.println("Status: " + requestLoginResponse.getMessage());
+                            Toast.makeText(TelaLogin.this, requestLoginResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    System.out.println("Erro na resposta: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<RequestLogin> call, Throwable t) {
+                Toast.makeText(TelaLogin.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
