@@ -93,10 +93,10 @@ def processarrequerimento(item):
         dados = database.tentativa_login(item.usuario, item.senha)
         if dados["code"] == 0:
             conec.data = dados["data"]
-        #removar o campo data
-        dados.pop("data")
-        info = conec.get_data()
-        dados.update(info)
+            #removar o campo data
+            dados.pop("data")
+            info = conec.get_data()
+            dados.update(info)
         return dados
     elif item.request == "ativar" and item.usuario != None and item.senha != None:
         return database.ativar_conta(item.usuario, item.senha)
@@ -127,6 +127,6 @@ def processarrequerimento(item):
     else:
         return {"status": "Requisicao invalida"}
 
-if __name__ == '__main__':
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
+#if __name__ == '__main__':
+#    import uvicorn
+#    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")
