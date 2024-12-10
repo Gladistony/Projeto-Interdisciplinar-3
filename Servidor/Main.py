@@ -130,6 +130,8 @@ def processarrequerimento(item):
             return {"message": "Usuario nao logado", "status": "erro", "code": 15}
     elif item.request == "recover" and item.usuario != None:
         return database.recover(item.usuario)
+    elif item.request == "get_email" and item.usuario != None:
+        return database.get_email(item.usuario)
     else:
         return {"message": "Requisicao invalida", "status": "erro", "code": 13}
 

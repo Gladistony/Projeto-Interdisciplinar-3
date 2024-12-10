@@ -30,6 +30,24 @@ class BancoDeDados:
                 cursor = self.connection.cursor()
                 cursor.execute(sql_select_query, (id_conta,))
                 return cursor.fetchone()
+    
+    def get_email(self, usuario):
+        try:
+            cursor = self.connection.cursor()
+            conta = self.selecionar_conta(cursor, usuario)
+            if not conta:
+                return {"status": "erro", "code":4, "message":"Conta não encontrada"}
+            email = conta[4]
+            quebraemail = email.split('@')
+            #substituir as letras depois da 3 por estrelhas
+            endereco = quebraemail[0]
+            dominio = quebraemail[1]
+            if len(endereco) > 3:
+                endereco = endereco[:3] + '*' * (len(endereco) - 3)
+            email_modificado = endereco+"@"+dominio
+            return {"status":"sucesso", "code":0, "message":"Email localizado", "email":email_modificado}
+        except:
+            return {"status": "erro", "code":4, "message":"Conta não encontrada"}
 
     def recover(self, usuario):
         cursor = self.connection.cursor()
