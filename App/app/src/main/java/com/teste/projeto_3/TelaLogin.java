@@ -16,16 +16,21 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestLogin;
+import com.teste.projeto_3.model.RequestResponse;
 import com.teste.projeto_3.model.User;
 import com.teste.projeto_3.retrofitconnection.ApiInterface;
 import com.teste.projeto_3.retrofitconnection.RetrofitClient;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.concurrent.CompletableFuture;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class TelaLogin extends AppCompatActivity {
+    EditText usuario;
+    EditText senha;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,34 @@ public class TelaLogin extends AppCompatActivity {
         });
 
     }
+
+    public void login(View v) {
+        usuario = findViewById(R.id.usuario);
+        senha = findViewById(R.id.senha);
+
+        if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
+            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+        } else {
+            if (obterIdConexao().equals("defaultString")) {
+                gerarNovoID();
+            }
+            sendData(v, obterIdConexao(),usuario.getText().toString(), senha.getText().toString()).thenAccept(requestResponse -> {
+                Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
+            }).exceptionally(e -> {
+                return null;
+            });
+
+        } /* else if (requestResponse.getCode() == 1) { //senha incorreta
+
+            } else if (requestResponse.getCode() == 2) { //conta bloqueada excesso tentativas
+
+            } else if (requestResponse.getCode() == 3) { // conta não está ativa
+
+            }  else if (requestResponse.getCode() == 4) { // conta não encontrada
+
+            }*/
+    }
+
 
     public void logar(View v) {
         gerarNovoID();
@@ -113,7 +146,6 @@ public class TelaLogin extends AppCompatActivity {
                 .apply();
     }
 
-
     private String obterIdConexao() {
         return getSharedPreferences("AppPrefs", MODE_PRIVATE)
                 .getString("idConexao", "defaultString");
@@ -148,38 +180,49 @@ public class TelaLogin extends AppCompatActivity {
         finish();
     }
 
-    public void sendData(View v) {
-        ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
-
+    public CompletableFuture<RequestResponse> sendData(View v, String id, String usuario, String senha) {
         // Cria o JSON a ser enviado
-        final PostModel postModel = new PostModel("cb46dfc2-298a-4a2d-8317-1e9c584313c6", "login", "usuarioaqui", "senhaaqui");
+        PostModel postModel = new PostModel(id, "login", usuario, senha);
+
+        // Retorno assíncrono do método
+        CompletableFuture<RequestResponse> future = new CompletableFuture<>();
+
+        // Configura a API no método
+        ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
+        Call<RequestResponse> call = apiInterface.postData(postModel);
 
         // Chama a API
-        Call<RequestLogin> call = apiInterface.postData(postModel);
-
-        call.enqueue(new Callback<RequestLogin>() {
+        call.enqueue(new Callback<RequestResponse>() {
             @Override
-            public void onResponse(Call<RequestLogin> call, Response<RequestLogin> response) {
+            public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
                 if (response.isSuccessful()) {
                     try {
-                        // Recebe a resposta
-                        RequestLogin requestLoginResponse = response.body();
+                        RequestResponse requestLoginResponse = response.body();
+
                         if (requestLoginResponse != null) {
+                            // Imprime o status do resultado da conexão
                             System.out.println("Status: " + requestLoginResponse.getMessage());
-                            Toast.makeText(TelaLogin.this, requestLoginResponse.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            // Define como completada a requisição quando há sucesso
+                            future.complete(requestLoginResponse);
+                        } else {
+                            future.completeExceptionally(new Exception("Resposta nula"));
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        future.completeExceptionally(e);
                     }
                 } else {
-                    System.out.println("Erro na resposta: " + response.code());
+                    future.completeExceptionally(new Exception("Erro de requisição: " + response.code()));
                 }
             }
 
             @Override
-            public void onFailure(Call<RequestLogin> call, Throwable t) {
-                Toast.makeText(TelaLogin.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onFailure(Call<RequestResponse> call, Throwable t) {
+                future.completeExceptionally(t);
             }
         });
+
+        // Por fim, retorna o objeto com os resultados da conexão
+        return future;
     }
 }
