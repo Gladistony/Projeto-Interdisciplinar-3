@@ -41,7 +41,7 @@ def read_inicio():
 
 @app.get("/telaDeCadastro")
 def read_cadastro():
-    html = open("Html_Template/cadastro.html", "r")
+    html = open("Html_Template/telaDeCadastro.html", "r")
     return HTMLResponse(content=html.read(), status_code=200)
 
 @app.get("/items/{item_id}")
