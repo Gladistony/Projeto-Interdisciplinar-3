@@ -11,7 +11,7 @@ class HttpHelper {
 
     fun post(json: String): String {
         // URL do servidor
-        val url = "http://44.203.201.20/give"
+        val url = "http://44.203.201.20/give/"
 
         // Tipo de mídia JSON
         val JSON = "application/json; charset=utf-8".toMediaType()
