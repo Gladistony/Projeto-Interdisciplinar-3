@@ -30,9 +30,9 @@
                 // Obter ID de conexão
                 const idResponse = await fetch('http://44.203.201.20/give', {
                     method: 'POST',
-                    mode:  'no-cors',
+                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
-                    body: { 'id': 'null' } // Solicita o ID inicial
+                    body: JSON.stringify({ id: 'null' }) // Solicita o ID inicial
                 });
 
                 if (!idResponse.ok) {
@@ -62,7 +62,7 @@
 
                 const cadastroResponse = await fetch('http://44.203.201.20/give', {
                     method: 'POST',
-                    mode:  'no-cors',
+                    mode: 'cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(cadastroData)
                 });
@@ -74,6 +74,7 @@
                 const cadastroResult = await cadastroResponse.json();
                 console.log('Resposta do cadastro:', cadastroResult);
                 alert('Cadastro realizado com sucesso!');
+                window.location.href = 'index.html'; // Redirecionar para a tela de login
             } catch (error) {
                 console.error('Erro durante o processo:', error);
                 alert(`Erro: ${error.message}`);
@@ -81,4 +82,119 @@
         });
     </script>
 </body>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    body{
+        width: auto;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f2f2f2;
+    }
+    .conteiner{
+        background-color: #2ecc71;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+        height: 250px;
+        width: 350px;
+        text-align: start;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .caixa-texto {
+        width: 250px;
+        margin-bottom: 5px;
+    }
+
+    .caixa-texto input {
+        background-color: #edf0f1;
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 60px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    }
+    button {
+        background-color: #f1c40f;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 0.9em;
+    }
+
+    button:hover {
+        background-color: #3498db;
+    }
+
+    .full-width-button {
+        margin-top: 10px;
+    }
+
+    .texto-1{
+        margin-right: 9px;
+        text-align: center;
+        margin-bottom:50px;
+        color: #ffffff;
+    }
+    .codigoDeAtivacao{
+        display:flex;
+        justify-content: center;
+        margin-bottom: 50px;
+        font-size: 1.6rem;
+    }
+
+    /* .erro input { 
+        background-color: #f0f0f0; 
+        border: 1px solid #ce3939; 
+    }
+
+    #mensagem-erroLogin { 
+        display: block; /* colocar em display block */ 
+    /*     background-color: #ce3939; 
+        margin: auto; 
+        width: 200px; 
+        height: auto; 
+        position: relative; 
+        text-align: center; 
+        font-size: small; 
+        margin-top: -20px; 
+        color: #edf0f1; 
+        border-radius: 10px; 
+        word-wrap: break-word; 
+        overflow: hidden; 
+        margin-bottom: 20px; */ 
+    /* }
+
+    .loading-spinner { 
+        border: 4px solid rgba(0, 0, 0, 0.1); 
+        border-left-color: #007bff; 
+        border-radius: 50%; 
+        width: 40px; 
+        height: 40px; 
+        animation: spin 1s linear infinite; 
+        margin: 20px auto; 
+    }
+
+    @keyframes spin { 
+        0% { 
+            transform: rotate(0deg); 
+        } 
+        100% { 
+            transform: rotate(360deg); 
+        } 
+    }
+    */
+</style>
 </html>
