@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -91,6 +92,7 @@
         document.addEventListener('DOMContentLoaded', enviarRequisicao);
     </script>
 </head>
+
 <body>
     <main>
         <section class="conteiner">
@@ -98,12 +100,14 @@
             <form id="loginForm" class="" method="post" onsubmit="event.preventDefault(); enviarLogin();">
                 <div class="caixa-texto">
                     <label for="Usuario" class="texto-Palavra"> Usuário</label>
-                    <input type="text" placeholder="Coloque o seu usuario" class="" id="emailLogin" required autocomplete="off">
+                    <input type="text" placeholder="Coloque o seu usuario" class="" id="emailLogin" required
+                        autocomplete="off">
                 </div>
                 <div class="caixa-texto">
                     <label for="senha" class="texto-Palavra">Senha</label>
                     <input type="password" placeholder="Coloque a sua senha" id="senhaLogin" required>
-                    <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha senha</span></a>
+                    <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha
+                            senha</span></a>
                 </div>
                 <button type="submit" id="entrarDologin" class="">Entrar</button>
             </form>
@@ -239,48 +243,49 @@
         text-decoration: underline;
     }
 
-    .loading-spinner { 
-        border: 4px solid rgba(0, 0, 0, 0.1); 
-        border-left-color: #007bff; 
-        border-radius: 50%; 
-        width: 40px; 
-        height: 40px; 
-        animation: spin 1s linear infinite; 
-        margin: 20px auto; 
+    .loading-spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #007bff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
     }
 
-    @keyframes spin { 
-        0% { 
-            transform: rotate(0deg); 
-        } 
-        100% { 
-            transform: rotate(360deg); 
-        } 
-    }
-    
-    .erro input { 
-        background-color: #f0f0f0; 
-        border: 1px solid #ce3939; 
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
-    #mensagem-erroLogin { 
-        display: none;        
-        background-color: #ce3939; 
-        margin: auto; 
-        width: 200px; 
-        height: 20px; 
-        position: relative; 
-        text-align: center; 
-        font-size: small; 
-        margin-top: -20px; 
-        color: #edf0f1; 
-        border-radius: 10px; 
-        word-wrap: break-word; 
-        overflow: hidden; 
-        margin-bottom: 20px; 
+    .erro input {
+        background-color: #f0f0f0;
+        border: 1px solid #ce3939;
+    }
+
+    #mensagem-erroLogin {
+        display: none;
+        background-color: #ce3939;
+        margin: auto;
+        width: 200px;
+        height: 20px;
+        position: relative;
+        text-align: center;
+        font-size: small;
+        margin-top: -20px;
+        color: #edf0f1;
+        border-radius: 10px;
+        word-wrap: break-word;
+        overflow: hidden;
+        margin-bottom: 20px;
         margin-top: 40px;
-        
- }
+
+    }
 </style>
 
 </html>
