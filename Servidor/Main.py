@@ -34,10 +34,21 @@ def read_root():
     html = open("Html_Template/index.html", "r")
     return HTMLResponse(content=html.read(), status_code=200)
 
+class perfil(BaseModel):
+    code: str
+
 @app.get("/telaDeInicio")
-def read_inicio():
-    html = open("Html_Template/index.html", "r")
-    return HTMLResponse(content=html.read(), status_code=200)
+def read_inicio( code: str):
+    arqhtml = open("Html_Template/perfil.html", "r")
+    html = arqhtml.read()
+    #Carregar conexão
+    if code in manage_conect.conects:
+        conec = manage_conect.conects[code]
+        data = conec.get_data()
+        html = html.replace("NOMEDEUSUARIO", data['usuario'])
+        html = html.replace("EMAILDOUSUARIO", data['email'])
+    return HTMLResponse(content=html, status_code=200)
+    
 
 @app.get("/telaDeCadastro")
 def read_cadastro():

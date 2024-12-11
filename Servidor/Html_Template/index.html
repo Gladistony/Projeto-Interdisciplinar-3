@@ -33,7 +33,7 @@
             const data = await response.json();
             console.log(data);
             if (data.code === 0) {
-                window.location.href = './telaDeInicio';
+                window.location.href = './telaDeInicio?code=${id}';
             }
 
         }
@@ -70,7 +70,7 @@
                     localStorage.removeItem('id');
                     id = await enviarRequisicao();
                 } else if (data.code === 0) {
-                    window.location.href = './telaDeInicio';
+                    window.location.href = './telaDeInicio?code=${id}';
                 }
             }
             return id;
