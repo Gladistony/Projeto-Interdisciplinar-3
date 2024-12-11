@@ -39,16 +39,22 @@ public class TelaValidacao extends AppCompatActivity {
     }
 
     public void validarPorEmail(View v) {
-        sendData(obterIdConexao(),"get_dados", "", "").thenAccept(requestResponseValidate -> {
-            if (requestResponseValidate.getCode() == 0 || requestResponseValidate.getCode() == 11) {
-                Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
-                intentTelaPerfil.putExtra("nome_completo",requestResponseValidate.getNome_completo());
-                intentTelaPerfil.putExtra("email",requestResponseValidate.getEmail());
-                Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show();
-                startActivity(intentTelaPerfil);
-                finish();
+        Intent telaLogin = getIntent();
+        sendData(obterIdConexao(),"ativar", telaLogin.getStringExtra("usuario"), "").thenAccept(requestResponseValidate -> {
+                if (requestResponseValidate.getCode() == 8) {
+                    sendData(obterIdConexao(), "login", telaLogin.getStringExtra("usuario"), telaLogin.getStringExtra("senha")).thenAccept(requestResponse -> {
+                        if (requestResponse.getCode() == 0) {
+                            Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                            intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
+                            intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
+                            startActivity(intentTelaPrincipal);
+                            finish();
+                        }
+                    }).exceptionally(e -> {
+                        return null;
+                    });
             } else {
-                Toast.makeText(this, "Ops! Houve um erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
             }
         }).exceptionally(e -> {
             return null;
@@ -59,7 +65,6 @@ public class TelaValidacao extends AppCompatActivity {
         EditText validacao = findViewById(R.id.codigo_validacao);
         Intent intentInfoTelaLogin = getIntent();
         String usuario = intentInfoTelaLogin.getStringExtra("usuario");
-        String senha = intentInfoTelaLogin.getStringExtra("email");
 
         if (validacao.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Insira o código de validação antes de prosseguir", Toast.LENGTH_SHORT).show();
@@ -68,10 +73,10 @@ public class TelaValidacao extends AppCompatActivity {
                     switch(requestResponseValidate.getCode()) {
 
                         case 0: // Conta ativada com sucesso
-                            sendData(obterIdConexao(), "get_dados", "","").thenAccept(requestResponseAfter -> {
+                            sendData(obterIdConexao(), "login", intentInfoTelaLogin.getStringExtra("usuario"),intentInfoTelaLogin.getStringExtra("senha")).thenAccept(requestResponseAfter -> {
                                 Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
-                                intentTelaPerfil.putExtra("nome_completo",requestResponseValidate.getNome_completo());
-                                intentTelaPerfil.putExtra("email",requestResponseValidate.getEmail());
+                                intentTelaPerfil.putExtra("nome_completo",requestResponseAfter.getNome_completo());
+                                intentTelaPerfil.putExtra("email",requestResponseAfter.getEmail());
                                 Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                                 startActivity(intentTelaPerfil);
                                 finish();
@@ -84,15 +89,16 @@ public class TelaValidacao extends AppCompatActivity {
                             Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
                             break;
 
-                        case 10: // Código de ativação incorreta
+                        case 7: // Código de ativação incorreta
                             Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
                             break;
 
                         case 11: // Conta já está ativa
-                            sendData(obterIdConexao(), "get_dados", "","").thenAccept(requestResponseAfter -> {
+                            sendData(obterIdConexao(), "login", intentInfoTelaLogin.getStringExtra("usuario"),intentInfoTelaLogin.getStringExtra("senha")).thenAccept(requestResponseAfter -> {
                                 Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
                                 intentTelaPerfil.putExtra("nome_completo",requestResponseValidate.getNome_completo());
                                 intentTelaPerfil.putExtra("email",requestResponseValidate.getEmail());
+                                Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                                 startActivity(intentTelaPerfil);
                                 finish();
                             }).exceptionally(e -> {
@@ -109,7 +115,7 @@ public class TelaValidacao extends AppCompatActivity {
 
     public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha) {
         // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, request, usuario, senha);
+        PostModel postModel = new PostModel(id, request, usuario, senha,"","");
 
         // Retorno assíncrono do método
         CompletableFuture<RequestResponse> future = new CompletableFuture<>();
@@ -154,7 +160,7 @@ public class TelaValidacao extends AppCompatActivity {
     }
 
     private String obterIdConexao() {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString("idConexao", "defaultString");
+        FileWriter fw = new FileWriter();
+        return fw.lerDeArquivo(this);
     }
 }

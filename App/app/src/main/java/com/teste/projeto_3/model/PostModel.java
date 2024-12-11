@@ -13,14 +13,22 @@ public class PostModel {
     @SerializedName("senha")
     private String senha;
 
+    @SerializedName("nome_completo")
+    private String nome_completo;
+
+    @SerializedName("email")
+    private String email;
 
 
 
-    public PostModel(String id, String request, String usuario, String senha) {
+
+    public PostModel(String id, String request, String usuario, String senha, String email, String nome_completo) {
         this.id = id;
         this.request = request;
         this.usuario = usuario;
         this.senha = senha;
+        this.email = email;
+        this.nome_completo = nome_completo;
     }
 
     public String getId(){

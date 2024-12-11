@@ -72,7 +72,7 @@ public class TelaPrincipal extends AppCompatActivity {
 
     public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha) {
         // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, request, usuario, senha);
+        PostModel postModel = new PostModel(id, request, usuario, senha, "","");
 
         // Retorno assíncrono do método
         CompletableFuture<RequestResponse> future = new CompletableFuture<>();
