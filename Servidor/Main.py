@@ -34,6 +34,16 @@ def read_root():
     html = open("Html_Template/index.html", "r")
     return HTMLResponse(content=html.read(), status_code=200)
 
+@app.get("/telaDeInicio")
+def read_inicio():
+    html = open("Html_Template/index.html", "r")
+    return HTMLResponse(content=html.read(), status_code=200)
+
+@app.get("/telaDeCadastro")
+def read_cadastro():
+    html = open("Html_Template/cadastro.html", "r")
+    return HTMLResponse(content=html.read(), status_code=200)
+
 @app.get("/items/{item_id}")
 def read_item(item_id: int, q: str = None):
     return {"item_id": item_id, "q": q}

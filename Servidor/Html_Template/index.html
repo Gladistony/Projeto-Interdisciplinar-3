@@ -32,6 +32,9 @@
 
             const data = await response.json();
             console.log(data);
+            if (data.code === 0) {
+                window.location.href = './telaDeInicio';
+            }
 
         }
 
@@ -66,6 +69,8 @@
                 if (data.code === 12) {
                     localStorage.removeItem('id');
                     id = await enviarRequisicao();
+                } else if (data.code === 0) {
+                    window.location.href = './telaDeInicio';
                 }
             }
             return id;
@@ -81,19 +86,18 @@
             <h1 class="texto1">Bem Vindo</h1>
             <form id="loginForm" class="" method="post" onsubmit="event.preventDefault(); enviarLogin();">
                 <div class="caixa-texto">
-                    <label for="Usuario" class="texto-Palavra"> Usuário</label>
+                    <label for="Usuario" class="texto-Palavra"> Usuario</label>
                     <input type="text" placeholder="Coloque o seu usuario" class="" id="emailLogin" required>
                 </div>
                 <div class="caixa-texto">
                     <label for="senha" class="texto-Palavra">Senha</label>
                     <input type="password" placeholder="Coloque a sua senha" id="senhaLogin" required>
-                    <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha
+                    <a href="./" class="esqueciSenha texto-link"><span>Esqueci minha
                             senha</span></a>
                 </div>
                 <button type="submit" id="entrarDologin" class="">Entrar</button>
             </form>
-            <p>Não tem cadastro? <span><a href="./telaDeCadastro.html" class="linkParaCadastro">Cadastre-se
-                        já</a></span></p>
+            <p>Nao tem cadastro? <span><a href="./telaDeCadastro" class="linkParaCadastro">Cadastre-se ja</a></span></p>
             <div>
                 <p class="mensagemDeErro"></p>
             </div>
