@@ -57,6 +57,10 @@ public class FormCadastro extends AppCompatActivity {
 
     // Método de cadastro
     public void cadastrar(View v) {
+        if (obterIdConexao().equals("defaultString") || obterIdConexao().isEmpty()) {
+            gerarNovoID();
+        }
+
         // Referência aos campos do formulário
         EditText editTextNome = findViewById(R.id.edit_nome);
         EditText editTextEmail = findViewById(R.id.edit_email);
@@ -65,7 +69,7 @@ public class FormCadastro extends AppCompatActivity {
 
         // Criar o objeto User para a primeira requisição
         User user = new User();
-        user.setId("null"); // ID inicial deve ser null
+        user.setId(obterIdConexao()); // ID inicial deve ser null
         user.setRequest("cadastro"); // Tipo de requisição
         user.setNome_completo(editTextNome.getText().toString());
         user.setEmail(editTextEmail.getText().toString());
@@ -127,10 +131,8 @@ public class FormCadastro extends AppCompatActivity {
 
     // Método para salvar o ID de conexão localmente
     private void salvarIdConexao(@NotNull String idConexao) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .edit()
-                .putString("idConexao", idConexao)
-                .apply();
+        FileWriter fw = new FileWriter();
+        fw.escreverEmArquivo(this,idConexao);
     }
 
     // Método para abrir a próxima tela
@@ -148,5 +150,31 @@ public class FormCadastro extends AppCompatActivity {
     // Método para voltar à tela anterior
     public void voltar(View v) {
         finish();
+    }
+
+    private void gerarNovoID() {
+        // Criar o objeto User para a primeira requisição
+        User user = new User();
+        user.setId("null");
+
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(user);
+
+        // Fazer a primeira requisição
+        enviarRequisicao(userJson, response -> {
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+            } else {
+                // Processar resposta da primeira requisição
+                User responseUser = gson.fromJson(response, User.class);
+                String userId = responseUser.getId(); // Captura o ID
+                salvarIdConexao(userId);
+            }
+        });
+    }
+    private String obterIdConexao() {
+        FileWriter fw = new FileWriter();
+        return fw.lerDeArquivo(this);
     }
 }

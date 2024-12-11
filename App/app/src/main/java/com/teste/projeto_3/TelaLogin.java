@@ -1,5 +1,6 @@
 package com.teste.projeto_3;
 
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
@@ -12,12 +13,8 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.PostModel;
 import com.teste.projeto_3.model.RequestResponse;
-import com.teste.projeto_3.model.User;
 import com.teste.projeto_3.retrofitconnection.ApiInterface;
 import com.teste.projeto_3.retrofitconnection.RetrofitClient;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +40,7 @@ public class TelaLogin extends AppCompatActivity {
             return insets;
         });
 
+
     }
 
     public void login(View v) {
@@ -52,103 +50,65 @@ public class TelaLogin extends AppCompatActivity {
         if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
         } else {
-            if (obterIdConexao().equals("defaultString")) {
+            if (obterIdConexao().equals("defaultString") || obterIdConexao().isEmpty()) {
                 gerarNovoID();
             }
-            sendData(v, obterIdConexao(),usuario.getText().toString(), senha.getText().toString()).thenAccept(requestResponse -> {
-                Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
+            sendData(obterIdConexao(),"login", usuario.getText().toString(), senha.getText().toString()).thenAccept(requestResponse -> {
+                    switch (requestResponse.getCode()) {
+                        case 0: // Login bem sucedido
+                            Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                            intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
+                            intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
+                            startActivity(intentTelaPrincipal);
+                            finish();
+                            break;
+
+                        case 1: // Senha incorreta
+                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            break;
+
+                        case 2: // Conta bloqueada por 5 minutos
+                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            break;
+
+                        case 3: // Conta não está ativa
+                            Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
+                            intentTelaValidacao.putExtra("usuario", usuario.getText().toString());
+                            intentTelaValidacao.putExtra("senha", senha.getText().toString());
+                            startActivity(intentTelaValidacao);
+                            finish();
+                            break;
+
+                        case 4: // Conta não encontrada
+                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            break;
+                    }
             }).exceptionally(e -> {
                 return null;
             });
-
-        } /* else if (requestResponse.getCode() == 1) { //senha incorreta
-
-            } else if (requestResponse.getCode() == 2) { //conta bloqueada excesso tentativas
-
-            } else if (requestResponse.getCode() == 3) { // conta não está ativa
-
-            }  else if (requestResponse.getCode() == 4) { // conta não encontrada
-
-            }*/
-    }
-
-
-    public void logar(View v) {
-        gerarNovoID();
-        EditText usuario = findViewById(R.id.usuario);
-        EditText senha = findViewById(R.id.senha);
-
-        // Criar o objeto User para a primeira requisição
-        User user = new User();
-        user.setRequest("login");
-        user.setUsuario(usuario.getText().toString());
-        user.setSenha(senha.getText().toString());
-        user.setId(obterIdConexao());
-
-        // Converter o objeto User para JSON
-        Gson gson = new Gson();
-        String userJson = gson.toJson(user);
-        System.out.println("nada");
-
-        // Fazer a primeira requisição
-        enviarRequisicao(userJson, response -> {
-            // Verificar o conteúdo do JSON recebido
-            if (response.startsWith("Erro")) {
-                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-            } else {
-                User responseUser = gson.fromJson(response, User.class);
-                try {
-                } catch (JsonSyntaxException e) {
-                    runOnUiThread(() -> Toast.makeText(this, "Resposta inválida do servidor: " + response, Toast.LENGTH_LONG).show());
-                }
-            }
-        });
-    }
-
-
-    // Método auxiliar para enviar requisições
-    private void enviarRequisicao(String json, FormCadastro.Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(json);
-            callback.onResponse(response);
-        }).start();
+        }
     }
 
     private void gerarNovoID() {
-        String retorno = "Erro na obtenção de um ID.";
-        // Criar o objeto User para a primeira requisição
-        User user = new User();
-        user.setId("null");
-
-        // Converter o objeto User para JSON
-        Gson gson = new Gson();
-        String userJson = gson.toJson(user);
-
-        // Fazer a primeira requisição
-        enviarRequisicao(userJson, response -> {
-            if (response.startsWith("Erro")) {
-                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-            } else {
-                // Processar resposta da primeira requisição
-                User responseUser = gson.fromJson(response, User.class);
-                String userId = responseUser.getId(); // Captura o ID
-                salvarIdConexao(userId);
+        sendData("null","","","").thenAccept(requestResponse -> {
+            if (requestResponse.getStatus().equals("Conexao criada")) {
+                salvarIdConexao(requestResponse.getId());
             }
+        }).exceptionally(e -> {
+            return null;
         });
     }
 
+
     // Método para salvar o ID de conexão localmente
     private void salvarIdConexao(@NotNull String idConexao) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .edit()
-                .putString("idConexao", idConexao)
-                .apply();
+        FileWriter fw = new FileWriter();
+        fw.escreverEmArquivo(this,idConexao);
     }
 
     private String obterIdConexao() {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString("idConexao", "defaultString");
+        FileWriter fw = new FileWriter();
+        return fw.lerDeArquivo(this);
     }
 
     public void togglePassword(View v) {
@@ -180,9 +140,9 @@ public class TelaLogin extends AppCompatActivity {
         finish();
     }
 
-    public CompletableFuture<RequestResponse> sendData(View v, String id, String usuario, String senha) {
+    public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha) {
         // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, "login", usuario, senha);
+        PostModel postModel = new PostModel(id, request, usuario, senha);
 
         // Retorno assíncrono do método
         CompletableFuture<RequestResponse> future = new CompletableFuture<>();
@@ -201,7 +161,7 @@ public class TelaLogin extends AppCompatActivity {
 
                         if (requestLoginResponse != null) {
                             // Imprime o status do resultado da conexão
-                            System.out.println("Status: " + requestLoginResponse.getMessage());
+                            System.out.println("Status: " + requestLoginResponse.getStatus());
 
                             // Define como completada a requisição quando há sucesso
                             future.complete(requestLoginResponse);

@@ -3,17 +3,22 @@ package com.teste.projeto_3.model;
 import com.google.gson.annotations.SerializedName;
 
 public class RequestResponse {
-    public RequestResponse(String status, int code, String message, String usuario, String email, String nome_completo, String criacao, String ultimo_login, String url_foto) {
+    public RequestResponse(String id,String status, int code, String message, String usuario, String senha, String email, String nome_completo, String criacao, String ultimo_login, String url_foto) {
+        this.id = id;
         this.status = status;
         this.code = code;
         this.message = message;
         this.usuario = usuario;
+        this.senha = senha;
         this.email = email;
         this.nome_completo = nome_completo;
         this.criacao = criacao;
         this.ultimo_login = ultimo_login;
         this.url_foto = url_foto;
     }
+
+    @SerializedName("id")
+    private String id;
 
     @SerializedName("status")
     private String status;
@@ -26,6 +31,9 @@ public class RequestResponse {
 
     @SerializedName("usuario")
     private String usuario;
+
+    @SerializedName("senha")
+    private String senha;
 
     @SerializedName("email")
     private String email;
@@ -41,6 +49,14 @@ public class RequestResponse {
 
     @SerializedName("url_foto")
     private String url_foto;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setStatus(String status) {
         this.status = status;
@@ -65,6 +81,15 @@ public class RequestResponse {
     public void setUsuario(String usuario) {
         this.usuario = usuario;
     }
+
+    public String getSenha(){
+        return senha;
+    }
+
+    public void setSenha(String senha){
+        this.senha = senha;
+    }
+
 
     public String getEmail() {
         return email;
