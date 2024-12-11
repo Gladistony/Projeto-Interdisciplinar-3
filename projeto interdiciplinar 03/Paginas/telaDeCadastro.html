@@ -1,38 +1,27 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro com Proxy</title>
 </head>
-<body><main>
-    <div class="conteiner">
-        <h1 class="texto-1">Cadastro</h1>
-        <form id="cadastroForm">
-            <div class="caixa-texto ">
-            <label for="usuario"   class="texto-Palavra ">Usuário:</label>
-            <input type="text" id="usuario" name="usuario" minlength="8" required placeholder = "Usuário">
-        </div>
-        <div class="caixa-texto ">
-            <label for="senha" class="texto-Palavra ">Senha:</label>
-            <input type="password" id="senha" name="senha" minlength="8" required placeholder="Senha">
-            
-        </div>
-            <div class="caixa-texto ">
-            <label for="email" class="texto-Palavra ">Email:</label>
-            <input type="email" id="email" name="email" required placeholder="E-mail">
-            </div>
-            <div class="caixa-texto ">
-                <label for="nome_completo" class="texto-Palavra ">Nome Completo:</label>
-                 <input type="text" id="nome_completo" name="nome_completo" required placeholder="Nome Completo" autocomplete="off">
-           </div>
-            <button type="submit">Cadastrar</button>
-        </form>
-    </div>
-    
+<body>
+    <form id="cadastroForm">
+        <label for="usuario">Usuário:</label>
+        <input type="text" id="usuario" name="usuario" minlength="8" required>
+        <br>
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" minlength="8" required>
+        <br>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        <br>
+        <label for="nome_completo">Nome Completo:</label>
+        <input type="text" id="nome_completo" name="nome_completo" required>
+        <br>
+        <button type="submit">Cadastrar</button>
+    </form>
 
-</main>
-    
     <script>
         document.getElementById('cadastroForm').addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -113,18 +102,11 @@
         flex-direction: column;
         align-items: center;
         padding: 20px;
-        height: 550px;
+        height: 250px;
         width: 350px;
         text-align: start;
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    .texto-Palavra {
-        font-weight: 500;
-        font-size: small;
-        display: flex;
-        justify-content: flex-start;
-        margin-bottom: 10px;
     }
     .caixa-texto {
         width: 250px;
@@ -166,6 +148,13 @@
         margin-bottom:50px;
         color: #ffffff;
     }
+    .codigoDeAtivacao{
+        display:flex;
+        justify-content: center;
+        margin-bottom: 50px;
+        font-size: 1.6rem;
+    }
+
     /* .erro input { 
         background-color: #f0f0f0; 
         border: 1px solid #ce3939; 
