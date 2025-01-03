@@ -50,6 +50,12 @@ public class TelaPrincipal extends AppCompatActivity {
             return insets;
         });
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 100);
+            }
+        }
+
         // Inicialize o launcher da câmera
         cameraLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -60,7 +66,9 @@ public class TelaPrincipal extends AppCompatActivity {
                             Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
                             ImageView imageView = findViewById(R.id.imageView);
                             if (imageView != null) {
-                                imageView.setImageBitmap(imageBitmap);
+                                imageView.setAlpha(0f); // Define a transparência inicial
+                                imageView.setImageBitmap(imageBitmap); // Define a imagem
+                                imageView.animate().setDuration(500).alpha(1f).start(); // Animação de fade-in
                             }
                         }
                     } else {
@@ -78,11 +86,31 @@ public class TelaPrincipal extends AppCompatActivity {
     }
 
     private void abrirCamera() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 100);
+                return;
+            }
+        }
+
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(getPackageManager()) != null) {
             cameraLauncher.launch(intent);
         } else {
             Toast.makeText(this, "Câmera indisponível no dispositivo", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Permissão para a câmera concedida", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permissão para a câmera negada", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -146,5 +174,8 @@ public class TelaPrincipal extends AppCompatActivity {
                 salvarIdConexao(requestResponse.getId());
             }
         }).exceptionally(e -> null);
+    }
+
+    public void abrirCamera(View view) {
     }
 }

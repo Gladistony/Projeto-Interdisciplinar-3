@@ -80,7 +80,7 @@
         android:backgroundTint="@color/black"
         android:padding="20dp"
         android:text="Câmera"
-        android:onClick="camera"
+        android:onClick="abrirCamera"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
@@ -118,15 +118,16 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:layout_margin="16dp"
         android:src="@drawable/ic_user"
+        android:background="@drawable/circular_image_view"
+        android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="@id/containerUser"
         app:layout_constraintEnd_toEndOf="@id/containerUser"
         app:layout_constraintTop_toTopOf="@id/containerUser"
-        app:layout_constraintBottom_toBottomOf="@id/containerUser"
-        />
-
+        app:layout_constraintBottom_toBottomOf="@id/containerUser" />
 
     <TextView
         android:id="@+id/textNomeUsuario"

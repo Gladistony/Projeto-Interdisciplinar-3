@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Borda externa -->
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="#FFFFFF" />
+            <stroke
+                android:width="3dp"
+                android:color="#000000" />
+        </shape>
+    </item>
+
+    <!-- Fundo -->
+    <item android:right="3dp" android:left="3dp" android:top="3dp" android:bottom="3dp">
+        <shape android:shape="oval">
+            <solid android:color="#F0F0F0" />
+        </shape>
+    </item>
+</layer-list>
