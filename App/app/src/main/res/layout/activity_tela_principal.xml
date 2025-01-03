@@ -80,7 +80,6 @@
         android:backgroundTint="@color/black"
         android:padding="20dp"
         android:text="Câmera"
-        android:onClick="abrirCamera"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="18sp"
@@ -128,6 +127,7 @@
         app:layout_constraintEnd_toEndOf="@id/containerUser"
         app:layout_constraintTop_toTopOf="@id/containerUser"
         app:layout_constraintBottom_toBottomOf="@id/containerUser" />
+
 
     <TextView
         android:id="@+id/textNomeUsuario"

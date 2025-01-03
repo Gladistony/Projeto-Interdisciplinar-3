@@ -3,10 +3,13 @@ package com.teste.projeto_3;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,7 +23,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.PostModel;
 import com.teste.projeto_3.model.RequestResponse;
 import com.teste.projeto_3.retrofitconnection.ApiInterface;
@@ -64,11 +66,15 @@ public class TelaPrincipal extends AppCompatActivity {
                         Intent data = result.getData();
                         if (data != null) {
                             Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+
+                            // Aplica o recorte circular
+                            Bitmap circularBitmap = cropToCircle(imageBitmap);
+
                             ImageView imageView = findViewById(R.id.imageView);
                             if (imageView != null) {
-                                imageView.setAlpha(0f); // Define a transparência inicial
-                                imageView.setImageBitmap(imageBitmap); // Define a imagem
-                                imageView.animate().setDuration(500).alpha(1f).start(); // Animação de fade-in
+                                imageView.setAlpha(0f);
+                                imageView.setImageBitmap(circularBitmap);
+                                imageView.animate().setDuration(500).alpha(1f).start();
                             }
                         }
                     } else {
@@ -83,6 +89,27 @@ public class TelaPrincipal extends AppCompatActivity {
 
         // Configurar informações do usuário logado
         onLoggedIn();
+    }
+
+    // Método para recortar a imagem em formato circular
+    private Bitmap cropToCircle(Bitmap bitmap) {
+        int width = Math.min(bitmap.getWidth(), bitmap.getHeight());
+        Bitmap output = Bitmap.createBitmap(width, width, Bitmap.Config.ARGB_8888);
+
+        Canvas canvas = new Canvas(output);
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+
+        // Desenha um círculo
+        canvas.drawCircle(width / 2f, width / 2f, width / 2f, paint);
+
+        // Define o modo de recorte
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+
+        // Desenha a imagem
+        canvas.drawBitmap(bitmap, (width - bitmap.getWidth()) / 2f, (width - bitmap.getHeight()) / 2f, paint);
+
+        return output;
     }
 
     private void abrirCamera() {
@@ -100,7 +127,6 @@ public class TelaPrincipal extends AppCompatActivity {
             Toast.makeText(this, "Câmera indisponível no dispositivo", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
@@ -174,8 +200,5 @@ public class TelaPrincipal extends AppCompatActivity {
                 salvarIdConexao(requestResponse.getId());
             }
         }).exceptionally(e -> null);
-    }
-
-    public void abrirCamera(View view) {
     }
 }
