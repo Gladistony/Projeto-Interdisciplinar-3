@@ -1,23 +1,28 @@
 package com.teste.projeto_3;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.gson.Gson;
 import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.PostModel;
 import com.teste.projeto_3.model.RequestResponse;
-import com.teste.projeto_3.model.User;
 import com.teste.projeto_3.retrofitconnection.ApiInterface;
 import com.teste.projeto_3.retrofitconnection.RetrofitClient;
 
@@ -31,18 +36,54 @@ import retrofit2.Response;
 
 public class TelaPrincipal extends AppCompatActivity {
 
+    private ActivityResultLauncher<Intent> cameraLauncher;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_tela_principal);
+
+        // Configuração para barras de status (ajuste de insets)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+        // Inicialize o launcher da câmera
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+                            ImageView imageView = findViewById(R.id.imageView);
+                            if (imageView != null) {
+                                imageView.setImageBitmap(imageBitmap);
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, "Captura de imagem cancelada", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        // Configurar botão para abrir a câmera
+        Button cameraButton = findViewById(R.id.ligarCamera);
+        cameraButton.setOnClickListener(v -> abrirCamera());
+
+        // Configurar informações do usuário logado
         onLoggedIn();
+    }
+
+    private void abrirCamera() {
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            cameraLauncher.launch(intent);
+        } else {
+            Toast.makeText(this, "Câmera indisponível no dispositivo", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void onLoggedIn() {
@@ -53,54 +94,28 @@ public class TelaPrincipal extends AppCompatActivity {
         email.setText(intentInfoLogin.getStringExtra("email"));
     }
 
-    public void deslogar(View v){
-        sendData(obterIdConexao(),"logout", "", "").thenAccept(requestResponse -> {
-            if (requestResponse.getStatus().equals("Usuario deslogado")) {
+    public void deslogar(View v) {
+        sendData(obterIdConexao(), "logout", "", "").thenAccept(requestResponse -> {
+            if ("Usuario deslogado".equals(requestResponse.getStatus())) {
                 gerarNovoID();
-
-                /* TODO: ao deslogar, o método deve criar um novo ID e salvá-lo. Porém, devido
-                à problemas com assincronidade, o ID por enquanto permanece, agora com o status de deslogado
-                (livre para um novo usuário). Resolver futuramente para que funcione corretamente */
                 Intent intentMainActivity = new Intent(this, MainActivity.class);
                 startActivity(intentMainActivity);
                 finish();
             }
-        }).exceptionally(e -> {
-            return null;
-        });
+        }).exceptionally(e -> null);
     }
 
     public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha) {
-        // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, request, usuario, senha, "","");
-
-        // Retorno assíncrono do método
+        PostModel postModel = new PostModel(id, request, usuario, senha, "", "");
         CompletableFuture<RequestResponse> future = new CompletableFuture<>();
-
-        // Configura a API no método
         ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
         Call<RequestResponse> call = apiInterface.postData(postModel);
 
-        // Chama a API
         call.enqueue(new Callback<RequestResponse>() {
             @Override
             public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        RequestResponse requestLoginResponse = response.body();
-
-                        if (requestLoginResponse != null) {
-                            // Imprime o status do resultado da conexão
-                            System.out.println("Status: " + requestLoginResponse.getMessage());
-
-                            // Define como completada a requisição quando há sucesso
-                            future.complete(requestLoginResponse);
-                        } else {
-                            future.completeExceptionally(new Exception("Resposta nula"));
-                        }
-                    } catch (Exception e) {
-                        future.completeExceptionally(e);
-                    }
+                if (response.isSuccessful() && response.body() != null) {
+                    future.complete(response.body());
                 } else {
                     future.completeExceptionally(new Exception("Erro de requisição: " + response.code()));
                 }
@@ -112,30 +127,24 @@ public class TelaPrincipal extends AppCompatActivity {
             }
         });
 
-        // Por fim, retorna o objeto com os resultados da conexão
         return future;
     }
 
     private String obterIdConexao() {
         FileWriter fw = new FileWriter();
-        Log.d("ID lido", fw.lerDeArquivo(this));
         return fw.lerDeArquivo(this);
     }
 
-    // Método para salvar o ID de conexão localmente
     private void salvarIdConexao(@NotNull String idConexao) {
         FileWriter fw = new FileWriter();
-        fw.escreverEmArquivo(this,idConexao);
+        fw.escreverEmArquivo(this, idConexao);
     }
 
     private void gerarNovoID() {
-        sendData("null","","","").thenAccept(requestResponse -> {
-            if (requestResponse.getStatus().equals("Conexao criada")) {
+        sendData("null", "", "", "").thenAccept(requestResponse -> {
+            if ("Conexao criada".equals(requestResponse.getStatus())) {
                 salvarIdConexao(requestResponse.getId());
             }
-        }).exceptionally(e -> {
-            return null;
-        });
+        }).exceptionally(e -> null);
     }
-
 }
