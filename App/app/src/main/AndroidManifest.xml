@@ -2,13 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:usesCleartextTraffic="true"
@@ -25,13 +20,16 @@
             android:name=".TelaLogin"
             android:exported="false" />
         <activity
+            android:name=".TelaPrincipal"
+            android:exported="false" />
+        <activity
             android:name=".FormCadastro"
             android:exported="false" />
         <activity
             android:name=".TelaValidacao"
             android:exported="false" />
         <activity
-            android:name=".TelaPrincipal"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
