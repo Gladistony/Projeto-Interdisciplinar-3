@@ -7,7 +7,6 @@ import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -15,25 +14,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.gson.Gson;
 import com.teste.projeto_3.database.AppDatabase;
 import com.teste.projeto_3.http.HttpHelper;
-import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestResponse;
 import com.teste.projeto_3.model.User;
-import com.teste.projeto_3.retrofitconnection.ApiInterface;
-import com.teste.projeto_3.retrofitconnection.RetrofitClient;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.teste.projeto_3.retrofitconnection.DataHandler;
 
 public class FormCadastro extends AppCompatActivity {
 
+DataHandler dh;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +34,7 @@ public class FormCadastro extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        dh = new DataHandler(getApplicationContext());
     }
 
     // Alternar exibição de senha
@@ -68,8 +57,8 @@ public class FormCadastro extends AppCompatActivity {
 
     // Método de cadastro
     public void cadastrar(View v) {
-        if (obterIdConexao().equals("defaultString") || obterIdConexao().isEmpty()) {
-            gerarNovoID();
+        if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
+            dh.novoIdRequest();
         }
 
         // Referência aos campos do formulário
@@ -93,10 +82,10 @@ public class FormCadastro extends AppCompatActivity {
                 editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
         } else {
-            if (obterIdConexao().equals("defaultString") || obterIdConexao().isEmpty()) {
-                gerarNovoID();
+            if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
+                dh.novoIdRequest();
             }
-            sendData(obterIdConexao(), "cadastro", editTextUsuario.getText().toString(), editTextSenha.getText().toString(), editTextEmail.getText().toString(), editTextNome.getText().toString()).thenAccept(requestResponse -> {
+            dh.cadastroRequest(editTextUsuario.getText().toString(), editTextSenha.getText().toString(), editTextEmail.getText().toString(), editTextNome.getText().toString()).thenAccept(requestResponse -> {
                 switch (requestResponse.getCode()) {
                     case 0:
                         Toast.makeText(getApplicationContext(), requestResponse.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show();
@@ -114,9 +103,11 @@ public class FormCadastro extends AppCompatActivity {
                 }
 
             }).exceptionally(e -> {
+                Toast.makeText(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", Toast.LENGTH_SHORT).show();
                 return null;
             });
         }
+    }
                 /*
                 // Criar uma nova requisição com o ID retornado
                 User userAtualizado = new User();
@@ -135,7 +126,6 @@ public class FormCadastro extends AppCompatActivity {
                         });
                     }
                 }); */
-        }
 
     // Método auxiliar para enviar requisições
     private void enviarRequisicao(String json, Callback callback) {
@@ -158,12 +148,6 @@ public class FormCadastro extends AppCompatActivity {
         }).start();
     }
 
-    // Método para salvar o ID de conexão localmente
-    private void salvarIdConexao(@NotNull String idConexao) {
-        FileWriter fw = new FileWriter();
-        fw.escreverEmArquivo(this,idConexao);
-    }
-
     // Método para abrir a próxima tela
     private void abrirTelaLogin() {
         Intent intent = new Intent(this, TelaLogin.class);
@@ -179,65 +163,5 @@ public class FormCadastro extends AppCompatActivity {
     // Método para voltar à tela anterior
     public void voltar(View v) {
         finish();
-    }
-
-    private void gerarNovoID() {
-        sendData("null","","","", "", "").thenAccept(requestResponse -> {
-            if (requestResponse.getStatus().equals("Conexao criada")) {
-                salvarIdConexao(requestResponse.getId());
-            }
-        }).exceptionally(e -> {
-            return null;
-        });
-    }
-    private String obterIdConexao() {
-        FileWriter fw = new FileWriter();
-        return fw.lerDeArquivo(this);
-    }
-
-    public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha, String email, String nome) {
-        // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, request, usuario, senha, email, nome);
-
-        // Retorno assíncrono do método
-        CompletableFuture<RequestResponse> future = new CompletableFuture<>();
-
-        // Configura a API no método
-        ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
-        Call<RequestResponse> call = apiInterface.postData(postModel);
-
-        // Chama a API
-        call.enqueue(new retrofit2.Callback<RequestResponse>() {
-            @Override
-            public void onResponse(Call<RequestResponse> call, Response<RequestResponse> response) {
-                if (response.isSuccessful()) {
-                    try {
-                        RequestResponse requestLoginResponse = response.body();
-
-                        if (requestLoginResponse != null) {
-                            // Imprime o status do resultado da conexão
-                            System.out.println("Status: " + requestLoginResponse.getStatus());
-
-                            // Define como completada a requisição quando há sucesso
-                            future.complete(requestLoginResponse);
-                        } else {
-                            future.completeExceptionally(new Exception("Resposta nula"));
-                        }
-                    } catch (Exception e) {
-                        future.completeExceptionally(e);
-                    }
-                } else {
-                    future.completeExceptionally(new Exception("Erro de requisição: " + response.code()));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<RequestResponse> call, Throwable t) {
-                future.completeExceptionally(t);
-            }
-        });
-
-        // Por fim, retorna o objeto com os resultados da conexão
-        return future;
     }
 }

@@ -35,6 +35,8 @@
         <item name="android:layout_marginLeft">20dp</item>
         <item name="android:layout_marginRight">20dp</item>
         <item name="android:layout_marginTop">15dp</item>
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:textColorHint">#858585</item>
     </style>
 
     <style name="Button">

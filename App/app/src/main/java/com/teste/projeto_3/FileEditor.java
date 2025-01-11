@@ -1,12 +1,22 @@
 package com.teste.projeto_3;
 
 import android.content.Context;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
-public class FileWriter {
-    public void escreverEmArquivo(Context context, String texto) {
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Scanner;
+
+public class FileEditor {
+    Context context;
+    public FileEditor(Context context) {
+        this.context = context;
+    }
+
+    public void writeFile(String texto) {
         try {
             FileOutputStream fos = context.openFileOutput("id.txt", Context.MODE_PRIVATE);
             fos.write(texto.getBytes());
@@ -17,7 +27,7 @@ public class FileWriter {
         }
     }
 
-    public String lerDeArquivo(Context context) {
+    public String readFile() {
         StringBuilder stringBuilder = new StringBuilder();
 
         try {

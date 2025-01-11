@@ -1,5 +1,6 @@
 package com.teste.projeto_3.http
 
+import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -8,6 +9,18 @@ import okhttp3.Response
 import java.io.IOException
 
 class HttpHelper {
+
+    fun enviarRequisicao(json: String, callback: Callback) {
+        Thread {
+            val httpHelper = HttpHelper()
+            val response = httpHelper.post(json)
+            callback.onResponse(response)
+        }.start()
+    }
+
+    interface Callback {
+        fun onResponse(response: String?)
+    }
 
     fun post(json: String): String {
         // URL do servidor
