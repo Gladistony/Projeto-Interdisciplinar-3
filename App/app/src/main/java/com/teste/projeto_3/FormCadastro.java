@@ -88,7 +88,7 @@ DataHandler dh;
             dh.cadastroRequest(editTextUsuario.getText().toString(), editTextSenha.getText().toString(), editTextEmail.getText().toString(), editTextNome.getText().toString()).thenAccept(requestResponse -> {
                 switch (requestResponse.getCode()) {
                     case 0:
-                        Toast.makeText(getApplicationContext(), requestResponse.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), requestResponse.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show();
                         Intent intentTelaLogin = new Intent(this, MainActivity.class);
                         startActivity(intentTelaLogin);
                         finish();
