@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<MotionScene 
+<MotionScene
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:motion="http://schemas.android.com/apk/res-auto">
 
@@ -65,7 +65,7 @@
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="0"
             android:scaleY="0"
-            motion:transitionEasing="standard"
+            motion:transitionEasing="accelerate"
             android:alpha="1" />
         <Constraint
             android:id="@+id/squaredCircle"
@@ -113,7 +113,8 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="2"
-            android:scaleY="2" />
+            android:scaleY="2"
+            motion:transitionEasing="decelerate" />
         <Constraint
             android:id="@+id/backgroudCircle2"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -123,7 +124,8 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="1"
-            android:scaleY="1" />
+            android:scaleY="1"
+            motion:transitionEasing="decelerate" />
         <Constraint
             android:id="@+id/squaredCircle"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -151,10 +153,11 @@
         motion:constraintSetStart="@+id/start"
         motion:constraintSetEnd="@+id/middle1"
         motion:autoTransition="animateToEnd"
-        motion:duration="500"/>
+        motion:duration="500" />
     <Transition
         motion:constraintSetStart="@+id/middle1"
         motion:constraintSetEnd="@+id/end"
         motion:autoTransition="animateToEnd"
-        motion:duration="500"/>
+        motion:duration="500"
+        motion:staggered="0.4"/>
 </MotionScene>

@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 checkLoggedIn();
             }
-        }, 2000);
+        }, 1500);
     }
 
     public void checkLoggedIn() {
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
                                 intentTelaPrincipal.putExtra("nome_completo", requestResponseAutomatic.getNome_completo());
                                 intentTelaPrincipal.putExtra("email", requestResponseAutomatic.getEmail());
                                 startActivity(intentTelaPrincipal);
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                 finish();
                                 break;
 
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                                 intentTelaValidacao.putExtra("usuario", requestResponseAutomatic.getUsuario());
                                 intentTelaValidacao.putExtra("senha", requestResponseAutomatic.getSenha());
                                 startActivity(intentTelaValidacao);
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                 finish();
                                 break;*/
 
@@ -72,11 +74,13 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(this, "Erro ao conectar-se automaticamente à sua conta. Por favor, entre novamente.", Toast.LENGTH_SHORT).show();
                                 Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
                                 startActivity(intentTelaLoginNaoEncontrado);
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                 finish();
                                 break;
 
                             default:
                                 startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
                                 finish();
                         }
                 }
@@ -85,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             });
         } else {
             startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             finish();
         }
 
