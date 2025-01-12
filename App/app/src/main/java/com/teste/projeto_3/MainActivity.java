@@ -42,16 +42,13 @@ public class MainActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
-                finish();
+                checkLoggedIn();
             }
-        }, 3000);
+        }, 2000);
     }
 
     public void checkLoggedIn() {
-        if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
-            dh.novoIdRequest();
-        } else {
+        if (!dh.obterIdConexao().equals("defaultString") || !dh.obterIdConexao().isEmpty()) {
             dh.getDadosRequest().thenAccept(requestResponseAutomatic -> {
                 if (!requestResponseAutomatic.getStatus().equals("Usuario nao logado")) {
                         switch (requestResponseAutomatic.getCode()) {
@@ -63,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
                                 finish();
                                 break;
 
-                            case 3: // Conta não está ativa
+                            /*case 3: // Conta não está ativa
                                 Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
                                 intentTelaValidacao.putExtra("usuario", requestResponseAutomatic.getUsuario());
                                 intentTelaValidacao.putExtra("senha", requestResponseAutomatic.getSenha());
                                 startActivity(intentTelaValidacao);
                                 finish();
-                                break;
+                                break;*/
 
                             case 4: // Conta não encontrada
                                 Toast.makeText(this, "Erro ao conectar-se automaticamente à sua conta. Por favor, entre novamente.", Toast.LENGTH_SHORT).show();
@@ -77,23 +74,20 @@ public class MainActivity extends AppCompatActivity {
                                 startActivity(intentTelaLoginNaoEncontrado);
                                 finish();
                                 break;
+
+                            default:
+                                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                                finish();
                         }
                 }
             }).exceptionally(e -> {
                 return null;
             });
+        } else {
+            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+            finish();
         }
 
-    }
-
-    public void abrirTelaLogin(View v){
-        Intent intentLogin = new Intent(this, TelaLogin.class);
-        startActivity(intentLogin);
-    }
-
-    public void abrirTelaCadastro(View v){
-        Intent intentCadastro = new Intent(this, FormCadastro.class);
-        startActivity(intentCadastro);
     }
 
 }

@@ -22,7 +22,9 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="10"
-            android:scaleY="10" />
+            android:scaleY="10"
+            motion:transitionEasing="decelerate"
+            android:alpha="1" />
         <Constraint
             android:id="@+id/squaredCircle"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +36,8 @@
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="0"
             android:scaleY="0"
-            android:alpha="0" />
+            android:alpha="0.6"
+            motion:transitionEasing="accelerate" />
         <Constraint
             android:id="@+id/logoMain"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -45,7 +48,8 @@
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="0"
             android:scaleY="0"
-            android:alpha="0" />
+            android:alpha="0.3"
+            motion:transitionEasing="linear" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -58,7 +62,9 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="0"
-            android:scaleY="0" />
+            android:scaleY="0"
+            motion:transitionEasing="standard"
+            android:alpha="0.7" />
         <Constraint
             android:id="@+id/squaredCircle"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -69,7 +75,9 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="1"
-            android:scaleY="1" />
+            android:scaleY="1"
+            motion:transitionEasing="decelerate"
+            android:alpha="1" />
         <Constraint
             android:id="@+id/logoMain"
             motion:layout_constraintEnd_toEndOf="parent"
@@ -79,6 +87,8 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:scaleX="1"
-            android:scaleY="1" />
+            android:scaleY="1"
+            motion:transitionEasing="linear"
+            android:alpha="1" />
     </ConstraintSet>
 </MotionScene>

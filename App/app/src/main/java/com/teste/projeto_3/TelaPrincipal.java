@@ -155,8 +155,8 @@ public class TelaPrincipal extends AppCompatActivity {
         dh.logoutRequest().thenAccept(requestResponse -> {
             if (requestResponse.getMessage().equals("Usuario deslogado")) {
                 dh.novoIdRequest();
-                Intent intentMainActivity = new Intent(this, MainActivity.class);
-                startActivity(intentMainActivity);
+                Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
+                startActivity(intentLoginCadastro);
                 finish();
             }
         }).exceptionally(e -> {
