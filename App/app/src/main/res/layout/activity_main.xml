@@ -10,10 +10,20 @@
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/backgroudCircle"
+        android:id="@+id/backgroudCircle1"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:background="@drawable/logo_circle"
+        android:background="@drawable/logo_circle_1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/backgroudCircle2"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:background="@drawable/logo_circle_2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
