@@ -10,7 +10,7 @@
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/backgroudCircle1"
+        android:id="@+id/backgroundCircle1"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:background="@drawable/splash_screen_circle_1"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/backgroudCircle2"
+        android:id="@+id/backgroundCircle2"
         android:layout_width="150dp"
         android:layout_height="150dp"
         android:background="@drawable/splash_screen_circle_2"
