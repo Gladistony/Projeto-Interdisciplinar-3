@@ -27,6 +27,11 @@
         <item name="android:background">@drawable/container_top</item>
     </style>
 
+    <style name="ContainerBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_box</item>
+    </style>
+
     <style name="Edit_text">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

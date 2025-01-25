@@ -36,7 +36,7 @@
             android:name=".TelaValidacao"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".TelaProdutos"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
