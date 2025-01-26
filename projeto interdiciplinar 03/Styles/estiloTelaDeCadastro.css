@@ -1,33 +1,33 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-.obrigatorio{
-    color: red;
-    font-size: 12px;
-    display: none;
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+header {
+    background-color: #2ecc71;
+    width: 30%;
+    padding: 20px;
+}
+
+header > h1 {
+    font-size: 40px;
+}
+
+header > p {
 
 }
 
-.mensagemDeErro{
-    color: red;
-    font-size: 12px;
-    display: none;
-
-}
-
-#loading{
-    border: 8px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #22a6b3;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    animation: spin 1s linear infinite;
-    display: none;
-}
-
-@-o-keyframes loading{
-    to{transform: rotate(360deg);}
+main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70%;
 }
