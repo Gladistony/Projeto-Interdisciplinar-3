@@ -58,22 +58,36 @@ public class TelaProdutos extends Activity {
     }
 
     private void addBox(String name) {
+        // Criação do botão com o estilo definido
         AppCompatButton buttonBox = new AppCompatButton(new ContextThemeWrapper(this, R.style.ContainerBox));
         buttonBox.setId(View.generateViewId());
         buttonBox.setText(name);
+        buttonBox.setBackgroundResource(R.drawable.container_box);
 
+        // Define o layoutParams diretamente
+        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
+                getResources().getDimensionPixelSize(R.dimen.box_width),
+                getResources().getDimensionPixelSize(R.dimen.box_height)
+        );
+        params.setMargins(
+                getResources().getDimensionPixelSize(R.dimen.box_margin_horizontal),
+                getResources().getDimensionPixelSize(R.dimen.box_margin_vertical),
+                getResources().getDimensionPixelSize(R.dimen.box_margin_horizontal),
+                0
+        );
+        buttonBox.setLayoutParams(params);
+
+        // Adiciona o botão ao layout
         mainLayout.addView(buttonBox);
 
+        // Configura as restrições
         ConstraintSet constraintSet = new ConstraintSet();
         constraintSet.clone(mainLayout);
 
         int row = boxCounter / 2;
         int column = boxCounter % 2;
 
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(190, 120);
-        params.setMargins(10, 30, 10, 0); 
-        buttonBox.setLayoutParams(params);
-
+        // Conecta o botão com as restrições do layout
         if (column == 0) {
             constraintSet.connect(buttonBox.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 10);
         } else {
@@ -90,4 +104,5 @@ public class TelaProdutos extends Activity {
         constraintSet.applyTo(mainLayout);
         boxCounter++;
     }
+
 }
