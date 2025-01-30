@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro com Proxy</title>
+    <link rel="stylesheet" href="../Styles/estiloTelaDeCadastro.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <img src="../IMG/ic_logo_ico.png" alt="Logo">
+        <h1>Welcome</h1>
+        <p>Cadastre-se para gerenciar seus Stocks.</p>
+    </header>
+    <main>
+    <div class="conteiner">
+        <h1 class="texto-1">Cadastro</h1>
+        <form id="cadastroForm">
+            <div class="caixa-texto">
+                <i class="material-icons">account_circle</i>
+                <input type="text" id="usuario" name="usuario" minlength="8" required placeholder="Usuário">
+            </div>
+            <div class="caixa-texto">
+                <i class="material-icons">lock</i>
+                <input type="password" id="senha" name="senha" minlength="8" required placeholder="Senha">
+            </div>
+            <div class="caixa-texto">
+                <i class="material-icons">email</i>
+                <input type="email" id="email" name="email" required placeholder="E-mail">
+            </div>
+            <div class="caixa-texto">
+                <i class="material-icons">person</i>
+                <input type="text" id="nome_completo" name="nome_completo" required placeholder="Nome Completo" autocomplete="off">
+            </div>
+            <p>Já tem cadastro? <span><a href="./index.html" class="linkParaCadastro">Login</a></span></p>
+            <button type="submit" class="btn-cadastrar">Cadastrar</button>
+        </form>
+    </div>
+</main>
+
+<script>
+    document.getElementById('cadastroForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        try {
+            // Obter ID de conexão
+            const idResponse = await fetch('http://44.203.201.20/give', {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: 'null' }) // Solicita o ID inicial
+            });
+
+            if (!idResponse.ok) {
+                throw new Error(Erro ao obter ID: ${idResponse.statusText});
+            }
+
+            const idData = await idResponse.json();
+            const connectionId = idData.id;
+
+            console.log('ID de conexão recebido:', connectionId);
+
+            // Enviar dados do formulário
+            const formData = new FormData(event.target);
+            const cadastroData = {
+                id: connectionId,
+                request: 'cadastro',
+                usuario: formData.get('usuario'),
+                senha: formData.get('senha'),
+                email: formData.get('email'),
+                nome_completo: formData.get('nome_completo')
+            };
+
+            // Verificação de usuário e senha
+            if (cadastroData.usuario.includes(' ') || cadastroData.senha.includes(' ')) {
+                throw new Error('Usuário e senha não podem conter espaços!');
+            }
+
+            const cadastroResponse = await fetch('http://44.203.201.20/give', {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(cadastroData)
+            });
+
+            if (!cadastroResponse.ok) {
+                throw new Error(Erro no cadastro: ${cadastroResponse.statusText});
+            }
+
+            const cadastroResult = await cadastroResponse.json();
+            console.log('Resposta do cadastro:', cadastroResult);
+            alert('Cadastro realizado com sucesso!');
+            window.location.href = 'index.html'; // Redirecionar para a tela de login
+        } catch (error) {
+            console.error('Erro durante o processo:', error);
+            alert(Erro: ${error.message});
+        }
+    });
+</script>
+</body>
+</html>

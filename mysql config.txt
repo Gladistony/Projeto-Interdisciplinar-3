@@ -1,0 +1,34 @@
+sudo apt update
+
+sudo apt install mysql-server
+
+sudo systemctl status mysql
+
+sudo mysql -u root -p
+CREATE DATABASE Projeto3;
+CREATE USER 'servidor'@'localhost' IDENTIFIED BY '159753';
+GRANT ALL PRIVILEGES ON Projeto3.* TO 'servidor'@'localhost';
+FLUSH PRIVILEGES;
+
+
+USE Projeto3;
+CREATE TABLE contas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome_usuario VARCHAR(255) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    email VARCHAR(255) NOT NULL,
+    codigo_ativacao VARCHAR(255) NOT NULL,
+    conta_bloqueada BOOLEAN DEFAULT 1,
+    tentativas_senha_incorreta INT DEFAULT 0,
+    data_ultimo_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    nome_completo VARCHAR(255),
+    anotacoes TEXT,
+    numero_telefone VARCHAR(20)
+);
+
+
+wget https://blob.firecast.com.br/blobs/DFUOMLNQ_3570440/Servidor.zip -O Servidor.zip
+sudo apt update
+sudo apt install wget unzip
+

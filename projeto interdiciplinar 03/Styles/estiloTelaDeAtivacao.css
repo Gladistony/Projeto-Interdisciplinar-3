@@ -1,0 +1,82 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    justify-content: center;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+main {
+    background-color: #f2f2f2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+main > div > h1 {
+    font-size: 40px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.caixa-texto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    border: 2px solid;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.caixa-texto i {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.caixa-texto input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 5px;
+    background: none;
+    font-size: 16px;
+}
+
+#BotaoDeAtivar {
+    height: 50px;
+    width: 100%;
+    background-color: #fff;
+    border: 2px solid;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 50px;
+}
+
+#BotaoDeAtivar:hover {
+    background-color: black;
+    color: #fff;
+}

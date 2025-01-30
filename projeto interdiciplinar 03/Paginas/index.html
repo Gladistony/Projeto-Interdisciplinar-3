@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
+    <title>Login</title>
+    <link rel="stylesheet" href="../Styles/estiloTelaDeLogin.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script>
+        async function enviarLogin() {
+            const email = document.getElementById('emailLogin').value;
+            const senha = document.getElementById('senhaLogin').value;
+
+            if (email === '' || senha === '') {
+                document.querySelector('.mensagemDeErro').innerHTML = 'Preencha todos os campos';
+                return;
+            }
+
+        }
+
+        async function enviarRequisicao() {
+            console.log('Enviando requisição');
+            let id = localStorage.getItem('id');
+            if (!id) {
+                const response = await fetch('http://127.0.0.1:8000/give/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: 'null' })
+                });
+                console.log(response);
+
+                if (!response.ok) {
+                    throw new Error(`Erro ao obter ID: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                id = data.id;
+                localStorage.setItem('id', id);
+            }
+            console.log(`ID: ${id}`);
+            return id;
+        }
+
+        document.addEventListener('DOMContentLoaded', enviarRequisicao);
+    </script>
+</head>
+
+<body>
+    <header>
+        <img src="../IMG/ic_logo_ico.png" alt="Logo">
+        <h1>Welcome Back</h1>
+        <p>Faça login para gerenciar seus Stocks.</p>
+    </header>
+    <main>
+        <section class="conteiner">
+            <h1 class="texto1">login</h1>
+            <form action="/login" id="loginForm" class="" method="post">
+                <div class="caixa-texto">
+                    <i class="material-icons">email</i>
+                    <input type="email" placeholder="Coloque o seu e-mail" class="" id="emailLogin">
+                </div>
+                <div class="caixa-texto">
+                    <i class="material-icons">lock</i>
+                    <input type="password" placeholder="Coloque a sua senha" id="senhaLogin">
+                    <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha senha</span></a>
+                </div>
+                <p>Não tem cadastro? <span><a href="./telaDeCadastro.html" class="linkParaCadastro">Cadastre-se já</a></span></p>
+                <button type="submit" id="entrarDologin" class="btn-login">Entrar</button>
+            </form>
+            <div>
+                <p class="mensagemDeErro"></p>
+            </div>
+            <div id="loading" class="loading-spinner" style="display: none;"></div>
+        </section>
+    </main>
+</body>
+</html>
