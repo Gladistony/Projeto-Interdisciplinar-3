@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="../Styles/estiloTelaDeInteracaoIA.css">
+    <script src="../Scripts/telaDeInteracaoIA.js" defer> </script>
+    <title>StockMind</title>
+</head>
+
+<body>
+    <header>
+        <nav class="navbar">
+            <ul>
+                <li><a href="./telaDeHomel.html">Página Inicial</a></li>
+                <li><a href="">Meus Produtos</a></li>
+                <li><a href="./telaDeInteracaoIA.html">StockMind</a></li>
+                <li id="perfil"><a href="">Perfil</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="titulo">
+        <h1>StockMind</h1>
+        <p>Converse com uma Inteligência Artificial e faça perguntas sobre seus produtos cadastrados</p>
+    </div>
+    <div class="box">
+        <div class="digitar">
+            <input type="text" id="caixa-texto" placeholder="Digite aqui..."></input>
+            <button id="botaoSugerir" onclick="criarTexto()">Enviar</button>
+        </div>
+        <div class="texto">
+            <p id="digitado">Resposta da IA vai aqui</p>
+        </div>
+    </div>
+</body>
+
+</html>

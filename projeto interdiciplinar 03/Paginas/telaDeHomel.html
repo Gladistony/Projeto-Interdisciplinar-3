@@ -3,41 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Home  </title>
+    <title>Home</title>
+    <link rel="stylesheet" href="../Styles/estiloTelaDeHome.css">
+    <script src="../Scripts/telaDeHome.js" defer> </script>
 </head>
 <body>
-    <div class="quadrado">
-         <h1> Logado </h1>
-         <div> <p>NOMEDEUSUÁRIO </p>  </div>
-        </div>
-
-    
-
+    <header>
+        <button>
+            <div class="conteiner-foto">
+                <img src="../IMG/perfil_generico.png" alt="foto-perfil">
+            </div>
+        </button>
+        <h1 id="nome-perfil">nome da pessoa</h1>
+        <p id="email-perfil">email da pessoa</p>
+    </header>
+    <main>
+        <p>gerencie seus Stocks</p>
+        <section id="section-principal">
+            <button>Produtos</button>
+            <button onclick="abrirTelaIA()">StockMind</button>
+            <button>logout</button>
+        </section>
+    </main>
 </body>
-
-<style>
-    *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body{
-    width: auto;
-    height: 100vh;
-    display: flex;
-    justify-content:center;
-    align-items: center;
-
-}
-.quadrado{
-
-    color: white;
-    background-color: #2ecc71;
-    width:200px;
-    height: 150px;
-}
-
-    
-</style>
 </html>
