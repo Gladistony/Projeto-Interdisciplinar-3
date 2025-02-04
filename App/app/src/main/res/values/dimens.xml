@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="box_width">190dp</dimen>
+    <dimen name="box_height">120dp</dimen>
+    <dimen name="box_margin_horizontal">10dp</dimen>
+    <dimen name="box_margin_vertical">30dp</dimen>
+</resources>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="ContainerComponents">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_components</item>
+    </style>
+
+    <style name="ContainerPerfil">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">280dp</item>
+        <item name="android:background">@drawable/container_perfil</item>
+    </style>
+
+    <style name="ContainerLoginCadastro">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_login_cadastro</item>
+    </style>
+
+    <style name="ContainerBottomLoginCadastro">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_bottom_login_cadastro</item>
+    </style>
+
+    <style name="ContainerTop">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_top</item>
+    </style>
+
+    <style name="ContainerBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@drawable/container_box</item>
+    </style>
+
+    <style name="Edit_text">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/edit_text</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:layout_marginLeft">20dp</item>
+        <item name="android:layout_marginRight">20dp</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:textColor">#FF000000</item>
+        <item name="android:textColorHint">#858585</item>
+    </style>
+
+    <style name="Button">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginLeft">40dp</item>
+        <item name="android:layout_marginRight">40dp</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:padding">20dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:background">@drawable/button</item>
+    </style>
+
+    <style name="ButtonArrow">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:layout_marginLeft">10dp</item>
+    </style>
+
+    <style name="ContainerDados">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@drawable/container_user_dados</item>
+    </style>
+
+</resources>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Definir bordas arredondadas -->
+    <corners android:radius="65dp" />
+
+    <!-- Definir a cor da borda -->
+    <stroke
+        android:width="2dp"
+        android:color="#000000" />
+
+    <!-- Fundo branco (opcional) -->
+    <solid android:color="@android:color/white" />
+</shape>

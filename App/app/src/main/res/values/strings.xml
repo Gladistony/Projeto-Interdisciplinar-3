@@ -1,3 +1,19 @@
 <resources>
-    <string name="app_name">Projeto-3</string>
+    <string name="app_name">StockView</string>
+    <string name="entrar">Entrar</string>
+    <string name="cadastrar">Cadastrar</string>
+    <string name="cadastre_se">Cadastre-se</string>
+    <string name="title_cadastro">Cadastre-se</string>
+    <string name="type_usuario_login">Usuário</string>
+    <string name="type_senha_login">Senha</string>
+    <string name="title_bem_vindo">StockView</string>
+    <string name="type_codigo_validacao">Código de validação</string>
+    <string name="title_validacao_conta">Validação de conta</string>
+    <string name="validar_conta">Validar minha conta</string>
+    <string name="voltar"> Voltar</string>
+    <string name="text_validacao"> "Quase lá! Enviamos um link e um código de confirmação para a sua caixa de entrada. Por favor, insira o código abaixo ou acesse o link recebido para concluir seu cadastro.</string>
+    <string name="text_validar_email"> Já validei através do link</string>
+    <string name="text_tutorial_perfil">Use a sua câmera para monitorar os seus produtos</string>
+    <string name="add"> mais</string>
+
 </resources>

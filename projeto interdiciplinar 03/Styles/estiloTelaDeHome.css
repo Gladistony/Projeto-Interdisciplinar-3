@@ -41,8 +41,8 @@ main {
     justify-content:center;
     align-items: center;
     width: 60vh;
-    height: 400px;
     border-radius: 25px;
+    padding: 20px;
 }
 
 main > p {
@@ -54,6 +54,7 @@ main > section {
     margin: 10px;
 }
 
+main > section > select,
 main > section > button {
     height: 50px;
     width: 200px;
@@ -63,9 +64,10 @@ main > section > button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    margin-top: 50px;
+    margin-top: 10px;
 }
 
+main > section > select:hover,
 main > section > button:hover {
     background-color: black;
     color: #fff;
@@ -80,9 +82,18 @@ main > button {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-top: 20px;
 }
 
 main > button:hover {
     background-color: black;
     color: #fff;
+}
+
+video {
+    margin-top: 20px;
+    border: 2px solid;
+    border-radius: 5px;
+    width: 100%;
+    height: auto;
 }
