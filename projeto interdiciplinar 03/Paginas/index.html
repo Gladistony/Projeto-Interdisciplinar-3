@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script>
         async function enviarLogin() {
-            const email = document.getElementById('emailLogin').value;
+            const email = document.getElementById('usuarioLogin').value;
             const senha = document.getElementById('senhaLogin').value;
 
             if (email === '' || senha === '') {
@@ -58,12 +58,12 @@
             <h1 class="texto1">login</h1>
             <form action="/login" id="loginForm" class="" method="post">
                 <div class="caixa-texto">
-                    <i class="material-icons">email</i>
-                    <input type="email" placeholder="Coloque o seu e-mail" class="" id="emailLogin">
+                    <i class="material-icons">person</i>
+                    <input type="text" placeholder="Nome de usuário" class="" id="usuarioLogin">
                 </div>
                 <div class="caixa-texto">
                     <i class="material-icons">lock</i>
-                    <input type="password" placeholder="Coloque a sua senha" id="senhaLogin">
+                    <input type="password" placeholder="Senha" id="senhaLogin">
                     <a href="./telaDeEsqueciASenha.html" class="esqueciSenha texto-link"><span>Esqueci minha senha</span></a>
                 </div>
                 <p>Não tem cadastro? <span><a href="./telaDeCadastro.html" class="linkParaCadastro">Cadastre-se já</a></span></p>
