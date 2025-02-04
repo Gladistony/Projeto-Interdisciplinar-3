@@ -1,6 +1,7 @@
+import os
 from Classes.BancoDeDados import BancoDeDados
 from Classes.Coneccao import ManageConect
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from pydantic import BaseModel
 from typing import Optional
 from mangum import Mangum
@@ -16,6 +17,8 @@ password = '159753'
 # API Gemini
 caminho_arquivo_api = "C:/API Gemi.txt"
 EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO <br> Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
+
+
 
 # Conectar com o banco de dados
 database = BancoDeDados(host, port, database, user, password, EMAIL_PADRAO)
@@ -58,7 +61,7 @@ class Logout(BaseModel):
 class GetDados(BaseModel):
     id: str
 
-class SetImg(BaseModel):
+class SetImgUrl(BaseModel):
     id: str
     url_foto: str
 
@@ -69,6 +72,11 @@ class Recover(BaseModel):
 class GetEmail(BaseModel):
     id: str
     usuario: str
+
+class UploadImg(BaseModel):
+    id: str
+    file: UploadFile = File(...)
+    destino: str
 
 @app.post("/give/")
 def create_item(item: Item):
@@ -88,7 +96,10 @@ def create_item(item: Item):
 
 @app.post("/cadastro/")
 def cadastro(item: Cadastro):
-    conec = manage_conect.conects[item.id]
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
     if conec.get_ja_logado():
         return {"message": "Usuario ja logado", "status": "erro", "code": 14}
     nome_usuario = item.usuario
@@ -101,7 +112,10 @@ def cadastro(item: Cadastro):
 
 @app.post("/login/")
 def login(item: Login):
-    conec = manage_conect.conects[item.id]
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
     if conec.get_ja_logado():
         return {"message": "Usuario ja logado", "status": "erro", "code": 14}
     dados = database.tentativa_login(item.usuario, item.senha)
@@ -118,7 +132,10 @@ def ativar(item: Ativar):
 
 @app.post("/logout/")
 def logout(item: Logout):
-    conec = manage_conect.conects[item.id]
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
     if conec.get_ja_logado():
         conec.data = None
         return {"message": "Usuario deslogado", "status": "sucesso", "code": 0}
@@ -127,20 +144,66 @@ def logout(item: Logout):
 
 @app.post("/get_dados/")
 def get_dados(item: GetDados):
-    conec = manage_conect.conects[item.id]
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
     if conec.get_ja_logado():
         return conec.get_data()
     else:
         return {"message": "Usuario nao logado", "status": "erro", "code": 15}
 
-@app.post("/set_img/")
-def set_img(item: SetImg):
-    conec = manage_conect.conects[item.id]
+@app.post("/set_img_url/")
+def set_img_url(item: SetImgUrl):
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
     if conec.get_ja_logado():
         status = database.set_img(conec.data[0], item.url_foto)
         if status["status"] == "sucesso":
             conec.data = database.get_data(conec.data[0])
         return status
+    else:
+        return {"message": "Usuario nao logado", "status": "erro", "code": 15}
+
+@app.get("/get_img_url/")
+def get_img_url(link: str):
+    if not os.path.isdir("imagens"):
+        os.mkdir("imagens")
+    if os.path.isfile(f"imagens/{link}_perfil.jpg"):
+        file = open(f"imagens/{link}_perfil.jpg", "rb")
+        return {"status": "sucesso", "file": file}
+    else:
+        return {"status": "erro", "message": "Imagem nao encontrada", "code": 18}
+
+@app.post("/upload-image/")
+async def upload_image(item: UploadImg):
+    try:
+        contents = await item.file.read()
+    except:
+        return {"message": "Erro ao ler arquivo", "status": "erro", "code": 16}    
+    try:
+        conec = manage_conect.conects[item.id]
+    except:
+        return {"message": "Conexao nao encontrada", "status": "erro", "code": 12}
+    if conec.get_ja_logado():
+        #Verificar se a pasta imagens existe
+        if not os.path.isdir("imagens"):
+            os.mkdir("imagens")
+        #Verficar o tipo de envio
+        if item.destino == "perfil":
+            destino = f"imagens/{item.id}_perfil.jpg"
+        elif item.destino == "post":
+            destino = f"imagens/{item.id}_post.jpg"
+        else:
+            return {"message": "Destino invalido", "status": "erro", "code": 17}
+        #Salvar o arquivo
+        with open(destino, "wb") as file:
+            file.write(contents)
+        #Pegar url
+        url = f"http://{linkhost}/get_img_url/?link={item.id}"
+        return {"message": "Arquivo salvo", "status": "sucesso", "url": url}
     else:
         return {"message": "Usuario nao logado", "status": "erro", "code": 15}
 
