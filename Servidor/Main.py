@@ -225,6 +225,7 @@ def get_email(item: GetEmail):
     return database.get_email(item.usuario)
 
 last_frames = {}  # Armazena os últimos frames por câmera
+last_frames_color = {}  # Armazena os últimos frames coloridos por câmera
 recording = {}  # Controle de gravação por câmera
 motion_last_detected = {}  # Última vez que houve movimento
 video_writers = {}  # Gerenciadores de gravação
@@ -264,6 +265,7 @@ async def receive_stream(camera_id: str, request: Request):
     
     motion_detected = detect_motion(frame, last_frames[camera_id])
     last_frames[camera_id] = gray_frame
+    last_frames_color[camera_id] = frame
     
     camera_folder = os.path.join(VIDEO_ROOT_FOLDER, camera_id)
     if not os.path.exists(camera_folder):
@@ -309,26 +311,25 @@ def list_all_videos(camera_id: str):
     files = sorted(os.listdir(camera_folder), reverse=True)  # Ordena por data decrescente
     return JSONResponse(content={"camera_id": camera_id, "videos": files})
 
+
+def generate_frames(idcamera):
+    while True:
+        try:
+            frame = last_frames_color[idcamera]
+        except:
+            break
+        _, fra = cv2.imencode(".jpg", frame)
+        yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
+   
+
 @app.get("/ver_camera/{camera_id}")
 async def ver_camera(camera_id: str):
     """Verifica o estado da câmera e transmite os frames ou retorna offline"""
     if camera_id not in camera_status:
         return JSONResponse(content={"message": "Câmera não encontrada"}, status_code=404)
 
-    if camera_status[camera_id] == "online":
-        # Se a câmera estiver online, fornecemos a transmissão de vídeo
-        def video_stream():
-            async def generate():
-                while True:
-                    frame = last_frames.get(camera_id)
-                    if frame is None:
-                        continue  # Nenhum frame disponível ainda
-                    _, buffer = cv2.imencode(".jpg", frame)  # Codifica o frame como JPEG
-                    frame_bytes = buffer.tobytes()
-                    yield frame_bytes
-            return StreamingResponse(generate(), media_type="multipart/x-mixed-replace; boundary=frame")
-        
-        return video_stream()
+    if camera_status[camera_id] == "online":        
+        return StreamingResponse(generate_frames(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
     else:
         # Se a câmera não estiver online, retorna o status offline
         return JSONResponse(content={"message": "Câmera offline"}, status_code=404)
