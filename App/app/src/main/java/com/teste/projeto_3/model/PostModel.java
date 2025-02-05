@@ -4,8 +4,6 @@ import com.google.gson.annotations.SerializedName;
 public class PostModel {
     @SerializedName("id")
     private String id;
-    @SerializedName("request")
-    private String request;
 
     @SerializedName("usuario")
     private String usuario;
@@ -23,9 +21,8 @@ public class PostModel {
     private String urlFoto;
 
 
-    public PostModel(String id, String request, String usuario, String senha, String email, String nomeCompleto, String urlFoto) {
+    public PostModel(String id, String usuario, String senha, String email, String nomeCompleto, String urlFoto) {
         this.id = id;
-        this.request = request;
         this.usuario = usuario;
         this.senha = senha;
         this.email = email;
