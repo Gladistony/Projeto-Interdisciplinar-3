@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
                                 Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
                                 intentTelaPrincipal.putExtra("nome_completo", requestResponseAutomatic.getNome_completo());
                                 intentTelaPrincipal.putExtra("email", requestResponseAutomatic.getEmail());
+                                intentTelaPrincipal.putExtra("url_foto", requestResponseAutomatic.getUrl_foto());
                                 startActivity(intentTelaPrincipal);
                                 finish();
                                 break;

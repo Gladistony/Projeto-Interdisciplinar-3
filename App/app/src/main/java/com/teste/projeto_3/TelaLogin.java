@@ -53,6 +53,7 @@ public class TelaLogin extends AppCompatActivity {
                             Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
                             intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
                             intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
+                            intentTelaPrincipal.putExtra("url_foto", requestResponse.getUrl_foto());
                             startActivity(intentTelaPrincipal);
                             finish();
                             break;

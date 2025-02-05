@@ -17,12 +17,20 @@ import retrofit2.Response;
 
 public class DataHandler {
     Context context;
+
+    ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
+
     public DataHandler(Context context) {
         this.context = context;
     }
 
+    public PostModel createPostModel(String id, String usuario, String senha, String email, String nomeCompleto, String urlFoto) {
+        return new PostModel(id, usuario, senha, email, nomeCompleto, urlFoto);
+    }
+
     public void novoIdRequest(){
-        sendData("null",null,null,null,null, null, null).thenAccept(requestResponse -> {
+        Call<RequestResponse> callRequest = apiInterface.give(createPostModel("null", null,null,null,null,null));
+        sendData(callRequest).thenAccept(requestResponse -> {
             if (requestResponse.getStatus().equals("Conexao criada")) {
                 salvarIdConexao(requestResponse.getId());
             }
@@ -31,34 +39,35 @@ public class DataHandler {
         });
     }
     public CompletableFuture<RequestResponse> ativarRequest(String usuario, String senha){
-        return sendData(obterIdConexao(),"ativar", usuario,senha,null,null,null);
+        Call<RequestResponse> callRequest = apiInterface.ativar(createPostModel(obterIdConexao(), usuario,senha,null,null,null));
+        return sendData(callRequest);
     }
 
     public CompletableFuture<RequestResponse> loginRequest(String usuario, String senha) {
-        return sendData(obterIdConexao(), "login", usuario, senha, null,null, null);
+        Call<RequestResponse> callRequest = apiInterface.login(createPostModel(obterIdConexao(), usuario,senha,null,null,null));
+        return sendData(callRequest);
     }
 
     public CompletableFuture<RequestResponse> cadastroRequest(String usuario, String senha, String email, String nomeCompleto) {
-        return sendData(obterIdConexao(), "cadastro", usuario, senha, email,nomeCompleto,"");
+        Call<RequestResponse> callRequest = apiInterface.cadastro(createPostModel(obterIdConexao(), usuario,senha,email,nomeCompleto,null));
+        return sendData(callRequest);
     }
     public CompletableFuture<RequestResponse> getDadosRequest(){
-        return sendData(obterIdConexao(), "get_dados", null,null,null,null,null);
+        Call<RequestResponse> callRequest = apiInterface.get_dados(createPostModel(obterIdConexao(), null,null,null,null,null));
+        return sendData(callRequest);
     }
 
     public CompletableFuture<RequestResponse> logoutRequest() {
-        return sendData(obterIdConexao(), "logout", null,null,null,null,null);
+        Call<RequestResponse> callRequest = apiInterface.logout(createPostModel(obterIdConexao(), null,null,null,null,null));
+        return sendData(callRequest);
     }
 
-    public CompletableFuture<RequestResponse> sendData(String id, String request, String usuario, String senha, String email, String nomeCompleto, String urlFoto) {
-        // Cria o JSON a ser enviado
-        PostModel postModel = new PostModel(id, request, usuario, senha, email, nomeCompleto, urlFoto);
-
+    public CompletableFuture<RequestResponse> sendData(Call<RequestResponse> callRequest) {
         // Retorno assíncrono do método
         CompletableFuture<RequestResponse> future = new CompletableFuture<>();
 
-        // Configura a API no método
-        ApiInterface apiInterface = RetrofitClient.getRetrofit().create(ApiInterface.class);
-        Call<RequestResponse> call = apiInterface.postData(postModel);
+        // Configura a API para requisição e e o método a ser requisitado
+        Call<RequestResponse> call = callRequest;
 
         // Chama a API
         call.enqueue(new Callback<RequestResponse>() {

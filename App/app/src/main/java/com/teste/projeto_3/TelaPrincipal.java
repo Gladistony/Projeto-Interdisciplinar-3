@@ -23,6 +23,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.squareup.picasso.Picasso;
 import com.teste.projeto_3.model.PostModel;
 import com.teste.projeto_3.model.RequestResponse;
 import com.teste.projeto_3.retrofitconnection.ApiInterface;
@@ -146,9 +147,14 @@ public class TelaPrincipal extends AppCompatActivity {
     public void onLoggedIn() {
         TextView nome = findViewById(R.id.textNomeUsuario);
         TextView email = findViewById(R.id.textEmailUsuario);
+        ImageView imageView = findViewById(R.id.imageView);
         Intent intentInfoLogin = getIntent();
         nome.setText(intentInfoLogin.getStringExtra("nome_completo"));
         email.setText(intentInfoLogin.getStringExtra("email"));
+        String imagemUrl = intentInfoLogin.getStringExtra("url_foto");
+        if (!imagemUrl.equals("")) {
+            Picasso.get().load(intentInfoLogin.getStringExtra("url_foto")).into(imageView);
+        }
     }
 
     public void deslogar(View v){
