@@ -14,6 +14,7 @@ import aiohttp
 import numpy as np
 import time
 from collections import deque
+from ultralytics import YOLO
 from datetime import datetime
 
 # Dados da conexão com o banco de dados
@@ -27,16 +28,7 @@ password = '159753'
 caminho_arquivo_api = "C:/API Gemi.txt"
 EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO <br> Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
 
-# Carregar modelo pré-treinado MobileNet SSD
-net = cv2.dnn.readNetFromCaffe(
-    "MobileNetSSD_deploy.prototxt",
-    "MobileNetSSD_deploy.caffemodel"
-)
-
-# Classes detectáveis pelo MobileNet SSD
-CLASSES = ["fundo", "pessoa", "bicicleta", "carro", "moto", "avião", "ônibus",
-           "trem", "caminhão", "sinalização", "gato", "cachorro",
-           "cavalo", "ovelha", "elefante", "urso", "girafa", "ventilador", "cama", "xícara", "garrafa"]
+model = YOLO("yolov8n.pt")  # Modelo YOLO para detecção de objetos
 
 # Conectar com o banco de dados
 database = BancoDeDados(host, port, database, user, password, EMAIL_PADRAO)
@@ -329,6 +321,24 @@ def generate_frames(idcamera):
             break
         _, fra = cv2.imencode(".jpg", frame)
         yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
+def classify_objects(frame):
+    results = model(frame)  # Faz a detecção no frame
+
+    for result in results:
+        for box in result.boxes:
+            class_id = int(box.cls[0])  # ID da classe detectada
+            label = model.names[class_id]  # Nome da classe
+            confidence = box.conf[0]  # Confiança da detecção
+
+            # Obter coordenadas do bounding box
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+            # Desenhar o bounding box no frame
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            cv2.putText(frame, f"{label} ({confidence:.2f})", (x1, y1 - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+    
+    return frame
 
 def generate_frames_classe(idcamera):
     while True:
@@ -337,26 +347,7 @@ def generate_frames_classe(idcamera):
         except:
             break
         # Convertendo frame para blob (necessário para o modelo)
-        blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)
-        net.setInput(blob)
-        detections = net.forward()
-
-        # Iterando sobre as detecções
-        for i in range(detections.shape[2]):
-            confidence = detections[0, 0, i, 2]  # Confiança da detecção
-            if confidence > 0.5:  # Filtrar detecções fracas
-                class_id = int(detections[0, 0, i, 1])
-                label = CLASSES[class_id] if class_id < len(CLASSES) else "Desconhecido"
-
-                # Pegando coordenadas da caixa delimitadora
-                box = detections[0, 0, i, 3:7] * np.array([frame.shape[1], frame.shape[0], frame.shape[1], frame.shape[0]])
-                (startX, startY, endX, endY) = box.astype("int")
-
-                # Desenhar a caixa e a classe detectada
-                cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
-                cv2.putText(frame, label, (startX, startY - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        
-        # Codificar o frame processado e retornar
+        frame = classify_objects(frame)
         _, fra = cv2.imencode(".jpg", frame)
         yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
    

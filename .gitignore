@@ -2,3 +2,4 @@
 MobileNetSSD_deploy.caffemodel
 MobileNetSSD_deploy.prototxt
 yolov8x.pt
+yolov8n.pt
