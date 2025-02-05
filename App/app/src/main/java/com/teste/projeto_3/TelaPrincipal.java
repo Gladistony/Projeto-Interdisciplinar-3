@@ -41,6 +41,7 @@ public class TelaPrincipal extends AppCompatActivity {
     DataHandler dh;
 
     private ActivityResultLauncher<Intent> cameraLauncher;
+    private boolean isLogoutInProgress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +152,13 @@ public class TelaPrincipal extends AppCompatActivity {
         email.setText(intentInfoLogin.getStringExtra("email"));
     }
 
-    public void deslogar(View v){
+    public void deslogar(View v) {
+        if (isLogoutInProgress) {
+            return; // Se um logout já está em andamento, saia do método
+        }
+
+        isLogoutInProgress = true; // Marque que um logout está em andamento
+
         dh.logoutRequest().thenAccept(requestResponse -> {
             if (requestResponse.getMessage().equals("Usuario deslogado")) {
                 dh.novoIdRequest();
@@ -159,7 +166,9 @@ public class TelaPrincipal extends AppCompatActivity {
                 startActivity(intentLoginCadastro);
                 finish();
             }
+            isLogoutInProgress = false; // Libere o estado de logout em andamento após a resposta
         }).exceptionally(e -> {
+            isLogoutInProgress = false; // Libere o estado de logout em andamento em caso de erro
             return null;
         });
     }

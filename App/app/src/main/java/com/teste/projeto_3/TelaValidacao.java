@@ -26,6 +26,8 @@ import retrofit2.Response;
 
 public class TelaValidacao extends AppCompatActivity {
     DataHandler dh;
+    private boolean isEmailValidationInProgress = false;
+    private boolean isCodeValidationInProgress = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +40,15 @@ public class TelaValidacao extends AppCompatActivity {
             return insets;
         });
         dh = new DataHandler(getApplicationContext());
-
     }
 
     public void validarPorEmail(View v) {
+        if (isEmailValidationInProgress) {
+            return;  // Se uma validação por email já está em andamento, saia do método
+        }
+
+        isEmailValidationInProgress = true;  // Marque que uma validação por email está em andamento
+
         Intent telaLogin = getIntent();
         dh.ativarRequest(telaLogin.getStringExtra("usuario"), "").thenAccept(requestResponseValidate -> {
             if (requestResponseValidate.getCode() == 11) {
@@ -53,24 +60,35 @@ public class TelaValidacao extends AppCompatActivity {
                         startActivity(intentTelaPrincipal);
                         finish();
                     }
+                    isEmailValidationInProgress = false;  // Libere o estado de validação por email em andamento após a resposta
                 }).exceptionally(e -> {
+                    isEmailValidationInProgress = false;  // Libere o estado de validação por email em andamento em caso de erro
                     return null;
                 });
             } else {
                 Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                isEmailValidationInProgress = false;  // Libere o estado de validação por email em andamento
             }
         }).exceptionally(e -> {
+            isEmailValidationInProgress = false;  // Libere o estado de validação por email em andamento em caso de erro
             return null;
         });
     }
 
     public void validarPorCodigo(View v) {
+        if (isCodeValidationInProgress) {
+            return;  // Se uma validação por código já está em andamento, saia do método
+        }
+
+        isCodeValidationInProgress = true;  // Marque que uma validação por código está em andamento
+
         EditText validacao = findViewById(R.id.codigo_validacao);
         Intent intentInfoTelaLogin = getIntent();
         String usuario = intentInfoTelaLogin.getStringExtra("usuario");
 
         if (validacao.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Insira o código de validação antes de prosseguir", Toast.LENGTH_SHORT).show();
+            isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento
         } else {
             dh.ativarRequest(usuario, validacao.getText().toString()).thenAccept(requestResponseValidate -> {
                 switch (requestResponseValidate.getCode()) {
@@ -83,17 +101,21 @@ public class TelaValidacao extends AppCompatActivity {
                             Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                             startActivity(intentTelaPerfil);
                             finish();
+                            isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento após a resposta
                         }).exceptionally(e -> {
+                            isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento em caso de erro
                             return null;
                         });
                         break;
 
-                    case 4: //Conta não encontrada
+                    case 4: // Conta não encontrada
                         Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
+                        isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento
                         break;
 
-                    case 7: // Código de ativação incorreta
+                    case 7: // Código de ativação incorreto
                         Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
+                        isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento
                         break;
 
                     case 11: // Conta já está ativa
@@ -104,16 +126,17 @@ public class TelaValidacao extends AppCompatActivity {
                             Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                             startActivity(intentTelaPerfil);
                             finish();
+                            isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento após a resposta
                         }).exceptionally(e -> {
+                            isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento em caso de erro
                             return null;
                         });
                         break;
-
                 }
             }).exceptionally(e -> {
+                isCodeValidationInProgress = false;  // Libere o estado de validação por código em andamento em caso de erro
                 return null;
             });
         }
     }
 }
-
