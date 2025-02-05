@@ -27,7 +27,16 @@ password = '159753'
 caminho_arquivo_api = "C:/API Gemi.txt"
 EMAIL_PADRAO = f"Esse é seu codigo de ativacao: CODIGO <br> Você pode ativar sua conta em: http://{linkhost}/ativar/USUARIO/CODIGO"
 
+# Carregar modelo pré-treinado MobileNet SSD
+net = cv2.dnn.readNetFromCaffe(
+    "MobileNetSSD_deploy.prototxt",
+    "MobileNetSSD_deploy.caffemodel"
+)
 
+# Classes detectáveis pelo MobileNet SSD
+CLASSES = ["fundo", "pessoa", "bicicleta", "carro", "moto", "avião", "ônibus",
+           "trem", "caminhão", "sinalização", "gato", "cachorro",
+           "cavalo", "ovelha", "elefante", "urso", "girafa", "ventilador", "cama", "xícara", "garrafa"]
 
 # Conectar com o banco de dados
 database = BancoDeDados(host, port, database, user, password, EMAIL_PADRAO)
@@ -320,6 +329,36 @@ def generate_frames(idcamera):
             break
         _, fra = cv2.imencode(".jpg", frame)
         yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
+
+def generate_frames_classe(idcamera):
+    while True:
+        try:
+            frame = last_frames_color[idcamera]
+        except:
+            break
+        # Convertendo frame para blob (necessário para o modelo)
+        blob = cv2.dnn.blobFromImage(frame, 0.007843, (300, 300), 127.5)
+        net.setInput(blob)
+        detections = net.forward()
+
+        # Iterando sobre as detecções
+        for i in range(detections.shape[2]):
+            confidence = detections[0, 0, i, 2]  # Confiança da detecção
+            if confidence > 0.5:  # Filtrar detecções fracas
+                class_id = int(detections[0, 0, i, 1])
+                label = CLASSES[class_id] if class_id < len(CLASSES) else "Desconhecido"
+
+                # Pegando coordenadas da caixa delimitadora
+                box = detections[0, 0, i, 3:7] * np.array([frame.shape[1], frame.shape[0], frame.shape[1], frame.shape[0]])
+                (startX, startY, endX, endY) = box.astype("int")
+
+                # Desenhar a caixa e a classe detectada
+                cv2.rectangle(frame, (startX, startY), (endX, endY), (0, 255, 0), 2)
+                cv2.putText(frame, label, (startX, startY - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+        
+        # Codificar o frame processado e retornar
+        _, fra = cv2.imencode(".jpg", frame)
+        yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
    
 
 @app.get("/ver_camera/{camera_id}")
@@ -330,6 +369,18 @@ async def ver_camera(camera_id: str):
 
     if camera_status[camera_id] == "online":        
         return StreamingResponse(generate_frames(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
+    else:
+        # Se a câmera não estiver online, retorna o status offline
+        return JSONResponse(content={"message": "Câmera offline"}, status_code=404)
+    
+@app.get("/ver_camera_classe/{camera_id}")
+async def ver_camera_classe(camera_id: str):
+    """Verifica o estado da câmera e transmite os frames ou retorna offline"""
+    if camera_id not in camera_status:
+        return JSONResponse(content={"message": "Câmera não encontrada"}, status_code=404)
+
+    if camera_status[camera_id] == "online":        
+        return StreamingResponse(generate_frames_classe(camera_id), media_type="multipart/x-mixed-replace; boundary=frame")
     else:
         # Se a câmera não estiver online, retorna o status offline
         return JSONResponse(content={"message": "Câmera offline"}, status_code=404)
