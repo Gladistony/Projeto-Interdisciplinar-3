@@ -50,6 +50,7 @@ public class TelaValidacao extends AppCompatActivity {
                         Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
                         intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
                         intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
+                        intentTelaPrincipal.putExtra("url_foto", requestResponse.getUrl_foto());
                         startActivity(intentTelaPrincipal);
                         finish();
                     }
@@ -80,6 +81,7 @@ public class TelaValidacao extends AppCompatActivity {
                             Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
                             intentTelaPerfil.putExtra("nome_completo", requestResponseAfter.getNome_completo());
                             intentTelaPerfil.putExtra("email", requestResponseAfter.getEmail());
+                            intentTelaPerfil.putExtra("url_foto", requestResponseValidate.getUrl_foto());
                             Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                             startActivity(intentTelaPerfil);
                             finish();
@@ -101,6 +103,7 @@ public class TelaValidacao extends AppCompatActivity {
                             Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
                             intentTelaPerfil.putExtra("nome_completo", requestResponseValidate.getNome_completo());
                             intentTelaPerfil.putExtra("email", requestResponseValidate.getEmail());
+                            intentTelaPerfil.putExtra("url_foto", requestResponseValidate.getUrl_foto());
                             Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
                             startActivity(intentTelaPerfil);
                             finish();
