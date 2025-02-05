@@ -21,7 +21,9 @@ import com.teste.projeto_3.retrofitconnection.DataHandler;
 
 public class FormCadastro extends AppCompatActivity {
 
-DataHandler dh;
+    DataHandler dh;
+    private boolean isCadastroInProgress = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +59,12 @@ DataHandler dh;
 
     // Método de cadastro
     public void cadastrar(View v) {
+        if (isCadastroInProgress) {
+            return;  // Se uma requisição de cadastro já está em andamento, saia do método
+        }
+
+        isCadastroInProgress = true;  // Marque que uma requisição de cadastro está em andamento
+
         if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
             dh.novoIdRequest();
         }
@@ -67,20 +75,11 @@ DataHandler dh;
         EditText editTextSenha = findViewById(R.id.edit_senha);
         EditText editTextUsuario = findViewById(R.id.edit_usuario);
 
-        /*
-        // Criar o objeto User para a primeira requisição
-        User user = new User();
-        user.setId(obterIdConexao());
-        user.setRequest("cadastro"); // Tipo de requisição
-        user.setNome_completo(editTextNome.getText().toString());
-        user.setEmail(editTextEmail.getText().toString());
-        user.setSenha(editTextSenha.getText().toString());
-        user.setUsuario(editTextUsuario.getText().toString()); */
-
         // Validar campos obrigatórios
         if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
                 editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
+            isCadastroInProgress = false;  // Libere o estado de cadastro em andamento
         } else {
             if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
                 dh.novoIdRequest();
@@ -101,31 +100,14 @@ DataHandler dh;
                         Toast.makeText(getApplicationContext(), requestResponse.getMessage(), Toast.LENGTH_LONG).show();
                         break;
                 }
-
+                isCadastroInProgress = false;  // Libere o estado de cadastro em andamento após a resposta
             }).exceptionally(e -> {
                 Toast.makeText(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", Toast.LENGTH_SHORT).show();
+                isCadastroInProgress = false;  // Libere o estado de cadastro em andamento em caso de erro
                 return null;
             });
         }
     }
-                /*
-                // Criar uma nova requisição com o ID retornado
-                User userAtualizado = new User();
-                userAtualizado.setId(userId);
-                userAtualizado.setRequest("outra_acao");
-                String updatedUserJson = gson.toJson(userAtualizado);
-
-                // Fazer a segunda requisição
-                enviarRequisicao(updatedUserJson, updateResponse -> {
-                    if (updateResponse.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, updateResponse, Toast.LENGTH_LONG).show());
-                    } else {
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Requisição subsequente realizada com sucesso!", Toast.LENGTH_SHORT).show();
-                            abrirTelaLogin(); // Navegar para a próxima tela
-                        });
-                    }
-                }); */
 
     // Método auxiliar para enviar requisições
     private void enviarRequisicao(String json, Callback callback) {
