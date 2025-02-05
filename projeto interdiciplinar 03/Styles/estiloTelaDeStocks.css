@@ -27,12 +27,28 @@ header > nav {
 }
 
 header > nav > button {
-    margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 30px;
     cursor: pointer;
+    color: white;
+    background-color: transparent; /* Fundo transparente */
+    border: none; /* Sem borda */
+}
+
+header > nav > button i {
+    font-size: 24px;
 }
 
 header > nav > a {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    color: white;
+    text-decoration: none; /* Sem sublinhado */
+    display: flex;
+    align-items: center;
+}
+
+header > nav > a i {
+    font-size: 24px;
 }
 
 main {
