@@ -36,12 +36,12 @@ header > button > div > img {
 }
 
 main {
-    background-color: #c3c3c3;
+    background-color: #2ecc71;
     text-align: center;
     justify-content:center;
     align-items: center;
     width: 60vh;
-    border-radius: 25px;
+    border-radius: 50px;
     padding: 20px;
 }
 
@@ -61,7 +61,7 @@ main > section > button {
     background-color: #fff;
     border: 2px solid;
     padding: 10px 20px;
-    border-radius: 5px;
+    border-radius: 30px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 10px;

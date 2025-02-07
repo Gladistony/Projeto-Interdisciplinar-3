@@ -53,13 +53,17 @@ main > div > h1 {
     flex-direction: column;
 }
 
+.texto1{
+    margin-bottom: 10px;
+}
+
 .caixa-texto {
     display: flex;
     align-items: center;
     border: 2px solid;
     padding: 10px;
     margin-bottom: 15px;
-    border-radius: 5px;
+    border-radius: 20px;
     width: 150%;
 }
 
@@ -92,4 +96,27 @@ main > div > h1 {
 .btn-login:hover {
     background-color: black;
     color: #fff;
+}
+
+
+
+.linkParaCadastro{
+    text-decoration: none;
+
+}
+
+.linkParaCadastro:hover{
+    text-decoration: underline;
+}
+
+.esqueciSenha{
+    text-decoration: none;
+}
+
+.esqueciSenha:hover{
+    text-decoration: underline;
+}
+
+.texto-link{
+    font-size: small;
 }
