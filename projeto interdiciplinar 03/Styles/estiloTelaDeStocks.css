@@ -9,14 +9,15 @@
 body {
     display: grid;
     grid-template-areas:
+    "header h1 h1"
     "header main main"
     "header main main";
-    grid-template-rows: 100vh;
 }
 
 header {
     background-color: #2ecc71;
     width: 100px;
+    height: 100VH;
 }
 
 header > nav {
@@ -83,4 +84,43 @@ header {
 
 main {
     grid-area: main;
+}
+
+#h1 {
+    grid-area: h1;
+    font-size: 40px;
+}
+
+/* parte da ia*/
+
+#camera-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vh;
+    height: 100vh;
+    margin-top: -50px;
+}
+
+#camera {
+    width: 90vh;
+    height: 80vh;
+}
+
+#camera-ia {
+    display: flex;
+    flex-direction: row;
+}
+
+#texto-stock {
+    width: 50vh;
+    height: 50vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: start;
+}
+
+#h1 {
+    text-align: center;
 }
