@@ -53,6 +53,8 @@ header > nav > a i {
 }
 
 main {
+    display: flex;
+    flex-direction: row;
 }
 
 #container-box {
@@ -91,15 +93,14 @@ main {
     font-size: 40px;
 }
 
-/* parte da ia*/
+/* parte da ia */
 
 #camera-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100vh;
-    height: 100vh;
-    margin-top: -50px;
+    height: 90vh;
 }
 
 #camera {
@@ -113,14 +114,56 @@ main {
 }
 
 #texto-stock {
+    margin-top: 140px;
     width: 50vh;
-    height: 50vh;
+    height: auto;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     align-items: center;
     text-align: start;
 }
 
 #h1 {
     text-align: center;
+}
+
+#camera-opcao {
+    margin-top: 50px;
+    margin-right: -195px;
+}
+
+/* Estilo para o select */
+#camera-tipo {
+    width: 200px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #fff;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('https://cdn-icons-png.flaticon.com/512/60/60995.png'); /* Ícone da seta */
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px 20px;
+}
+
+#camera-tipo:focus {
+    outline: none;
+    border-color: #000000;
+}
+
+/* parte da lista */
+
+#lista-produtos {
+    margin-top: 50px;
+    background-color: #e1e1e1;
+    padding: 50px;
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.50);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 }
