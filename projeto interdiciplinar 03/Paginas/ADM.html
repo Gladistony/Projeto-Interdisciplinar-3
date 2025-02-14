@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ADM</title>
+    <link rel="stylesheet" href="../Styles/estiloTelaDeADM.css">
+</head>
+<body>
+    <h1>Administração de Usuários</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Foto de Perfil</th>
+                <th>Usuário</th>
+                <th>Nome Completo</th>
+                <th>Email</th>
+                <th>Senha</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td><img src="perfil1.jpg" alt="Foto de Perfil" class="perfil"></td>
+                <td>usuario1</td>
+                <td>Nome Completo 1</td>
+                <td>email1@example.com</td>
+                <td>*******</td>
+                <td>
+                    <button class="edit">Editar</button>
+                    <button class="delete">Apagar</button>
+                    <button class="toggle-details">Mostrar Detalhes</button>
+                </td>
+            </tr>
+            <tr class="detalhes">
+                <td colspan="7">
+                    <div class="detalhe-estoque">
+                        <h3>Fotos do Estoque</h3>
+                        <img src="estoque1.jpg" alt="Foto do Estoque" class="estoque">
+                        <img src="estoque2.jpg" alt="Foto do Estoque" class="estoque">
+                    </div>
+                    <div class="detalhe-estoque">
+                        <h3>Descrição do Estoque</h3>
+                        <p>Descrição do Estoque 1</p>
+                        <p>Descrição do Estoque 2</p>
+                    </div>
+                    <div class="detalhe-estoque">
+                        <h3>Título do Estoque</h3>
+                        <p>Título do Estoque 1</p>
+                        <p>Título do Estoque 2</p>
+                    </div>
+                    <div class="detalhe-estoque">
+                        <h3>ID de Câmeras</h3>
+                        <p>ID Câmera 1</p>
+                        <p>ID Câmera 2</p>
+                    </div>
+                    <div class="detalhe-estoque">
+                        <h3>ID de Cada Estoque</h3>
+                        <p>ID Estoque 1</p>
+                        <p>ID Estoque 2</p>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script src="../Scripts/telaDeADM.js"></script>
+</body>
+</html>
