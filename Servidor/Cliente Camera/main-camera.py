@@ -5,9 +5,29 @@ import numpy as np
 
 CAMERA_ID = "123456789"
 
+def listar_webcams():
+    index = 0
+    webcams = []
+    while True:
+        cap = cv2.VideoCapture(index)
+        if not cap.read()[0]:
+            break
+        else:
+            webcams.append(index)
+        cap.release()
+        index += 1
+    return webcams
+
+webcams_disponiveis = listar_webcams()
+print("Webcams disponíveis:", webcams_disponiveis)
+escolha = int(input("Escolha a webcam: "))
+if escolha not in webcams_disponiveis:
+    print("Webcam inválida")
+    exit()
+
 
 def capture_and_send():
-    cap = cv2.VideoCapture(0)  # Captura da webcam
+    cap = cv2.VideoCapture(escolha)
     url = f"http://127.0.0.1:8000/receive/{CAMERA_ID}"
     print("Sending frames to", url)
     while True:
