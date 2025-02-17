@@ -15,31 +15,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestResponse;
-import com.teste.projeto_3.retrofitconnection.ApiInterface;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
-import com.teste.projeto_3.retrofitconnection.RetrofitClient;
-
+import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.User;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.CompletableFuture;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class TelaPrincipal extends AppCompatActivity {
-    DataHandler dh;
+    EnviarRequisicao er;
 
     private ActivityResultLauncher<Intent> cameraLauncher;
 
@@ -91,7 +80,7 @@ public class TelaPrincipal extends AppCompatActivity {
         cameraButton.setOnClickListener(v -> abrirCamera());
 
         // Configurar informações do usuário logado
-        dh = new DataHandler(getApplicationContext());
+        er = new EnviarRequisicao(getApplicationContext());
         onLoggedIn();
     }
 
@@ -158,14 +147,31 @@ public class TelaPrincipal extends AppCompatActivity {
     }
 
     public void deslogar(View v){
-        dh.logoutRequest().thenAccept(requestResponse -> {
-            if (requestResponse.getMessage().equals("Usuario deslogado")) {
-                Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
-                startActivity(intentLoginCadastro);
-                finish();
+        User userLogin = new User();
+        userLogin.setId(er.obterMemoriaInterna("idConexao"));
+
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(userLogin);
+
+        er.post("logout", userJson, response -> {
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+            } else {
+                try {
+                    // Processar resposta da requisição
+                    User responseLogin = gson.fromJson(response, User.class);
+                    if (responseLogin.getMessage().equals("Usuario deslogado")) {
+                        Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
+                        startActivity(intentLoginCadastro);
+                        finish();
+                } else {
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao deslogar", Toast.LENGTH_SHORT).show());
+                    }
+                }catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                }
             }
-        }).exceptionally(e -> {
-            return null;
         });
     }
-}
+    }

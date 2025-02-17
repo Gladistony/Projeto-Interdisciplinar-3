@@ -5,27 +5,17 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestResponse;
-import com.teste.projeto_3.retrofitconnection.ApiInterface;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
-import com.teste.projeto_3.retrofitconnection.RetrofitClient;
-
-import java.util.concurrent.CompletableFuture;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import com.google.gson.Gson;
+import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.User;
 
 public class TelaValidacao extends AppCompatActivity {
-    DataHandler dh;
+    EnviarRequisicao er;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,86 +27,130 @@ public class TelaValidacao extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        dh = new DataHandler(getApplicationContext());
+        er = new EnviarRequisicao(getApplicationContext());
 
     }
 
     public void validarPorEmail(View v) {
-        Intent telaLogin = getIntent();
-        dh.ativarRequest(telaLogin.getStringExtra("usuario"), "").thenAccept(requestResponseValidate -> {
-            if (requestResponseValidate.getCode() == 11) {
-                dh.loginRequest(telaLogin.getStringExtra("usuario"), telaLogin.getStringExtra("senha")).thenAccept(requestResponse -> {
-                    if (requestResponse.getCode() == 0) {
-                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                        intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
-                        intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
-                        intentTelaPrincipal.putExtra("url_foto", requestResponse.getUrl_foto());
-                        startActivity(intentTelaPrincipal);
-                        finish();
-                    }
-                }).exceptionally(e -> {
-                    return null;
-                });
+        Intent intentInfoTelaLogin = getIntent();
+
+        String usuario = intentInfoTelaLogin.getStringExtra("usuario");
+        String senha = intentInfoTelaLogin.getStringExtra("senha");
+
+        // Fazer a requisição
+        er.ativarConta(usuario, "", response -> {
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
             } else {
-                Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                try {
+                    // Processar resposta da requisição
+                    Gson gson = new Gson();
+                    User responseValidacao = gson.fromJson(response, User.class);
+                    if (responseValidacao.getCode() == 11) {
+                        login(usuario, senha);
+                    } else {
+                        Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                }
             }
-        }).exceptionally(e -> {
-            return null;
         });
     }
 
     public void validarPorCodigo(View v) {
         EditText validacao = findViewById(R.id.codigo_validacao);
         Intent intentInfoTelaLogin = getIntent();
-        String usuario = intentInfoTelaLogin.getStringExtra("usuario");
 
         if (validacao.getText().toString().isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Insira o código de validação antes de prosseguir", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
         } else {
-            dh.ativarRequest(usuario, validacao.getText().toString()).thenAccept(requestResponseValidate -> {
-                switch (requestResponseValidate.getCode()) {
 
-                    case 0: // Conta ativada com sucesso
-                        dh.loginRequest(intentInfoTelaLogin.getStringExtra("usuario"), intentInfoTelaLogin.getStringExtra("senha")).thenAccept(requestResponseAfter -> {
-                            Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
-                            intentTelaPerfil.putExtra("nome_completo", requestResponseAfter.getNome_completo());
-                            intentTelaPerfil.putExtra("email", requestResponseAfter.getEmail());
-                            intentTelaPerfil.putExtra("url_foto", requestResponseValidate.getUrl_foto());
-                            Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
-                            startActivity(intentTelaPerfil);
-                            finish();
-                        }).exceptionally(e -> {
-                            return null;
-                        });
-                        break;
+            String usuario = intentInfoTelaLogin.getStringExtra("usuario");
+            String senha = intentInfoTelaLogin.getStringExtra("senha");
+            String codigoValidacao = validacao.getText().toString();
 
-                    case 4: //Conta não encontrada
-                        Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
-                        break;
-
-                    case 7: // Código de ativação incorreta
-                        Toast.makeText(this, requestResponseValidate.getMessage(), Toast.LENGTH_SHORT).show();
-                        break;
-
-                    case 11: // Conta já está ativa
-                        dh.loginRequest(intentInfoTelaLogin.getStringExtra("usuario"), intentInfoTelaLogin.getStringExtra("senha")).thenAccept(requestResponseAfter -> {
-                            Intent intentTelaPerfil = new Intent(this, TelaPrincipal.class);
-                            intentTelaPerfil.putExtra("nome_completo", requestResponseValidate.getNome_completo());
-                            intentTelaPerfil.putExtra("email", requestResponseValidate.getEmail());
-                            intentTelaPerfil.putExtra("url_foto", requestResponseValidate.getUrl_foto());
-                            Toast.makeText(this, "Conta ativada com sucesso", Toast.LENGTH_LONG).show();
-                            startActivity(intentTelaPerfil);
-                            finish();
-                        }).exceptionally(e -> {
-                            return null;
-                        });
-                        break;
-
+            // Fazer a requisição
+            er.ativarConta(usuario, codigoValidacao, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        Gson gson = new Gson();
+                        User responseValidacao = gson.fromJson(response, User.class);
+                        if (responseValidacao.getCode() == 11) {
+                            login(usuario, senha);
+                        } else {
+                            Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                    }
                 }
-            }).exceptionally(e -> {
-                return null;
             });
         }
     }
-}
+                public void login(String usuario, String senha) {
+                    // Criando o objeto User
+                    User userLogin = new User();
+                    userLogin.setId(er.obterMemoriaInterna("idConexao"));
+                    userLogin.setUsuario(usuario);
+                    userLogin.setSenha(senha);
+
+                    // Converter o objeto User para JSON
+                    Gson gson = new Gson();
+                    String userJson = gson.toJson(userLogin);
+
+                    // Fazer a requisição
+                    er.post("login", userJson, response -> {
+                        if (response.startsWith("Erro")) {
+                            runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        } else {
+                            try {
+                                // Processar resposta da requisição
+                                User responseLogin = gson.fromJson(response, User.class);
+                                if (responseLogin != null) {
+                                    switch (responseLogin.getCode()) {
+                                        case 0: // Login bem sucedido
+                                            Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                            intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
+                                            intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
+                                            intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                            runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
+                                            startActivity(intentTelaPrincipal);
+                                            finish();
+                                            break;
+
+                                        case 3: // Conta não está ativa
+                                            Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
+                                            intentTelaValidacao.putExtra("usuario", usuario);
+                                            intentTelaValidacao.putExtra("senha", senha);
+                                            startActivity(intentTelaValidacao);
+                                            finish();
+                                            break;
+
+                                        case 4: // Conta não encontrada
+                                            Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                            break;
+
+                                        case 7: // Código de ativação incorreta
+                                            Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                            break;
+
+                                        case 11: // Conta já está ativa
+                                            login(usuario, senha);
+
+                                        case 12: // Conexão não encontrada
+                                            Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show();
+                                            break;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                    });
+                }
+    }
 

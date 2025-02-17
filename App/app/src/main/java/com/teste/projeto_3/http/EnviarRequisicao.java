@@ -2,9 +2,13 @@ package com.teste.projeto_3.http;
 
 import android.content.Context;
 
-import androidx.appcompat.app.AppCompatActivity;
+public class EnviarRequisicao {
 
-public class EnviarRequisicao extends AppCompatActivity {
+    public Context context;
+
+    public EnviarRequisicao(Context context) {
+        this.context = context;
+    }
 
     public void post(String method, String json, Callback callback) {
         new Thread(() -> {
@@ -22,16 +26,24 @@ public class EnviarRequisicao extends AppCompatActivity {
         }).start();
     }
 
+    public void ativarConta(String usuario, String senha, Callback callback) {
+        new Thread(() -> {
+            HttpHelper httpHelper = new HttpHelper();
+            String response = httpHelper.ativarConta(usuario, senha);
+            callback.onResponse(response);
+        }).start();
+    }
+
     public void salvarMemoriaInterna(String keyString, String stringSalvar) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+        context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
                 .edit()
                 .putString(keyString, stringSalvar)
                 .commit(); // commit faz ser síncrono, apply é assíncrono
     }
 
     public String obterMemoriaInterna(String keyString) {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString(keyString, "Chave não possui valor"); // Default value is an empty string
+        return context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+                .getString(keyString, "Chave não possui valor");
     }
 
     // Interface de callback para tratar respostas

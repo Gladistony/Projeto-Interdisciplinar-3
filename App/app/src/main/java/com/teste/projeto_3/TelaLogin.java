@@ -16,10 +16,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
 public class TelaLogin extends AppCompatActivity{
+
+    EnviarRequisicao er;
     EditText usuario;
     EditText senha;
 
@@ -33,6 +34,7 @@ public class TelaLogin extends AppCompatActivity{
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        er = new EnviarRequisicao(getApplicationContext());
 
     }
 
@@ -43,10 +45,10 @@ public class TelaLogin extends AppCompatActivity{
         if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
         } else {
-            Log.d("ID obtido", obterMemoriaInterna("idConexao"));
+            Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
             // Criando o objeto User
             User userLogin = new User();
-            userLogin.setId(obterMemoriaInterna("idConexao"));
+            userLogin.setId(er.obterMemoriaInterna("idConexao"));
             userLogin.setUsuario(usuario.getText().toString());
             userLogin.setSenha(senha.getText().toString());
 
@@ -55,7 +57,7 @@ public class TelaLogin extends AppCompatActivity{
             String userJson = gson.toJson(userLogin);
 
             // Fazer a requisição
-            post("login", userJson, response -> {
+            er.post("login", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                 } else {
@@ -134,23 +136,4 @@ public class TelaLogin extends AppCompatActivity{
         finish();
     }
 
-    public void post(String method, String json, EnviarRequisicao.Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(method, json);
-            callback.onResponse(response);
-        }).start();
-    }
-
-    public void salvarMemoriaInterna(String keyString, String stringSalvar) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .edit()
-                .putString(keyString, stringSalvar)
-                .commit(); // commit faz ser síncrono, apply é assíncrono
-    }
-
-    public String obterMemoriaInterna(String keyString) {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString(keyString, "Chave não possui valor"); // Default value is an empty string
-    }
 }

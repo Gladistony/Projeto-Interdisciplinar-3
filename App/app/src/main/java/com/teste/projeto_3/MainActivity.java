@@ -12,10 +12,11 @@ import android.util.Log;
 import android.widget.Toast;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
 
 public class MainActivity extends AppCompatActivity{
+
+    EnviarRequisicao er;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity{
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        er = new EnviarRequisicao(getApplicationContext());
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -36,14 +38,14 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void checkLoggedIn() {
-        if (obterMemoriaInterna("idConexao").equals("Chave não possui valor")) {
+        if (er.obterMemoriaInterna("idConexao").equals("Chave não possui valor")) {
             criarNovoID();
             startActivity(new Intent(MainActivity.this, LoginCadastro.class));
             finish();
         } else {
                 // Criando o objeto User
                 User userLogin = new User();
-                userLogin.setId(obterMemoriaInterna("idConexao"));
+                userLogin.setId(er.obterMemoriaInterna("idConexao"));
 
                 // Converter o objeto User para JSON
                 Gson gson = new Gson();
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity{
                 System.out.println(userJson);
 
                 // Fazer a requisição
-                post("get_dados", userJson, response -> {
+                er.post("get_dados", userJson, response -> {
                     if (response.startsWith("Erro")) {
                         runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                     } else {
@@ -89,9 +91,14 @@ public class MainActivity extends AppCompatActivity{
                                         startActivity(new Intent(MainActivity.this, LoginCadastro.class));
                                         finish();
                                 }
+                            } else {
+                                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                                finish();
                             }
                         } catch (Exception e) {
                             runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                            finish();
                         }
                     }
             });
@@ -107,7 +114,7 @@ public class MainActivity extends AppCompatActivity{
         String userJson = gson.toJson(user);
 
         // Fazer a requisição
-        post("give", userJson, response -> {
+        er.post("give", userJson, response -> {
             if (response.startsWith("Erro")) {
                 runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
             } else {
@@ -115,29 +122,9 @@ public class MainActivity extends AppCompatActivity{
                 User responseUser = gson.fromJson(response, User.class);
                 String userId = responseUser.getId(); // Captura o ID
                 Log.d("ID aqui", userId);
-                salvarMemoriaInterna("idConexao", userId);
+                er.salvarMemoriaInterna("idConexao", userId);
             }
         });
-    }
-
-    public void post(String method, String json, EnviarRequisicao.Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(method, json);
-            callback.onResponse(response);
-        }).start();
-    }
-
-    public void salvarMemoriaInterna(String keyString, String stringSalvar) {
-        getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .edit()
-                .putString(keyString, stringSalvar)
-                .commit(); // commit faz ser síncrono, apply é assíncrono
-    }
-
-    public String obterMemoriaInterna(String keyString) {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString(keyString, "Chave não possui valor"); // Default value is an empty string
     }
 
 }

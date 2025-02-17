@@ -37,12 +37,13 @@ class HttpHelper {
         }
     }
 
-    fun get(method: String, json: String): String {
+    fun ativarConta(usuario: String, senha: String): String {
         // URL do servidor
-        val url = "http://44.203.201.20/$method?data=$json" /// Verificar se aceita o corpo do JSON aqui no método GET depois
+        val url = "http://44.203.201.20/ativar/$usuario/$senha"
 
         // Cliente HTTP
         val client = OkHttpClient()
+
 
         // Construção da requisição POST
         val request = Request.Builder()
@@ -59,4 +60,31 @@ class HttpHelper {
             "Erro na requisição: ${e.message}"
         }
     }
+
+    fun get(method: String, json: String): String { // testar se funciona ainda
+        val url = "http://44.203.201.20/$method/"
+
+        // Tipo de mídia JSON
+        val JSON = "application/json; charset=utf-8".toMediaType()
+
+        // Cliente HTTP
+        val client = OkHttpClient()
+
+        // Corpo da requisição
+        val body = json.toRequestBody(JSON)
+
+        // Construção da requisição GET (verificar se funciona)
+        val request = Request.Builder()
+            .url(url)
+            .method("GET", body)
+            .build()
+
+        return try {
+            val response: Response = client.newCall(request).execute()
+            response.body?.string() ?: "Erro: Resposta vazia ou nula"
+        } catch (e: IOException) {
+            "Erro na requisição: ${e.message}"
+        }
+    }
+
 }

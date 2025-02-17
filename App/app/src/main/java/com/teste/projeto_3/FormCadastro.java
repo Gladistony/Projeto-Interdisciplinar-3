@@ -21,7 +21,8 @@ import com.teste.projeto_3.retrofitconnection.DataHandler;
 
 public class FormCadastro extends AppCompatActivity {
 
-DataHandler dh;
+    EnviarRequisicao er;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +35,7 @@ DataHandler dh;
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        dh = new DataHandler(getApplicationContext());
+        er = new EnviarRequisicao(getApplicationContext());
     }
 
     // Alternar exibição de senha
@@ -66,7 +67,7 @@ DataHandler dh;
 
         // Criar o objeto User para a requisição
         User user = new User();
-        user.setId(obterMemoriaInterna("idConexao"));
+        user.setId(er.obterMemoriaInterna("idConexao"));
         user.setNome_completo(editTextNome.getText().toString());
         user.setEmail(editTextEmail.getText().toString());
         user.setSenha(editTextSenha.getText().toString());
@@ -81,7 +82,7 @@ DataHandler dh;
                 editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
         } else {
-            post("cadastro", userJson, response -> {
+            er.post("cadastro", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                 } else {
@@ -109,18 +110,5 @@ DataHandler dh;
                 }
             });
         }
-    }
-
-    public void post(String method, String json, EnviarRequisicao.Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(method, json);
-            callback.onResponse(response);
-        }).start();
-    }
-
-    public String obterMemoriaInterna(String keyString) {
-        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
-                .getString(keyString, "Chave não possui valor"); // Default value is an empty string
     }
 }
