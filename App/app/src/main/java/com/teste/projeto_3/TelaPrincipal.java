@@ -160,7 +160,6 @@ public class TelaPrincipal extends AppCompatActivity {
     public void deslogar(View v){
         dh.logoutRequest().thenAccept(requestResponse -> {
             if (requestResponse.getMessage().equals("Usuario deslogado")) {
-                dh.novoIdRequest();
                 Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
                 startActivity(intentLoginCadastro);
                 finish();

@@ -9,26 +9,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.http.HttpHelper;
-import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestResponse;
 import com.teste.projeto_3.model.User;
-import com.teste.projeto_3.retrofitconnection.ApiInterface;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
-import com.teste.projeto_3.retrofitconnection.RetrofitClient;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity{
 
