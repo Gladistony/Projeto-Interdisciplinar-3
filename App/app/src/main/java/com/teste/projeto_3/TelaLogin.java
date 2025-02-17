@@ -14,11 +14,12 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.gson.Gson;
+import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.http.HttpHelper;
+import com.teste.projeto_3.model.User;
 
-import com.teste.projeto_3.retrofitconnection.DataHandler;
-
-public class TelaLogin extends AppCompatActivity {
-    DataHandler dh;
+public class TelaLogin extends AppCompatActivity{
     EditText usuario;
     EditText senha;
 
@@ -32,8 +33,6 @@ public class TelaLogin extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        dh = new DataHandler(getApplicationContext());
-
 
     }
 
@@ -44,48 +43,65 @@ public class TelaLogin extends AppCompatActivity {
         if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
             Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
         } else {
-            if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
-                dh.novoIdRequest();
-            }
-            dh.loginRequest(usuario.getText().toString(), senha.getText().toString()).thenAccept(requestResponse -> {
-                switch (requestResponse.getCode()) {
-                        case 0: // Login bem sucedido
-                            Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                            intentTelaPrincipal.putExtra("nome_completo", requestResponse.getNome_completo());
-                            intentTelaPrincipal.putExtra("email", requestResponse.getEmail());
-                            intentTelaPrincipal.putExtra("url_foto", requestResponse.getUrl_foto());
-                            startActivity(intentTelaPrincipal);
-                            finish();
-                            break;
+            Log.d("ID obtido", obterMemoriaInterna("idConexao"));
+            // Criando o objeto User
+            User userLogin = new User();
+            userLogin.setId(obterMemoriaInterna("idConexao"));
+            userLogin.setUsuario(usuario.getText().toString());
+            userLogin.setSenha(senha.getText().toString());
 
-                        case 1: // Senha incorreta
-                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                            break;
+            // Converter o objeto User para JSON
+            Gson gson = new Gson();
+            String userJson = gson.toJson(userLogin);
+            System.out.println(userJson);
 
-                        case 2: // Conta bloqueada por 5 minutos
-                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                            break;
+            // Fazer a requisição
+            post("login", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseLogin = gson.fromJson(response, User.class);
+                        if (responseLogin != null) {
+                            switch (responseLogin.getCode()) {
+                                case 0: // Login bem sucedido
+                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
+                                    intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
+                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                    startActivity(intentTelaPrincipal);
+                                    finish();
+                                    break;
 
-                        case 3: // Conta não está ativa
-                            Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
-                            intentTelaValidacao.putExtra("usuario", usuario.getText().toString());
-                            intentTelaValidacao.putExtra("senha", senha.getText().toString());
-                            startActivity(intentTelaValidacao);
-                            finish();
-                            break;
+                                case 1: // Senha incorreta
+                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    break;
 
-                        case 4: // Conta não encontrada
-                            Toast.makeText(this, requestResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                            break;
-                    case 12: // Conexão não encontrada
-                        dh.salvarIdConexao("defaultString");
-                        Toast.makeText(this, "Houve um problema na conexão. Por favor, tente novamente.", Toast.LENGTH_SHORT).show();
-                        break;
+                                case 2: // Conta bloqueada por 5 minutos
+                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    break;
 
+                                case 3: // Conta não está ativa
+                                    Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
+                                    intentTelaValidacao.putExtra("usuario", usuario.getText().toString());
+                                    intentTelaValidacao.putExtra("senha", senha.getText().toString());
+                                    startActivity(intentTelaValidacao);
+                                    finish();
+                                    break;
+
+                                case 4: // Conta não encontrada
+                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    break;
+                                case 12: // Conexão não encontrada
+                                    Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                     }
-            }).exceptionally(e -> {
-                Toast.makeText(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", Toast.LENGTH_SHORT).show();
-                return null;
+                }
             });
         }
     }
@@ -117,5 +133,25 @@ public class TelaLogin extends AppCompatActivity {
 
     public void voltar(View v) {
         finish();
+    }
+
+    public void post(String method, String json, EnviarRequisicao.Callback callback) {
+        new Thread(() -> {
+            HttpHelper httpHelper = new HttpHelper();
+            String response = httpHelper.post(method, json);
+            callback.onResponse(response);
+        }).start();
+    }
+
+    public void salvarMemoriaInterna(String keyString, String stringSalvar) {
+        getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .edit()
+                .putString(keyString, stringSalvar)
+                .commit(); // commit faz ser síncrono, apply é assíncrono
+    }
+
+    public String obterMemoriaInterna(String keyString) {
+        return getSharedPreferences("AppPrefs", MODE_PRIVATE)
+                .getString(keyString, "Chave não possui valor"); // Default value is an empty string
     }
 }

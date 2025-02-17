@@ -127,6 +127,7 @@ DataHandler dh;
                     }
                 }); */
 
+    /*
     // Método auxiliar para enviar requisições
     private void enviarRequisicao(String json, Callback callback) {
         new Thread(() -> {
@@ -164,4 +165,5 @@ DataHandler dh;
     public void voltar(View v) {
         finish();
     }
+    */
 }
