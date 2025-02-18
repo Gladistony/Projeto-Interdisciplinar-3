@@ -80,7 +80,7 @@ public class FormCadastro extends AppCompatActivity {
         // Validar campos obrigatórios
         if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
                 editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
+            runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show());
         } else {
             er.post("cadastro", userJson, response -> {
                 if (response.startsWith("Erro")) {
@@ -91,7 +91,7 @@ public class FormCadastro extends AppCompatActivity {
                         User responseCadastro = gson.fromJson(response, User.class);
                         switch (responseCadastro.getCode()) {
                             case 0:
-                                Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show();
+                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show());
                                 Intent intentTelaLogin = new Intent(this, MainActivity.class);
                                 startActivity(intentTelaLogin);
                                 finish();
@@ -101,7 +101,7 @@ public class FormCadastro extends AppCompatActivity {
                             case 8:
                             case 9:
                             case 10:
-                                Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show();
+                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
                                 break;
                         }
                     } catch (Exception e) {

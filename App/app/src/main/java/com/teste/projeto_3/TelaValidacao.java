@@ -33,29 +33,54 @@ public class TelaValidacao extends AppCompatActivity {
 
     public void validarPorEmail(View v) {
         Intent intentInfoTelaLogin = getIntent();
+// Criando o objeto User
+        User userLogin = new User();
+        userLogin.setId(er.obterMemoriaInterna("idConexao"));
+        userLogin.setUsuario(intentInfoTelaLogin.getStringExtra("usuario"));
+        userLogin.setSenha(intentInfoTelaLogin.getStringExtra("senha"));
 
-        String usuario = intentInfoTelaLogin.getStringExtra("usuario");
-        String senha = intentInfoTelaLogin.getStringExtra("senha");
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(userLogin);
 
-        // Fazer a requisição
-        er.ativarConta(usuario, "", response -> {
-            if (response.startsWith("Erro")) {
-                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-            } else {
-                try {
+        try {
+            // Fazer a requisição
+            er.post("login", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
                     // Processar resposta da requisição
-                    Gson gson = new Gson();
-                    User responseValidacao = gson.fromJson(response, User.class);
-                    if (responseValidacao.getCode() == 11) {
-                        login(usuario, senha);
-                    } else {
-                        Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                    User responseLogin = gson.fromJson(response, User.class);
+                    if (responseLogin != null) {
+                        switch (responseLogin.getCode()) {
+                            case 0: // Login bem sucedido
+                                Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
+                                intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
+                                intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
+                                startActivity(intentTelaPrincipal);
+                                finish();
+                                break;
+
+                            case 3: // Conta não está ativa
+                                runOnUiThread(() -> Toast.makeText(this, "Conta ainda não ativada. Aguarde e tente novamente.", Toast.LENGTH_LONG).show());
+                                break;
+
+                            case 4: // Conta não encontrada
+                                runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
+                                break;
+
+                            case 12: // Conexão não encontrada
+                                runOnUiThread(() -> Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show());
+                                break;
+                        }
                     }
-                } catch (Exception e) {
-                    Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
                 }
-            }
-        });
+            });
+        } catch (Exception e) {
+            runOnUiThread(() -> Toast.makeText(this, "Ocorreu um erro ao conectar-se ao servidor.", Toast.LENGTH_SHORT).show());
+        }
     }
 
     public void validarPorCodigo(View v) {
@@ -70,87 +95,77 @@ public class TelaValidacao extends AppCompatActivity {
             String senha = intentInfoTelaLogin.getStringExtra("senha");
             String codigoValidacao = validacao.getText().toString();
 
+            try {
             // Fazer a requisição
             er.ativarConta(usuario, codigoValidacao, response -> {
                 if (response.startsWith("Erro")) {
                     runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                 } else {
-                    try {
                         // Processar resposta da requisição
-                        Gson gson = new Gson();
-                        User responseValidacao = gson.fromJson(response, User.class);
-                        if (responseValidacao.getCode() == 11) {
+                        String resultado = response.substring(905); // 905 é o índice do HTML em que diz o resultado da requisição
+                        if (resultado.startsWith("Código de ativação incorreto")) {
+                            runOnUiThread(() -> Toast.makeText(this, "Código de ativação incorreto", Toast.LENGTH_LONG).show());
+                        } else if (resultado.startsWith("Conta ativada") || resultado.startsWith("Conta já está ativa")) {
                             login(usuario, senha);
                         } else {
-                            Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                            runOnUiThread(() -> Toast.makeText(this, "Erro na validação por código.", Toast.LENGTH_LONG).show());
                         }
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Erro na validação por email. Se persistir, utilize o código.", Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> Toast.makeText(this, "Ocorreu um erro ao conectar-se ao servidor.", Toast.LENGTH_LONG).show());
+        }
+        }
+    }
+    public void login(String usuario, String senha) {
+        // Criando o objeto User
+        User userLogin = new User();
+        userLogin.setId(er.obterMemoriaInterna("idConexao"));
+        userLogin.setUsuario(usuario);
+        userLogin.setSenha(senha);
+
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(userLogin);
+
+        try {
+            // Fazer a requisição
+            er.post("login", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
+                    // Processar resposta da requisição
+                    User responseLogin = gson.fromJson(response, User.class);
+                    if (responseLogin != null) {
+                        switch (responseLogin.getCode()) {
+                            case 0: // Login bem sucedido
+                                Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
+                                intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
+                                intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
+                                startActivity(intentTelaPrincipal);
+                                finish();
+                                break;
+
+                            case 3: // Conta não está ativa
+                                runOnUiThread(() -> Toast.makeText(this, "Conta ainda não ativada. Aguarde e tente novamente.", Toast.LENGTH_LONG).show());
+                                break;
+
+                            case 4: // Conta não encontrada
+                                runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
+                                break;
+
+                            case 12: // Conexão não encontrada
+                                runOnUiThread(() -> Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show());
+                                break;
+                        }
                     }
                 }
             });
+        } catch (Exception e) {
+            runOnUiThread(() -> Toast.makeText(this, "Ocorreu um erro ao conectar-se ao servidor.", Toast.LENGTH_SHORT).show());
         }
     }
-                public void login(String usuario, String senha) {
-                    // Criando o objeto User
-                    User userLogin = new User();
-                    userLogin.setId(er.obterMemoriaInterna("idConexao"));
-                    userLogin.setUsuario(usuario);
-                    userLogin.setSenha(senha);
-
-                    // Converter o objeto User para JSON
-                    Gson gson = new Gson();
-                    String userJson = gson.toJson(userLogin);
-
-                    // Fazer a requisição
-                    er.post("login", userJson, response -> {
-                        if (response.startsWith("Erro")) {
-                            runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-                        } else {
-                            try {
-                                // Processar resposta da requisição
-                                User responseLogin = gson.fromJson(response, User.class);
-                                if (responseLogin != null) {
-                                    switch (responseLogin.getCode()) {
-                                        case 0: // Login bem sucedido
-                                            Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                            intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
-                                            intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
-                                            intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
-                                            runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
-                                            startActivity(intentTelaPrincipal);
-                                            finish();
-                                            break;
-
-                                        case 3: // Conta não está ativa
-                                            Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
-                                            intentTelaValidacao.putExtra("usuario", usuario);
-                                            intentTelaValidacao.putExtra("senha", senha);
-                                            startActivity(intentTelaValidacao);
-                                            finish();
-                                            break;
-
-                                        case 4: // Conta não encontrada
-                                            Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
-                                            break;
-
-                                        case 7: // Código de ativação incorreta
-                                            Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
-                                            break;
-
-                                        case 11: // Conta já está ativa
-                                            login(usuario, senha);
-
-                                        case 12: // Conexão não encontrada
-                                            Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show();
-                                            break;
-                                    }
-                                }
-                            } catch (Exception e) {
-                                runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
-                            }
-                        }
-                    });
-                }
-    }
+}
 
