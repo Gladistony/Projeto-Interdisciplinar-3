@@ -79,8 +79,12 @@ public class TelaLogin extends AppCompatActivity{
                                     runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
                                     break;
 
-                                case 2: // Conta bloqueada por 5 minutos
-                                    runOnUiThread(() -> Toast.makeText(this, "Conta bloqueada por excesso de tentativas. Ative-a novamente.", Toast.LENGTH_SHORT).show());
+                                case 2: // Conta bloqueada por excesso de tentativas
+                                    if (responseLogin.getMessage().endsWith("ativação novamente necessária")) {
+                                        runOnUiThread(() -> Toast.makeText(this, "Ativação de conta necessária por excesso de tentativas.", Toast.LENGTH_SHORT).show());
+                                    } else {
+                                        runOnUiThread(() -> Toast.makeText(this, "Conta bloqueada por excesso de tentativas. Aguarde " + segToMin(responseLogin.getRestante()) + ".", Toast.LENGTH_SHORT).show());
+                                    }
                                     break;
 
                                 case 3: // Conta não está ativa
@@ -134,6 +138,12 @@ public class TelaLogin extends AppCompatActivity{
 
     public void voltar(View v) {
         finish();
+    }
+
+    private String segToMin(double seg) {
+        int minutos = (int) (seg / 60);
+        long segundos = Math.round(seg % 60);
+        return minutos + "m " + segundos + "s";
     }
 
 }
