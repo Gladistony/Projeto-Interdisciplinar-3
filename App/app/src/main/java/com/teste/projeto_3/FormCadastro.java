@@ -13,15 +13,14 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import com.teste.projeto_3.database.AppDatabase;
-import com.teste.projeto_3.http.HttpHelper;
+import com.google.gson.Gson;
+import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.User;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
 
 public class FormCadastro extends AppCompatActivity {
 
-DataHandler dh;
+    EnviarRequisicao er;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +33,7 @@ DataHandler dh;
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        dh = new DataHandler(getApplicationContext());
+        er = new EnviarRequisicao(getApplicationContext());
     }
 
     // Alternar exibição de senha
@@ -57,111 +56,60 @@ DataHandler dh;
 
     // Método de cadastro
     public void cadastrar(View v) {
-        if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
-            dh.novoIdRequest();
-        }
+        if (er.possuiInternet(getApplicationContext())) {
 
-        // Referência aos campos do formulário
-        EditText editTextNome = findViewById(R.id.edit_nome);
-        EditText editTextEmail = findViewById(R.id.edit_email);
-        EditText editTextSenha = findViewById(R.id.edit_senha);
-        EditText editTextUsuario = findViewById(R.id.edit_usuario);
+            // Referência aos campos do formulário
+            EditText editTextNome = findViewById(R.id.edit_nome);
+            EditText editTextEmail = findViewById(R.id.edit_email);
+            EditText editTextSenha = findViewById(R.id.edit_senha);
+            EditText editTextUsuario = findViewById(R.id.edit_usuario);
 
-        /*
-        // Criar o objeto User para a primeira requisição
-        User user = new User();
-        user.setId(obterIdConexao());
-        user.setRequest("cadastro"); // Tipo de requisição
-        user.setNome_completo(editTextNome.getText().toString());
-        user.setEmail(editTextEmail.getText().toString());
-        user.setSenha(editTextSenha.getText().toString());
-        user.setUsuario(editTextUsuario.getText().toString()); */
+            // Criar o objeto User para a requisição
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setNome_completo(editTextNome.getText().toString());
+            user.setEmail(editTextEmail.getText().toString());
+            user.setSenha(editTextSenha.getText().toString());
+            user.setUsuario(editTextUsuario.getText().toString());
 
-        // Validar campos obrigatórios
-        if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
-                editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
-        } else {
-            if (dh.obterIdConexao().equals("defaultString") || dh.obterIdConexao().isEmpty()) {
-                dh.novoIdRequest();
-            }
-            dh.cadastroRequest(editTextUsuario.getText().toString(), editTextSenha.getText().toString(), editTextEmail.getText().toString(), editTextNome.getText().toString()).thenAccept(requestResponse -> {
-                switch (requestResponse.getCode()) {
-                    case 0:
-                        Toast.makeText(getApplicationContext(), requestResponse.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show();
-                        Intent intentTelaLogin = new Intent(this, MainActivity.class);
-                        startActivity(intentTelaLogin);
-                        finish();
-                        break;
-                    case 6:
-                    case 7:
-                    case 8:
-                    case 9:
-                    case 10:
-                        Toast.makeText(getApplicationContext(), requestResponse.getMessage(), Toast.LENGTH_LONG).show();
-                        break;
-                }
+            // Converter o objeto User para JSON
+            Gson gson = new Gson();
+            String userJson = gson.toJson(user);
 
-            }).exceptionally(e -> {
-                Toast.makeText(this, "Ocorreu um erro inesperado. Por favor, tente novamente.", Toast.LENGTH_SHORT).show();
-                return null;
-            });
-        }
-    }
-                /*
-                // Criar uma nova requisição com o ID retornado
-                User userAtualizado = new User();
-                userAtualizado.setId(userId);
-                userAtualizado.setRequest("outra_acao");
-                String updatedUserJson = gson.toJson(userAtualizado);
-
-                // Fazer a segunda requisição
-                enviarRequisicao(updatedUserJson, updateResponse -> {
-                    if (updateResponse.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, updateResponse, Toast.LENGTH_LONG).show());
+            // Validar campos obrigatórios
+            if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
+                    editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
+                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show());
+            } else {
+                er.post("cadastro", userJson, response -> {
+                    if (response.startsWith("Erro")) {
+                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                     } else {
-                        runOnUiThread(() -> {
-                            Toast.makeText(this, "Requisição subsequente realizada com sucesso!", Toast.LENGTH_SHORT).show();
-                            abrirTelaLogin(); // Navegar para a próxima tela
-                        });
+                        try {
+                            // Processar resposta da requisição
+                            User responseCadastro = gson.fromJson(response, User.class);
+                            switch (responseCadastro.getCode()) {
+                                case 0: // Sucesso
+                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show());
+                                    Intent intentTelaLogin = new Intent(this, MainActivity.class);
+                                    startActivity(intentTelaLogin);
+                                    finish();
+                                    break;
+                                case 6: // Conta já existe
+                                case 7: // Nome de usuário inválido
+                                case 8: // Senha inválida
+                                case 9: //Email inválido
+                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        }
                     }
-                }); */
-
-    // Método auxiliar para enviar requisições
-    private void enviarRequisicao(String json, Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(json);
-            callback.onResponse(response);
-        }).start();
-    }
-
-    // Método para salvar o usuário no banco local
-    private void salvarUsuarioNoBanco(User user) {
-        new Thread(() -> {
-            try {
-                AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-                db.userDao().insertUser(user);
-            } catch (Exception e) {
-                e.printStackTrace();
+                });
             }
-        }).start();
-    }
-
-    // Método para abrir a próxima tela
-    private void abrirTelaLogin() {
-        Intent intent = new Intent(this, TelaLogin.class);
-        startActivity(intent);
-        finish(); // Fecha a atividade atual
-    }
-
-    // Interface de callback para tratar respostas
-    interface Callback {
-        void onResponse(String response);
-    }
-
-    // Método para voltar à tela anterior
-    public void voltar(View v) {
-        finish();
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
     }
 }

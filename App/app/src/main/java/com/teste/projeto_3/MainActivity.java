@@ -8,25 +8,15 @@ import androidx.core.view.WindowInsetsCompat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
+import android.util.Log;
 import android.widget.Toast;
+import com.google.gson.Gson;
+import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.User;
 
-import com.teste.projeto_3.model.PostModel;
-import com.teste.projeto_3.model.RequestResponse;
-import com.teste.projeto_3.retrofitconnection.ApiInterface;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
-import com.teste.projeto_3.retrofitconnection.RetrofitClient;
+public class MainActivity extends AppCompatActivity{
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.CompletableFuture;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
-public class MainActivity extends AppCompatActivity {
-    DataHandler dh;
+    EnviarRequisicao er;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        dh = new DataHandler(getApplicationContext());
+        er = new EnviarRequisicao(getApplicationContext());
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -47,48 +37,109 @@ public class MainActivity extends AppCompatActivity {
         }, 1500);
     }
 
-    public void checkLoggedIn() {
-        if (!dh.obterIdConexao().equals("defaultString") || !dh.obterIdConexao().isEmpty()) {
-            dh.getDadosRequest().thenAccept(requestResponseAutomatic -> {
-                if (!requestResponseAutomatic.getStatus().equals("Usuario nao logado")) {
-                        switch (requestResponseAutomatic.getCode()) {
-                            case 0: // Login bem sucedido
-                                Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                intentTelaPrincipal.putExtra("nome_completo", requestResponseAutomatic.getNome_completo());
-                                intentTelaPrincipal.putExtra("email", requestResponseAutomatic.getEmail());
-                                intentTelaPrincipal.putExtra("url_foto", requestResponseAutomatic.getUrl_foto());
-                                startActivity(intentTelaPrincipal);
-                                finish();
-                                break;
+    private void checkLoggedIn() {
+        if (er.possuiInternet(getApplicationContext())) {
+            if (er.obterMemoriaInterna("idConexao").equals("Chave não possui valor")) {
+                criarNovoID();
+                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                finish();
+            } else {
+                // Criando o objeto User
+                User userLogin = new User();
+                userLogin.setId(er.obterMemoriaInterna("idConexao"));
 
-                            /*case 3: // Conta não está ativa
-                                Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
-                                intentTelaValidacao.putExtra("usuario", requestResponseAutomatic.getUsuario());
-                                intentTelaValidacao.putExtra("senha", requestResponseAutomatic.getSenha());
-                                startActivity(intentTelaValidacao);
-                                finish();
-                                break;*/
+                // Converter o objeto User para JSON
+                Gson gson = new Gson();
+                String userJson = gson.toJson(userLogin);
+                System.out.println(userJson);
 
-                            case 4: // Conta não encontrada
-                                Toast.makeText(this, "Erro ao conectar-se automaticamente à sua conta. Por favor, entre novamente.", Toast.LENGTH_SHORT).show();
-                                Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
-                                startActivity(intentTelaLoginNaoEncontrado);
-                                finish();
-                                break;
+                // Fazer a requisição
+                er.post("get_dados", userJson, response -> {
+                    if (response.startsWith("Erro")) {
+                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                        finish();
+                    } else {
+                        try {
+                            // Processar resposta da requisição
+                            User responseAutoLogin = gson.fromJson(response, User.class);
+                            if (responseAutoLogin.getCode() != 15) { // Code 15 = "Usuario nao logado"
+                                switch (responseAutoLogin.getCode()) {
+                                    case 0: // Login bem sucedido
+                                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                        intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
+                                        intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
+                                        intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());
+                                        startActivity(intentTelaPrincipal);
+                                        finish();
+                                        break;
 
-                            default:
+                                    case 3: // Conta não está ativa
+                                        Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
+                                        intentTelaValidacao.putExtra("usuario", responseAutoLogin.getUsuario());
+                                        intentTelaValidacao.putExtra("senha", responseAutoLogin.getSenha());
+                                        startActivity(intentTelaValidacao);
+                                        finish();
+                                        break;
+
+                                    case 4: // Conta não encontrada
+                                        criarNovoID();
+                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
+                                        Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
+                                        startActivity(intentTelaLoginNaoEncontrado);
+                                        finish();
+                                        break;
+
+                                    case 12: // Conexão não encontrada / ID inválido
+                                        criarNovoID();
+                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
+                                        Intent intentConexaoNaoEncontrado = new Intent(this, TelaLogin.class);
+                                        startActivity(intentConexaoNaoEncontrado);
+                                        finish();
+                                        break;
+
+                                    default:
+                                        startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                                        finish();
+                                }
+                            } else {
                                 startActivity(new Intent(MainActivity.this, LoginCadastro.class));
                                 finish();
+                            }
+                        } catch (Exception e) {
+                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                            finish();
                         }
-                }
-            }).exceptionally(e -> {
-                return null;
-            });
+                    }
+                });
+            }
         } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
             startActivity(new Intent(MainActivity.this, LoginCadastro.class));
             finish();
         }
-
     }
 
+    private void criarNovoID(){
+        User user = new User();
+        user.setId("null");
+
+        // Converter o objeto User para JSON
+        Gson gson = new Gson();
+        String userJson = gson.toJson(user);
+
+        // Fazer a requisição
+        er.post("give", userJson, response -> {
+            if (response.startsWith("Erro")) {
+                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+            } else {
+                // Processar resposta da requisição
+                User responseUser = gson.fromJson(response, User.class);
+                String userId = responseUser.getId(); // Captura o ID
+                Log.d("ID obtido", userId);
+                er.salvarMemoriaInterna("idConexao", userId);
+            }
+        });
+    }
 }
