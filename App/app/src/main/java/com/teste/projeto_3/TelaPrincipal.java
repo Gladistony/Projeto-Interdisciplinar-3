@@ -146,32 +146,36 @@ public class TelaPrincipal extends AppCompatActivity {
         }
     }
 
-    public void deslogar(View v){
-        User userLogin = new User();
-        userLogin.setId(er.obterMemoriaInterna("idConexao"));
+    public void deslogar(View v) {
+        if (er.possuiInternet(getApplicationContext())) {
+            User userLogin = new User();
+            userLogin.setId(er.obterMemoriaInterna("idConexao"));
 
-        // Converter o objeto User para JSON
-        Gson gson = new Gson();
-        String userJson = gson.toJson(userLogin);
+            // Converter o objeto User para JSON
+            Gson gson = new Gson();
+            String userJson = gson.toJson(userLogin);
 
-        er.post("logout", userJson, response -> {
-            if (response.startsWith("Erro")) {
-                runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-            } else {
-                try {
-                    // Processar resposta da requisição
-                    User responseLogin = gson.fromJson(response, User.class);
-                    if (responseLogin.getMessage().equals("Usuario deslogado")) {
-                        Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
-                        startActivity(intentLoginCadastro);
-                        finish();
+            er.post("logout", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                 } else {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao deslogar", Toast.LENGTH_SHORT).show());
+                    try {
+                        // Processar resposta da requisição
+                        User responseLogin = gson.fromJson(response, User.class);
+                        if (responseLogin.getMessage().equals("Usuario deslogado")) {
+                            Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
+                            startActivity(intentLoginCadastro);
+                            finish();
+                        } else {
+                            runOnUiThread(() -> Toast.makeText(this, "Erro ao deslogar", Toast.LENGTH_SHORT).show());
+                        }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                     }
-                }catch (Exception e) {
-                    runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                 }
-            }
-        });
+            });
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
     }
-    }
+}

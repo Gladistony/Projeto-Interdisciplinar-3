@@ -15,9 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
-import com.teste.projeto_3.http.HttpHelper;
 import com.teste.projeto_3.model.User;
-import com.teste.projeto_3.retrofitconnection.DataHandler;
 
 public class FormCadastro extends AppCompatActivity {
 
@@ -58,57 +56,60 @@ public class FormCadastro extends AppCompatActivity {
 
     // Método de cadastro
     public void cadastrar(View v) {
+        if (er.possuiInternet(getApplicationContext())) {
 
-        // Referência aos campos do formulário
-        EditText editTextNome = findViewById(R.id.edit_nome);
-        EditText editTextEmail = findViewById(R.id.edit_email);
-        EditText editTextSenha = findViewById(R.id.edit_senha);
-        EditText editTextUsuario = findViewById(R.id.edit_usuario);
+            // Referência aos campos do formulário
+            EditText editTextNome = findViewById(R.id.edit_nome);
+            EditText editTextEmail = findViewById(R.id.edit_email);
+            EditText editTextSenha = findViewById(R.id.edit_senha);
+            EditText editTextUsuario = findViewById(R.id.edit_usuario);
 
-        // Criar o objeto User para a requisição
-        User user = new User();
-        user.setId(er.obterMemoriaInterna("idConexao"));
-        user.setNome_completo(editTextNome.getText().toString());
-        user.setEmail(editTextEmail.getText().toString());
-        user.setSenha(editTextSenha.getText().toString());
-        user.setUsuario(editTextUsuario.getText().toString());
+            // Criar o objeto User para a requisição
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setNome_completo(editTextNome.getText().toString());
+            user.setEmail(editTextEmail.getText().toString());
+            user.setSenha(editTextSenha.getText().toString());
+            user.setUsuario(editTextUsuario.getText().toString());
 
-        // Converter o objeto User para JSON
-        Gson gson = new Gson();
-        String userJson = gson.toJson(user);
+            // Converter o objeto User para JSON
+            Gson gson = new Gson();
+            String userJson = gson.toJson(user);
 
-        // Validar campos obrigatórios
-        if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
-                editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
-            runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show());
-        } else {
-            er.post("cadastro", userJson, response -> {
-                if (response.startsWith("Erro")) {
-                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-                } else {
-                    try {
-                        // Processar resposta da requisição
-                        User responseCadastro = gson.fromJson(response, User.class);
-                        switch (responseCadastro.getCode()) {
-                            case 0:
-                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show());
-                                Intent intentTelaLogin = new Intent(this, MainActivity.class);
-                                startActivity(intentTelaLogin);
-                                finish();
-                                break;
-                            case 6:
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 10:
-                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
-                                break;
+            // Validar campos obrigatórios
+            if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
+                    editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
+                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show());
+            } else {
+                er.post("cadastro", userJson, response -> {
+                    if (response.startsWith("Erro")) {
+                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                    } else {
+                        try {
+                            // Processar resposta da requisição
+                            User responseCadastro = gson.fromJson(response, User.class);
+                            switch (responseCadastro.getCode()) {
+                                case 0: // Sucesso
+                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show());
+                                    Intent intentTelaLogin = new Intent(this, MainActivity.class);
+                                    startActivity(intentTelaLogin);
+                                    finish();
+                                    break;
+                                case 6: // Conta já existe
+                                case 7: // Nome de usuário inválido
+                                case 8: // Senha inválida
+                                case 9: //Email inválido
+                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                         }
-                    } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                     }
-                }
-            });
+                });
+            }
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
     }
 }

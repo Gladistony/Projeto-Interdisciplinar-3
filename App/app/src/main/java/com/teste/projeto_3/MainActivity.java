@@ -38,11 +38,12 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void checkLoggedIn() {
-        if (er.obterMemoriaInterna("idConexao").equals("Chave não possui valor")) {
-            criarNovoID();
-            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
-            finish();
-        } else {
+        if (er.possuiInternet(getApplicationContext())) {
+            if (er.obterMemoriaInterna("idConexao").equals("Chave não possui valor")) {
+                criarNovoID();
+                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                finish();
+            } else {
                 // Criando o objeto User
                 User userLogin = new User();
                 userLogin.setId(er.obterMemoriaInterna("idConexao"));
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity{
                 er.post("get_dados", userJson, response -> {
                     if (response.startsWith("Erro")) {
                         runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                        finish();
                     } else {
                         try {
                             // Processar resposta da requisição
@@ -81,9 +84,17 @@ public class MainActivity extends AppCompatActivity{
 
                                     case 4: // Conta não encontrada
                                         criarNovoID();
-                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
+                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
                                         Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
                                         startActivity(intentTelaLoginNaoEncontrado);
+                                        finish();
+                                        break;
+
+                                    case 12: // Conexão não encontrada / ID inválido
+                                        criarNovoID();
+                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
+                                        Intent intentConexaoNaoEncontrado = new Intent(this, TelaLogin.class);
+                                        startActivity(intentConexaoNaoEncontrado);
                                         finish();
                                         break;
 
@@ -101,7 +112,12 @@ public class MainActivity extends AppCompatActivity{
                             finish();
                         }
                     }
-            });
+                });
+            }
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+            finish();
         }
     }
 
@@ -121,10 +137,9 @@ public class MainActivity extends AppCompatActivity{
                 // Processar resposta da requisição
                 User responseUser = gson.fromJson(response, User.class);
                 String userId = responseUser.getId(); // Captura o ID
-                Log.d("ID aqui", userId);
+                Log.d("ID obtido", userId);
                 er.salvarMemoriaInterna("idConexao", userId);
             }
         });
     }
-
 }

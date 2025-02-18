@@ -39,32 +39,32 @@ public class TelaLogin extends AppCompatActivity{
     }
 
     public void login(View v) {
-        usuario = findViewById(R.id.usuario);
-        senha = findViewById(R.id.senha);
+        if (er.possuiInternet(getApplicationContext())) {
+            usuario = findViewById(R.id.usuario);
+            senha = findViewById(R.id.senha);
 
-        if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
-            runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show());
-        } else {
-            Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
-            // Criando o objeto User
-            User userLogin = new User();
-            userLogin.setId(er.obterMemoriaInterna("idConexao"));
-            userLogin.setUsuario(usuario.getText().toString());
-            userLogin.setSenha(senha.getText().toString());
+            if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
+                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show());
+            } else {
+                Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
+                // Criando o objeto User
+                User userLogin = new User();
+                userLogin.setId(er.obterMemoriaInterna("idConexao"));
+                userLogin.setUsuario(usuario.getText().toString());
+                userLogin.setSenha(senha.getText().toString());
 
-            // Converter o objeto User para JSON
-            Gson gson = new Gson();
-            String userJson = gson.toJson(userLogin);
+                // Converter o objeto User para JSON
+                Gson gson = new Gson();
+                String userJson = gson.toJson(userLogin);
 
-            // Fazer a requisição
-            er.post("login", userJson, response -> {
-                if (response.startsWith("Erro")) {
-                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
-                } else {
-                    try {
-                        // Processar resposta da requisição
-                        User responseLogin = gson.fromJson(response, User.class);
-                        if (responseLogin != null) {
+                // Fazer a requisição
+                er.post("login", userJson, response -> {
+                    if (response.startsWith("Erro")) {
+                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                    } else {
+                        try {
+                            // Processar resposta da requisição
+                            User responseLogin = gson.fromJson(response, User.class);
                             switch (responseLogin.getCode()) {
                                 case 0: // Login bem sucedido
                                     Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
@@ -101,13 +101,19 @@ public class TelaLogin extends AppCompatActivity{
                                 case 12: // Conexão não encontrada
                                     runOnUiThread(() -> Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show());
                                     break;
+
+                                case 14: // Usuário já logado
+                                    get_dados();
+
                             }
+                        } catch (Exception e) {
+                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                         }
-                    } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
                     }
-                }
-            });
+                });
+            }
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -146,4 +152,60 @@ public class TelaLogin extends AppCompatActivity{
         return minutos + "m " + segundos + "s";
     }
 
+    private void get_dados() {
+        if (er.possuiInternet(getApplicationContext())) {
+            // Criando o objeto User
+            User userLogin = new User();
+            userLogin.setId(er.obterMemoriaInterna("idConexao"));
+
+            // Converter o objeto User para JSON
+            Gson gson = new Gson();
+            String userJson = gson.toJson(userLogin);
+            System.out.println(userJson);
+
+            // Fazer a requisição
+            er.post("get_dados", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseAutoLogin = gson.fromJson(response, User.class);
+                        if (responseAutoLogin.getCode() != 15) { // Code 15 = "Usuario nao logado"
+                            switch (responseAutoLogin.getCode()) {
+                                case 0: // Login bem sucedido
+                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                    intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
+                                    intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
+                                    intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());
+                                    startActivity(intentTelaPrincipal);
+                                    finish();
+                                    break;
+
+                                case 3: // Conta não está ativa
+                                    Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
+                                    intentTelaValidacao.putExtra("usuario", responseAutoLogin.getUsuario());
+                                    intentTelaValidacao.putExtra("senha", responseAutoLogin.getSenha());
+                                    startActivity(intentTelaValidacao);
+                                    finish();
+                                    break;
+
+                                case 4: // Conta não encontrada
+                                    runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
+                                    Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
+                                    startActivity(intentTelaLoginNaoEncontrado);
+                                    finish();
+                                    break;
+
+                            }
+                        }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+    }
 }

@@ -33,7 +33,11 @@ class HttpHelper {
             response.body?.string() ?: "Erro: Resposta vazia ou nula"
         } catch (e: IOException) {
             // Retorna o erro caso ocorra uma falha
-            "Erro na requisição: ${e.message}"
+            if (e.message?.startsWith("Failed to connect") == true) {
+                "Erro de conexão ao servidor."
+            } else {
+                "Erro na requisição: ${e.message}"
+            }
         }
     }
 
@@ -57,7 +61,11 @@ class HttpHelper {
             response.body?.string() ?: "Erro: Resposta vazia ou nula"
         } catch (e: IOException) {
             // Retorna o erro caso ocorra uma falha
-            "Erro na requisição: ${e.message}"
+            if (e.message?.startsWith("Failed to connect") == true) {
+                "Erro de conexão ao servidor."
+            } else {
+                "Erro na requisição: ${e.message}"
+            }
         }
     }
 
@@ -83,8 +91,12 @@ class HttpHelper {
             val response: Response = client.newCall(request).execute()
             response.body?.string() ?: "Erro: Resposta vazia ou nula"
         } catch (e: IOException) {
-            "Erro na requisição: ${e.message}"
+            // Retorna o erro caso ocorra uma falha
+            if (e.message?.startsWith("Failed to connect") == true) {
+                "Erro de conexão ao servidor."
+            } else {
+                "Erro na requisição: ${e.message}"
+            }
+        }
         }
     }
-
-}
