@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity{
 
                                     case 4: // Conta não encontrada
                                         criarNovoID();
-                                        Toast.makeText(this, "Erro ao conectar-se automaticamente à sua conta. Por favor, entre novamente.", Toast.LENGTH_SHORT).show();
+                                        runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
                                         Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
                                         startActivity(intentTelaLoginNaoEncontrado);
                                         finish();

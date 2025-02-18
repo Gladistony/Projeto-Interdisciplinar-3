@@ -43,7 +43,7 @@ public class TelaLogin extends AppCompatActivity{
         senha = findViewById(R.id.senha);
 
         if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
-            Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+            runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show());
         } else {
             Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
             // Criando o objeto User
@@ -76,11 +76,11 @@ public class TelaLogin extends AppCompatActivity{
                                     break;
 
                                 case 1: // Senha incorreta
-                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
                                     break;
 
                                 case 2: // Conta bloqueada por 5 minutos
-                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    runOnUiThread(() -> Toast.makeText(this, "Conta bloqueada por excesso de tentativas. Ative-a novamente.", Toast.LENGTH_SHORT).show());
                                     break;
 
                                 case 3: // Conta não está ativa
@@ -92,10 +92,10 @@ public class TelaLogin extends AppCompatActivity{
                                     break;
 
                                 case 4: // Conta não encontrada
-                                    Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                    runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
                                     break;
                                 case 12: // Conexão não encontrada
-                                    Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show();
+                                    runOnUiThread(() -> Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show());
                                     break;
                             }
                         }
