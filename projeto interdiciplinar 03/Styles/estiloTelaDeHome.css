@@ -1,21 +1,22 @@
-*{
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body{
+body {
     display: flex;
     flex-direction: column;
-    justify-content:center;
+    justify-content: center;
     align-items: center;
-    background-color: #f2f2f2;
+    background: linear-gradient(to bottom, #2ecc71 60%, #fff 40%);
+    position: relative;
 }
 
 header {
     margin: 24px;
     text-align: center;
-    justify-content:center;
+    justify-content: center;
     align-items: center;
 }
 
@@ -25,9 +26,7 @@ header > button {
     cursor: pointer;
 }
 
-header > button > div {
-
-}
+header > button > div {}
 
 header > button > div > img {
     border: 2px solid;
@@ -36,9 +35,9 @@ header > button > div > img {
 }
 
 main {
-    background-color: #2ecc71;
+    background-color: #d7d7d7;
     text-align: center;
-    justify-content:center;
+    justify-content: center;
     align-items: center;
     width: 60vh;
     border-radius: 50px;
@@ -61,7 +60,7 @@ main > section > button {
     background-color: #fff;
     border: 2px solid;
     padding: 10px 20px;
-    border-radius: 30px;
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-top: 10px;
