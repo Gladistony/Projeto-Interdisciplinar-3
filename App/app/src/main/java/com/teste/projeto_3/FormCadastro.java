@@ -89,8 +89,8 @@ public class FormCadastro extends AppCompatActivity {
                             // Processar resposta da requisição
                             User responseCadastro = gson.fromJson(response, User.class);
                             switch (responseCadastro.getCode()) {
-                                case 0: // Sucesso
-                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage() + "! Entre para continuar.", Toast.LENGTH_LONG).show());
+                                case 19: // Sucesso de cadastro
+                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Conta criada com sucesso! Entre para continuar.", Toast.LENGTH_LONG).show());
                                     Intent intentTelaLogin = new Intent(this, MainActivity.class);
                                     startActivity(intentTelaLogin);
                                     finish();
@@ -99,6 +99,7 @@ public class FormCadastro extends AppCompatActivity {
                                 case 7: // Nome de usuário inválido
                                 case 8: // Senha inválida
                                 case 9: //Email inválido
+                                case 18: // Insira nome completo
                                     runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
                                     break;
                             }

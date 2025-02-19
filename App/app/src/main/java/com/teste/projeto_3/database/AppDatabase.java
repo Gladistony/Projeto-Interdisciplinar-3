@@ -1,4 +1,4 @@
-package com.teste.projeto_3.database;
+/*package com.teste.projeto_3.database;
 
 import android.content.Context;
 
@@ -31,4 +31,4 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-}
+}*/

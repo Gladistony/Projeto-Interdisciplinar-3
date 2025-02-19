@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
 public class TelaLogin extends AppCompatActivity{
@@ -68,9 +69,10 @@ public class TelaLogin extends AppCompatActivity{
                             switch (responseLogin.getCode()) {
                                 case 0: // Login bem sucedido
                                     Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
-                                    intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
-                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                    Data data = responseLogin.getData();
+                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
+                                    intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
+                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
                                     startActivity(intentTelaPrincipal);
                                     finish();
                                     break;

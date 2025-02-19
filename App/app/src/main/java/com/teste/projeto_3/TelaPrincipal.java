@@ -215,7 +215,7 @@ public class TelaPrincipal extends AppCompatActivity {
         nome.setText(intentInfoLogin.getStringExtra("nome_completo"));
         email.setText(intentInfoLogin.getStringExtra("email"));
         String imagemUrl = intentInfoLogin.getStringExtra("url_foto");
-        if (!imagemUrl.isEmpty()) {
+        if (imagemUrl != null) {
             try {
                 Picasso.get().load(intentInfoLogin.getStringExtra("url_foto")).into(imageView);
             } catch (Exception e) {
@@ -240,7 +240,7 @@ public class TelaPrincipal extends AppCompatActivity {
                     try {
                         // Processar resposta da requisição
                         User responseLogin = gson.fromJson(response, User.class);
-                        if (responseLogin.getMessage().equals("Usuario deslogado")) {
+                        if (responseLogin.getCode() == 0) {
                             Intent intentLoginCadastro = new Intent(this, LoginCadastro.class);
                             startActivity(intentLoginCadastro);
                             finish();

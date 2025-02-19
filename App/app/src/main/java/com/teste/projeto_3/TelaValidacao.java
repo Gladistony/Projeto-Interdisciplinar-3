@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
 public class TelaValidacao extends AppCompatActivity {
@@ -56,9 +57,10 @@ public class TelaValidacao extends AppCompatActivity {
                             switch (responseLogin.getCode()) {
                                 case 0: // Login bem sucedido
                                     Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
-                                    intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
-                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                    Data data = responseLogin.getData();
+                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
+                                    intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
+                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
                                     runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
                                     startActivity(intentTelaPrincipal);
                                     finish();
@@ -110,7 +112,7 @@ public class TelaValidacao extends AppCompatActivity {
                             String resultado = response.substring(905); // 905 é o índice da String HTML em que diz o resultado da requisição
                             if (resultado.startsWith("Código de ativação incorreto")) {
                                 runOnUiThread(() -> Toast.makeText(this, "Código de ativação incorreto", Toast.LENGTH_LONG).show());
-                            } else if (resultado.startsWith("Conta ativada") || resultado.startsWith("Conta já está ativa")) {
+                            } else if (resultado.startsWith("Operação realizada com sucesso") || resultado.startsWith("Conta já está ativa")) {
                                 login(usuario, senha);
                             } else {
                                 runOnUiThread(() -> Toast.makeText(this, "Erro na validação por código.", Toast.LENGTH_LONG).show());
@@ -149,9 +151,10 @@ public class TelaValidacao extends AppCompatActivity {
                         switch (responseLogin.getCode()) {
                             case 0: // Login bem sucedido
                                 Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                intentTelaPrincipal.putExtra("nome_completo", responseLogin.getNome_completo());
-                                intentTelaPrincipal.putExtra("email", responseLogin.getEmail());
-                                intentTelaPrincipal.putExtra("url_foto", responseLogin.getUrl_foto());
+                                Data data = responseLogin.getData();
+                                intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
+                                intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
+                                intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
                                 runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
                                 startActivity(intentTelaPrincipal);
                                 finish();

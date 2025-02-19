@@ -1,4 +1,4 @@
-package com.teste.projeto_3.dao
+/*package com.teste.projeto_3.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -16,4 +16,4 @@ interface UserDao {
 
     @get:Query("SELECT * FROM users")
     val allUsers: List<User?>?
-}
+}*/
