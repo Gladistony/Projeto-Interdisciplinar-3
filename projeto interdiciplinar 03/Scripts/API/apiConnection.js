@@ -22,13 +22,13 @@ async function getConnectionId() {
 }
 
 // Função para realizar o cadastro
-async function realizarCadastro(id, usuario, senha, email, nome_completo) {
+async function realizarCadastro(id, usuario, senha, nome_completo, email) { // Ordem ajustada dos campos
     const cadastroData = {
         id: id,
         usuario: usuario,
         senha: senha,
-        email: email,
-        nome_completo: nome_completo
+        nome_completo: nome_completo, // Ordem ajustada dos campos
+        email: email
     };
 
     try {
@@ -50,5 +50,28 @@ async function realizarCadastro(id, usuario, senha, email, nome_completo) {
     }
 }
 
+// Função para realizar o login
+async function realizarLogin(id, usuario, senha) {
+    const loginData = { id, usuario, senha };
+
+    try {
+        const response = await fetch(`${API_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro no login: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro durante o processo de login:', error);
+        throw error;
+    }
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro };
+export { getConnectionId, realizarCadastro, realizarLogin };
