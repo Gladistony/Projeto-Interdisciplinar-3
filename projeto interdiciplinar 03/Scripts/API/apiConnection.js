@@ -68,10 +68,12 @@ async function realizarLogin(id, usuario, senha) {
         const result = await response.json();
 
         // Verifica o status do usuário e armazena se a conta está ativa
-        if (result.status === "sucesso") {
+        if (result.status === "sucesso" || result.code === 14) {
             localStorage.setItem('usuarioAtivo', true);
+            localStorage.setItem('connectionId', id); // Armazena o ID de conexão
         } else {
             localStorage.removeItem('usuarioAtivo');
+            localStorage.removeItem('connectionId');
         }
 
         return result;
@@ -101,13 +103,38 @@ async function ativarConta(id, usuario, senha) {
         // Armazena o status do usuário após a ativação
         if (result.status === "sucesso") {
             localStorage.setItem('usuarioAtivo', true);
+            localStorage.setItem('connectionId', id); // Armazena o ID de conexão
         } else {
             localStorage.removeItem('usuarioAtivo');
+            localStorage.removeItem('connectionId');
         }
 
         return result;
     } catch (error) {
         console.error('Erro durante o processo de ativação da conta:', error);
+        throw error;
+    }
+}
+
+// Função para obter os dados do usuário
+async function getDadosUsuario() {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+
+    try {
+        const response = await fetch(`${API_URL}/get_dados`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao obter dados do usuário: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao obter dados do usuário:', error);
         throw error;
     }
 }
@@ -119,4 +146,4 @@ async function verificarAtivacao() {
 }
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, verificarAtivacao };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, verificarAtivacao };
