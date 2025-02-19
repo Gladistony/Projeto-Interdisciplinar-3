@@ -36,11 +36,15 @@ document.getElementById('loginForm').addEventListener('submit', async function (
                 } else {
                     alert('Login realizado com sucesso!');
                 }
-            } else if (loginResult.code === 14) {
-                alert('Usuário já está logado. Redirecionando para a tela de home.');
             }
 
-            window.location.replace('../Paginas/telaDeHomel.html'); // Redirecionar para a tela de home saindo de duas pastas
+            // Verificar se o usuário é administrador
+            if (dadosUsuario.tipo_conta === "admin") {
+                window.location.replace('../Paginas/ADM.html'); // Redirecionar para a página de administração
+            } else {
+                alert('Usuário já está logado. Redirecionando para a tela de home.');
+                window.location.replace('../Paginas/telaDeHomel.html'); // Redirecionar para a tela de home saindo de duas pastas
+            }
         } else if (loginResult.code === 3) {
             alert('Conta não está ativa. Por favor, ative sua conta.');
             window.location.replace('../Paginas/telaDeAtivacao.html'); // Redirecionar para a tela de ativação
