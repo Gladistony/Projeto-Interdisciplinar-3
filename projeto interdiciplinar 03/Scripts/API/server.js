@@ -105,17 +105,17 @@ app.post('/get_all_user', async (req, res) => {
         });
 
         const responseBody = await response.text(); // Lê a resposta como texto
-        console.log('Resposta completa do servidor /login:', response.status, responseBody);
+        console.log('Resposta completa do servidor /get_all_user:', response.status, responseBody);
 
         if (!response.ok) {
-            console.error('Erro no login:', response.status, response.statusText);
-            return res.status(response.status).json({ error: 'Erro ao realizar login' });
+            console.error('Erro no get_all_user:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao realizar get_all_user' });
         }
 
         const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
         res.json(data);
     } catch (error) {
-        console.error('Erro no servidor ao realizar login:', error);
+        console.error('Erro no servidor ao realizar get_all_user:', error);
         res.status(500).json({ error: 'Erro ao realizar login' });
     }
 });
