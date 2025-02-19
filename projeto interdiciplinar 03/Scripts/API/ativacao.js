@@ -22,7 +22,7 @@ document.getElementById('ativacaoForm').addEventListener('submit', async functio
             if (loginResult.status === "sucesso") {
                 const dadosUsuario = await getDadosUsuario();
                 localStorage.setItem('dadosUsuario', JSON.stringify(dadosUsuario));
-                window.location.href = '../../Paginas/telaDeHome.html'; // Redirecionar para a tela de home
+                window.location.href = '../Paginas/telaDeHomel.html'; // Redirecionar para a tela de home
             } else {
                 throw new Error('Erro ao realizar login após ativação.');
             }
