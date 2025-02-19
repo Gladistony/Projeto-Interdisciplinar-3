@@ -144,6 +144,7 @@ async function verificarAtivacao() {
     const usuarioAtivo = localStorage.getItem('usuarioAtivo');
     return usuarioAtivo === 'true';
 }
+
 // Função para obter todos os usuários (apenas para administradores)
 async function getAllUsers() {
     const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
