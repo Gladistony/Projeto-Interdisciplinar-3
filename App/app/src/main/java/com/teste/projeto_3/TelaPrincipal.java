@@ -261,6 +261,10 @@ public class TelaPrincipal extends AppCompatActivity {
         startActivity(new Intent(TelaPrincipal.this, TelaProdutos.class));
     }
 
+    public void abrirTelaFrag(View v) {
+        startActivity(new Intent(TelaPrincipal.this, TelaPrincipalFragment.class));
+    }
+
     private void salvarImagemNaGaleria(Bitmap bitmap) {
         String nomeArquivo = "IMG_" + System.currentTimeMillis() + ".jpg";
         OutputStream fos;

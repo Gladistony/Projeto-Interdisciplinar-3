@@ -179,4 +179,16 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="29dp"
+        android:onClick="abrirTelaFrag"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/ligarCamera"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dadosProdutos2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
