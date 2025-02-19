@@ -31,10 +31,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
                 // Verificar se há um novo ID armazenado e exibir a mensagem
                 const novoID = localStorage.getItem('novoID');
                 if (novoID) {
-                    alert(`Login realizado com sucesso! Seu novo ID é: ${novoID}`);
                     localStorage.removeItem('novoID'); // Limpar o ID armazenado após exibir a mensagem
-                } else {
-                    alert('Login realizado com sucesso!');
                 }
             }
 
@@ -42,11 +39,9 @@ document.getElementById('loginForm').addEventListener('submit', async function (
             if (dadosUsuario.tipo_conta === "admin") {
                 window.location.replace('../Paginas/ADM.html'); // Redirecionar para a página de administração
             } else {
-                alert('Usuário já está logado. Redirecionando para a tela de home.');
                 window.location.replace('../Paginas/telaDeHomel.html'); // Redirecionar para a tela de home saindo de duas pastas
             }
         } else if (loginResult.code === 3) {
-            alert('Conta não está ativa. Por favor, ative sua conta.');
             window.location.replace('../Paginas/telaDeAtivacao.html'); // Redirecionar para a tela de ativação
         } else {
             throw new Error(loginResult.message);

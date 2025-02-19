@@ -30,9 +30,6 @@ document.getElementById('cadastroForm').addEventListener('submit', async functio
         // Armazenar o novo ID no armazenamento local
         if (cadastroResult.data && cadastroResult.data.length > 0) {
             localStorage.setItem('novoID', cadastroResult.data[0]);
-            alert(`Cadastro realizado com sucesso! Seu novo ID é: ${cadastroResult.data[0]}`);
-        } else {
-            alert('Cadastro realizado com sucesso, mas não foi possível obter o novo ID.');
         }
 
         window.location.href = 'index.html'; // Redirecionar para a tela de login

@@ -93,6 +93,34 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.post('/get_all_user', async (req, res) => {
+    const { id, usuario, senha } = req.body;
+
+    try {
+        console.log('Recebendo dados para login:', req.body);
+        const response = await fetch('http://44.203.201.20/get_all_user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario, senha })
+        });
+
+        const responseBody = await response.text(); // Lê a resposta como texto
+        console.log('Resposta completa do servidor /login:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no login:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao realizar login' });
+        }
+
+        const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao realizar login:', error);
+        res.status(500).json({ error: 'Erro ao realizar login' });
+    }
+});
+
+
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });

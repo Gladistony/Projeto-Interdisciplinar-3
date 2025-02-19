@@ -1,9 +1,9 @@
-import { getUsuarios } from './apiConnection.js';
+import { getAllUsers } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         // Obtenha a lista de usuários
-        const usuarios = await getUsuarios();
+        const usuarios = await getAllUsers();
         console.log('Usuários:', usuarios);
 
         const tbody = document.querySelector('table tbody');

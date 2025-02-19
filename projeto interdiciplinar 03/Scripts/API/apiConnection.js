@@ -150,11 +150,13 @@ async function getAllUsers() {
     const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
 
     try {
-        const response = await fetch(`${API_URL}/get_all_user`, {
+        const response = await fetch(`${API_URL}/get_all_user/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
         });
+        const result1 = await response;
+        console.log(result1)
 
         if (!response.ok) {
             throw new Error(`Erro ao obter todos os usuários: ${response.statusText}`);
