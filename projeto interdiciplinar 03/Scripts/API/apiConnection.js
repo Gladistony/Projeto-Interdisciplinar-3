@@ -22,12 +22,12 @@ async function getConnectionId() {
 }
 
 // Função para realizar o cadastro
-async function realizarCadastro(id, usuario, senha, nome_completo, email) { // Ordem ajustada dos campos
+async function realizarCadastro(id, usuario, senha, nome_completo, email) {
     const cadastroData = {
         id: id,
         usuario: usuario,
         senha: senha,
-        nome_completo: nome_completo, // Ordem ajustada dos campos
+        nome_completo: nome_completo,
         email: email
     };
 
