@@ -11,22 +11,23 @@
 <body>
     <main>
         <div class="conteiner">
-            <form action="" method="post">
-                
-                <div div class="caixa-texto">
+            <form id="ativacaoForm" action="" method="post"> <!-- Adicionei o id "ativacaoForm" -->
+                <div class="caixa-texto">
                     <i class="material-icons">account_circle</i>
-                    <input type="text" id="caixaDeAtivacao" placeholder="Coloque o nome do usuário" id="nomeDeAtivacao" >
+                    <input type="text" id="nomeDeAtivacao" placeholder="Coloque o nome do usuário">
                 </div>
-
-                <div div class="caixa-texto">
-                    <input type="text" id="caixaDeAtivacao" placeholder="Coloque o código de Ativação" id="codigoDeAtivacao" >
+                <div class="caixa-texto">
+                    <input type="text" id="codigoDeAtivacao" placeholder="Coloque o código de Ativação">
                 </div>
-                    <button type="submit" class="" id="BotaoDeAtivar">Continuar</button>
+                <button type="submit" class="" id="BotaoDeAtivar">Continuar</button>
             </form>
-            
             <div><p class="mensagemDeErro"> </p> </div>
             <div id="loading" class="loading-spinner" style="display: none;"></div>
         </div>
     </main>
+
+    <!-- Importa os scripts -->
+    <script type="module" src="../Scripts/API/apiConnection.js"></script>
+    <script type="module" src="../Scripts/API/ativacao.js"></script>
 </body>
 </html>

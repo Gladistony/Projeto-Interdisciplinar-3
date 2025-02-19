@@ -39,64 +39,8 @@
     </div>
 </main>
 
-<script>
-    document.getElementById('cadastroForm').addEventListener('submit', async function (event) {
-        event.preventDefault();
-
-        try {
-            // Obter ID de conexão
-            const idResponse = await fetch('http://44.203.201.20/give', {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: 'null' }) // Solicita o ID inicial
-            });
-
-            if (!idResponse.ok) {
-                throw new Error(Erro ao obter ID: ${idResponse.statusText});
-            }
-
-            const idData = await idResponse.json();
-            const connectionId = idData.id;
-
-            console.log('ID de conexão recebido:', connectionId);
-
-            // Enviar dados do formulário
-            const formData = new FormData(event.target);
-            const cadastroData = {
-                id: connectionId,
-                request: 'cadastro',
-                usuario: formData.get('usuario'),
-                senha: formData.get('senha'),
-                email: formData.get('email'),
-                nome_completo: formData.get('nome_completo')
-            };
-
-            // Verificação de usuário e senha
-            if (cadastroData.usuario.includes(' ') || cadastroData.senha.includes(' ')) {
-                throw new Error('Usuário e senha não podem conter espaços!');
-            }
-
-            const cadastroResponse = await fetch('http://44.203.201.20/give', {
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(cadastroData)
-            });
-
-            if (!cadastroResponse.ok) {
-                throw new Error(Erro no cadastro: ${cadastroResponse.statusText});
-            }
-
-            const cadastroResult = await cadastroResponse.json();
-            console.log('Resposta do cadastro:', cadastroResult);
-            alert('Cadastro realizado com sucesso!');
-            window.location.href = 'index.html'; // Redirecionar para a tela de login
-        } catch (error) {
-            console.error('Erro durante o processo:', error);
-            alert(Erro: ${error.message});
-        }
-    });
-</script>
+<!-- Importa os scripts -->
+<script type="module" src="../Scripts/API/apiConnection.js"></script>
+<script type="module" src="../Scripts/API/cadastro.js"></script>
 </body>
 </html>
