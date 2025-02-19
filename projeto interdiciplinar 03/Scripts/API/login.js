@@ -6,11 +6,13 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
     try {
         // Obtenha o ID de conexão armazenado
-        const connectionId = localStorage.getItem('connectionId');
+        let connectionId = localStorage.getItem('connectionId');
         if (!connectionId) {
-            throw new Error('ID de conexão não encontrado. Por favor, cadastre-se novamente.');
+            // Solicitar um novo ID de conexão se não houver um armazenado
+            connectionId = await getConnectionId();
+            localStorage.setItem('connectionId', connectionId);
+            console.log('Novo ID de conexão obtido:', connectionId);
         }
-        console.log('ID de conexão reutilizado:', connectionId);
 
         const formData = new FormData(event.target);
         const usuario = formData.get('usuario');
@@ -22,7 +24,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
         if (loginResult.status === "sucesso" || loginResult.code === 14) { // Verifica sucesso ou usuário já logado
             // Armazenar os dados do usuário no armazenamento local
-            const dadosUsuario = await getDadosUsuario();
+            const dadosUsuario = loginResult.data; // Utilize os dados retornados diretamente
             localStorage.setItem('dadosUsuario', JSON.stringify(dadosUsuario));
             
             if (loginResult.status === "sucesso") {
