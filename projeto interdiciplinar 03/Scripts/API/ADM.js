@@ -34,8 +34,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <td colspan="7">
                     <div class="detalhe-estoque">
                         <h3>Fotos do Estoque</h3>
-                        <img src="estoque1.jpg" alt="Foto do Estoque" class="estoque">
-                        <img src="estoque2.jpg" alt="Foto do Estoque" class="estoque">
+                        <img src="../IMG/estoque1.jpg" alt="Foto do Estoque" class="estoque">
+                        <img src="../IMG/estoque2.jpg" alt="Foto do Estoque" class="estoque">
                     </div>
                     <div class="detalhe-estoque">
                         <h3>Descrição do Estoque</h3>
@@ -63,7 +63,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             // Adiciona evento de clique ao botão de detalhes
             tr.querySelector('.toggle-details').addEventListener('click', () => {
-                trDetalhes.classList.toggle('hidden'); // Alterna a visibilidade dos detalhes
+                trDetalhes.style.display = trDetalhes.style.display === 'table-row' ? 'none' : 'table-row'; // Alterna a visibilidade dos detalhes
+                const button = tr.querySelector('.toggle-details');
+                button.textContent = button.textContent === 'Mostrar Detalhes' ? 'Esconder Detalhes' : 'Mostrar Detalhes';
             });
         });
     } catch (error) {
