@@ -66,6 +66,14 @@ async function realizarLogin(id, usuario, senha) {
         }
 
         const result = await response.json();
+
+        // Verifica o status do usuário e armazena se a conta está ativa
+        if (result.status === "sucesso") {
+            localStorage.setItem('usuarioAtivo', true);
+        } else {
+            localStorage.removeItem('usuarioAtivo');
+        }
+
         return result;
     } catch (error) {
         console.error('Erro durante o processo de login:', error);
@@ -73,5 +81,42 @@ async function realizarLogin(id, usuario, senha) {
     }
 }
 
+// Função para ativar a conta
+async function ativarConta(id, usuario, senha) {
+    const ativacaoData = { id, usuario, senha };
+
+    try {
+        const response = await fetch(`${API_URL}/ativar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(ativacaoData)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro na ativação da conta: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+
+        // Armazena o status do usuário após a ativação
+        if (result.status === "sucesso") {
+            localStorage.setItem('usuarioAtivo', true);
+        } else {
+            localStorage.removeItem('usuarioAtivo');
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Erro durante o processo de ativação da conta:', error);
+        throw error;
+    }
+}
+
+// Função para verificar a ativação do usuário
+async function verificarAtivacao() {
+    const usuarioAtivo = localStorage.getItem('usuarioAtivo');
+    return usuarioAtivo === 'true';
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, verificarAtivacao };
