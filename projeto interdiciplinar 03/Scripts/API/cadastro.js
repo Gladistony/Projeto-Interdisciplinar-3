@@ -1,5 +1,4 @@
-// cadastro.js
-import { getConnectionId, realizarCadastro } from '../API/apiConnection.js';
+import { getConnectionId, realizarCadastro } from './apiConnection.js';
 
 // Manipula o envio do formulário de cadastro
 document.getElementById('cadastroForm').addEventListener('submit', async function (event) {

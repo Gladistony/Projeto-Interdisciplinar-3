@@ -1,5 +1,4 @@
-// apiConnection.js
-const API_URL = 'http://44.203.201.20';
+const API_URL = 'http://localhost:3000';
 
 // Função para obter o ID de conexão
 async function getConnectionId() {
@@ -7,7 +6,7 @@ async function getConnectionId() {
         const response = await fetch(`${API_URL}/give`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: null }) // Solicita o ID inicial
+            body: JSON.stringify({ id: "null" }) // Solicita o ID inicial com a string "null"
         });
 
         if (!response.ok) {
