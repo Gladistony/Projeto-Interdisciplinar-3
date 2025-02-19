@@ -70,13 +70,33 @@
         />
 
     <Button
+        android:id="@+id/dadosProdutos2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/black"
+        android:onClick="abrirTelaProduto"
+        android:padding="20dp"
+        android:text="Produtos"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/ligarCamera"
+        app:layout_constraintEnd_toEndOf="@id/containerComponentsPerfil"
+        app:layout_constraintStart_toStartOf="@id/containerComponentsPerfil"
+        app:layout_constraintTop_toTopOf="@id/textPerfilTutorial" />
+
+    <Button
         android:id="@+id/ligarCamera"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="@color/black"
         android:padding="20dp"
         android:text="Câmera"
@@ -84,10 +104,9 @@
         android:textColor="@color/white"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="@id/containerComponentsPerfil"
-        app:layout_constraintEnd_toEndOf="@id/containerComponentsPerfil"
         app:layout_constraintBottom_toBottomOf="@id/containerComponentsPerfil"
-        />
+        app:layout_constraintEnd_toEndOf="@id/containerComponentsPerfil"
+        app:layout_constraintStart_toStartOf="@id/containerComponentsPerfil" />
 
     <View
         android:id="@+id/containerUser"

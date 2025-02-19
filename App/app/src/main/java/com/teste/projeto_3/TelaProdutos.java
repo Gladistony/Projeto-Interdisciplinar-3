@@ -43,6 +43,9 @@ public class TelaProdutos extends Activity {
         EditText editTextName = popupView.findViewById(R.id.editTextName);
         Button buttonSubmit = popupView.findViewById(R.id.buttonSubmit);
 
+        editTextName.setTextColor(getResources().getColor(android.R.color.black));
+        editTextName.setHintTextColor(getResources().getColor(android.R.color.darker_gray));
+
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +66,8 @@ public class TelaProdutos extends Activity {
         buttonBox.setId(View.generateViewId());
         buttonBox.setText(name);
         buttonBox.setBackgroundResource(R.drawable.container_box);
+        buttonBox.setTextColor(getResources().getColor(android.R.color.black));
+
 
         // Define o layoutParams diretamente
         ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
