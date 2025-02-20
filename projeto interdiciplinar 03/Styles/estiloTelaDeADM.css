@@ -14,6 +14,25 @@ body {
     min-height: 100vh;
 }
 
+#btn-home {
+    background-color: #000000;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute;
+    right: 155px;
+    top: 100px;
+}
+
+#search-input {
+    width: 250px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
 h1 {
     margin: 20px 0;
     color: #333;
@@ -39,7 +58,7 @@ th, td {
 }
 
 tr:hover {
-    background-color: #f1f1f1;
+    background-color: #dfdede;
 }
 
 .perfil {
