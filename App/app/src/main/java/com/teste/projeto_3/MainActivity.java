@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -67,6 +69,10 @@ public class MainActivity extends AppCompatActivity{
                                 switch (responseAutoLogin.getCode()) {
                                     case 0: // Login bem sucedido
                                         Intent intentTelaPrincipal = new Intent(this, TelaPrincipalFragment.class);
+                                        /*SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+                                        viewModel.setUser(responseAutoLogin);
+                                        String a = viewModel.getUser().getValue().getNome_completo();*/
+                                        //intentTelaPrincipal.putExtra("dados", response);
                                         intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
                                         intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
                                         intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());

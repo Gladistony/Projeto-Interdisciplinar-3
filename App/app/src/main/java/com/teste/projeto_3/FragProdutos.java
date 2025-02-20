@@ -40,8 +40,10 @@ public class FragProdutos extends Fragment {
             }
         });
 
+        /*
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.setNomeCompleto("Outro nome");
+         */
 
         return rootView;  // Retorna a view inflada
     }

@@ -17,6 +17,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.gson.Gson;
+import com.teste.projeto_3.model.User;
 
 public class TelaPrincipalFragment extends AppCompatActivity {
 
@@ -32,6 +34,9 @@ public class TelaPrincipalFragment extends AppCompatActivity {
         });
 
         Intent dados = getIntent();
+        Gson gson = new Gson();
+        String response = dados.getStringExtra("dados");
+        User responseAutoLogin = gson.fromJson(response, User.class);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Percorre todos os menus (botões) e desativa o tooltip (caixa de texto flutuante ao pressionar)
@@ -46,10 +51,10 @@ public class TelaPrincipalFragment extends AppCompatActivity {
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentContainerView);
         NavController navController = navHostFragment.getNavController();
-        
+
         // Criar e armazenar o ViewModel compartilhado
         SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-        viewModel.setNomeCompleto(dados.getStringExtra("nome_completo")); // Define o valor da string no ViewModel
+        /*viewModel.setNomeCompleto(dados.getStringExtra("nome_completo")); // Define o valor da string no ViewModel*/
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }

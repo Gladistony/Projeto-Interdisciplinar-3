@@ -4,14 +4,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SharedViewModel extends ViewModel {
-    private final MutableLiveData<String> nomeCompleto = new MutableLiveData<>();
+import com.teste.projeto_3.model.User;
 
-    public void setNomeCompleto(String nome) {
-        nomeCompleto.setValue(nome);
+public class SharedViewModel extends ViewModel {
+    private final MutableLiveData<User> dados = new MutableLiveData<>();
+
+
+    public void setUser(User user) {
+        dados.setValue(user);
     }
 
-    public LiveData<String> getNomeCompleto() {
-        return nomeCompleto;
+    public LiveData<User> getUser() {
+        return dados;
     }
 }

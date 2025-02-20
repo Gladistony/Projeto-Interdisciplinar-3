@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /*@Entity(tableName = "users") // Define a classe como uma tabela do Room*/
-class User {
+class User constructor(){
     /*@PrimaryKey // Define o ID como chave primária, mas sem auto geração*/
     var id: String = ""             // ID fornecido pelo servidor
 
