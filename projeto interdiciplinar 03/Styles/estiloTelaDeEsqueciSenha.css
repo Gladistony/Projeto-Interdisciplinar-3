@@ -3,3 +3,81 @@
     padding: 0;
     box-sizing: border-box;
 }
+
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    height: 100vh;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+}
+
+header {
+    margin: 20px;
+}
+
+header img {
+    width: 200px;
+}
+
+.caixa-texto {
+    display: flex;
+    align-items: center;
+    border: 2px solid;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    width: 350px;
+}
+
+.caixa-texto i {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.caixa-texto input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 5px;
+    background: none;
+    font-size: 16px;
+}
+
+.btn {
+    height: 50px;
+    background-color: #fff;
+    border: 2px solid;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: black;
+    color: #fff;
+}
+
+
+
+.linkParaLogin{
+    text-decoration: none;
+
+}
+
+.linkParaLogin:hover{
+    text-decoration: underline;
+}
+
+main > section > form > p{
+    font-size: small;
+    align-items: start;
+    text-align: start;
+    justify-content: start;
+}
