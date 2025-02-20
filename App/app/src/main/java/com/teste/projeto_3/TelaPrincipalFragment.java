@@ -1,5 +1,6 @@
 package com.teste.projeto_3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
@@ -28,6 +30,8 @@ public class TelaPrincipalFragment extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        Intent dados = getIntent();
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Percorre todos os menus (botões) e desativa o tooltip (caixa de texto flutuante ao pressionar)
@@ -38,9 +42,15 @@ public class TelaPrincipalFragment extends AppCompatActivity {
                 view.setOnLongClickListener(v -> true);
             }
         }
+
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.fragmentContainerView);
         NavController navController = navHostFragment.getNavController();
+        
+        // Criar e armazenar o ViewModel compartilhado
+        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        viewModel.setNomeCompleto(dados.getStringExtra("nome_completo")); // Define o valor da string no ViewModel
+
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
 }

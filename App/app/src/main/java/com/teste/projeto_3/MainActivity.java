@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity{
                             if (responseAutoLogin.getCode() != 15) { // Code 15 = "Usuario nao logado"
                                 switch (responseAutoLogin.getCode()) {
                                     case 0: // Login bem sucedido
-                                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
+                                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipalFragment.class);
                                         intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
                                         intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
                                         intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());
