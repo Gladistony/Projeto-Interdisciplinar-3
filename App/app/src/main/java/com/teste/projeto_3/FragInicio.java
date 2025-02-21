@@ -3,10 +3,17 @@ package com.teste.projeto_3;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
+import com.teste.projeto_3.model.Data;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +65,22 @@ public class FragInicio extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_frag_inicio, container, false);
+        View view = inflater.inflate(R.layout.fragment_frag_inicio, container, false);
+
+        // Obter o ViewModel compartilhado
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
+            if (dados.getData() == null) {
+                TextView bemVindo = view.findViewById(R.id.bemVindo);
+                bemVindo.setText("Bem vindo(a), " + dados.getNome_completo());
+            }
+            else {
+                Data dadosData = dados.getData();
+                TextView bemVindo = view.findViewById(R.id.bemVindo);
+                bemVindo.setText("Bem vindo(a), " + dadosData.getNome_completo());
+            }
+        });
+
+        return view;
     }
 }

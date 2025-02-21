@@ -12,31 +12,25 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.gson.Gson;
 import com.teste.projeto_3.model.User;
 
-public class TelaPrincipalFragment extends AppCompatActivity {
+public class TelaPrincipalActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_tela_principal_fragment);
+        setContentView(R.layout.activity_tela_principal_activity);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        Intent dados = getIntent();
-        Gson gson = new Gson();
-        String response = dados.getStringExtra("dados");
-        User responseAutoLogin = gson.fromJson(response, User.class);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         // Percorre todos os menus (botões) e desativa o tooltip (caixa de texto flutuante ao pressionar)
@@ -53,8 +47,10 @@ public class TelaPrincipalFragment extends AppCompatActivity {
         NavController navController = navHostFragment.getNavController();
 
         // Criar e armazenar o ViewModel compartilhado
+        Intent dados = getIntent();
+        User user = dados.getParcelableExtra("dados"); // dados da tela de login ou get_dados
         SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
-        /*viewModel.setNomeCompleto(dados.getStringExtra("nome_completo")); // Define o valor da string no ViewModel*/
+        viewModel.setUser(user);
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }

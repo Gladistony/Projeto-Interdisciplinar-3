@@ -2,6 +2,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt") // Adiciona o Kapt
     alias(libs.plugins.android.application)
+    id("kotlin-parcelize")
+
 }
 
 kapt {

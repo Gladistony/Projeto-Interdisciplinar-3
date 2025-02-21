@@ -1,7 +1,15 @@
 package com.teste.projeto_3;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -9,6 +17,7 @@ import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +25,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.jetbrains.annotations.NotNull;
 
 public class FragProdutos extends Fragment {
 
+    private ActivityResultLauncher<Intent> cameraLauncher;
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
 
@@ -40,12 +55,78 @@ public class FragProdutos extends Fragment {
             }
         });
 
-        /*
-        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        viewModel.setNomeCompleto("Outro nome");
-         */
+        FloatingActionButton fabCamera = rootView.findViewById(R.id.botaoCamera);
+
+        // Inicializa o launcher da câmera
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
+
+                            // Aqui você pode definir onde deseja exibir a imagem capturada
+                            requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Imagem capturada!", Toast.LENGTH_SHORT).show());
+                        }
+                    } else {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Captura de imagem cancelada", Toast.LENGTH_SHORT).show());
+                    }
+                }
+        );
+        fabCamera.setOnClickListener(v -> abrirCamera());
 
         return rootView;  // Retorna a view inflada
+    }
+
+    private void abrirCamera() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getContext().checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
+                    // Se o usuário já negou antes, mostra o diálogo para ativar manualmente a permissão
+                    mostrarDialogoPermissao();
+                } else {
+                    // Solicita a permissão
+                    requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 100);
+                }
+                return; // Sai da função até que a permissão seja concedida
+            }
+        }
+
+        // Se já tem permissão, abre a câmera normalmente
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+            cameraLauncher.launch(intent);
+        } else {
+            Toast.makeText(getContext(), "Câmera indisponível no dispositivo", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void mostrarDialogoPermissao() {
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Permissão necessária")
+                .setMessage("O aplicativo precisa da permissão para acessar a câmera. Por favor, ative-a nas configurações.")
+                .setPositiveButton("Ir para Configurações", (dialog, which) -> {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(android.net.Uri.parse("package:" + getContext().getPackageName()));
+                    getContext().startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    // Captura a resposta da solicitação de permissão
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 100) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                abrirCamera();
+            } else {
+                Toast.makeText(getContext(), "Permissão para a câmera negada", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void showPopup() {
@@ -122,4 +203,6 @@ public class FragProdutos extends Fragment {
         constraintSet.applyTo(mainLayout);
         boxCounter++;
     }
+
+
 }

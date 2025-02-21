@@ -22,7 +22,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".TelaPrincipalFragment"
+            android:name=".TelaPrincipalActivity"
             android:exported="false" />
         <activity
             android:name=".LoginCadastro"
@@ -31,16 +31,10 @@
             android:name=".TelaLogin"
             android:exported="false" />
         <activity
-            android:name=".TelaPrincipal"
-            android:exported="false" />
-        <activity
             android:name=".FormCadastro"
             android:exported="false" />
         <activity
             android:name=".TelaValidacao"
-            android:exported="false" />
-        <activity
-            android:name=".TelaProdutos"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

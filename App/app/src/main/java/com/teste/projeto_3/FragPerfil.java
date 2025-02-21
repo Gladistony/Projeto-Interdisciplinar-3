@@ -13,11 +13,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
 /**
@@ -75,9 +78,9 @@ public class FragPerfil extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // A View já existe, podemos configurar o clique!
         Button meuBotao = view.findViewById(R.id.deslogar);
         meuBotao.setOnClickListener(v -> deslogar());
+
     }
 
 
@@ -87,15 +90,35 @@ public class FragPerfil extends Fragment {
         View view = inflater.inflate(R.layout.fragment_frag_perfil, container, false);
 
         // Obter o ViewModel compartilhado
-        //SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        //String a = viewModel.getUser().getValue().getNome_completo();
-        //String b = "kahsda";
+        SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
+            TextView nome = view.findViewById(R.id.textNomeUsuario);
+            TextView email = view.findViewById(R.id.textEmailUsuario);
+            ImageView fotoPerfil = view.findViewById(R.id.imageView);
 
-        // Observar as mudanças na variável "nomeCompleto"
-        //viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
-            //TextView textView = view.findViewById(R.id.textNomeUsuario);
-            //textView.setText(a);
-        //});
+            if (dados.getData() == null) {
+            nome.setText(dados.getNome_completo());
+            email.setText(dados.getEmail());;
+            if (dados.getUrl_foto() != null) {
+                try {
+                    Picasso.get().load(dados.getUrl_foto()).into(fotoPerfil);
+                } catch (Exception e) {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show());
+                }
+            }
+            } else {
+                Data dadosData = dados.getData();
+                nome.setText(dadosData.getNome_completo());
+                email.setText(dadosData.getEmail());;
+                if (dadosData.getUrl_foto() != null) {
+                    try {
+                        Picasso.get().load(dadosData.getUrl_foto()).into(fotoPerfil);
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            }
+        });
 
         return view;
     }

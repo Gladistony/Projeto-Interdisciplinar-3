@@ -12,7 +12,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
-import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
 public class TelaValidacao extends AppCompatActivity {
@@ -53,15 +52,10 @@ public class TelaValidacao extends AppCompatActivity {
                     } else {
                         // Processar resposta da requisição
                         User responseLogin = gson.fromJson(response, User.class);
-                        if (responseLogin != null) {
                             switch (responseLogin.getCode()) {
                                 case 0: // Login bem sucedido
-                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                    Data data = responseLogin.getData();
-                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
-                                    intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
-                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
-                                    runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
+                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
+                                    intentTelaPrincipal.putExtra("dados", responseLogin);
                                     startActivity(intentTelaPrincipal);
                                     finish();
                                     break;
@@ -79,7 +73,6 @@ public class TelaValidacao extends AppCompatActivity {
                                     break;
                             }
                         }
-                    }
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(this, "Ocorreu um erro ao conectar-se ao servidor.", Toast.LENGTH_SHORT).show());
@@ -150,12 +143,8 @@ public class TelaValidacao extends AppCompatActivity {
                     if (responseLogin != null) {
                         switch (responseLogin.getCode()) {
                             case 0: // Login bem sucedido
-                                Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                Data data = responseLogin.getData();
-                                intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
-                                intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
-                                intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
-                                runOnUiThread(() -> Toast.makeText(this, "Conta ativada com sucesso!", Toast.LENGTH_LONG).show());
+                                Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
+                                intentTelaPrincipal.putExtra("dados", responseLogin);
                                 startActivity(intentTelaPrincipal);
                                 finish();
                                 break;
