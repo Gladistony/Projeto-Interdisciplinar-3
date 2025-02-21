@@ -13,7 +13,7 @@
     <string name="voltar"> Voltar</string>
     <string name="text_validacao"> "Quase lá! Enviamos um link e um código de confirmação para a sua caixa de entrada. Por favor, insira o código abaixo ou acesse o link recebido para concluir a ativação da sua conta.</string>
     <string name="text_validar_email"> Já validei através do link</string>
-    <string name="text_tutorial_perfil">Use a sua câmera para monitorar os seus produtos</string>
+    <string name="text_configuracoes_perfil">Configurações da conta</string>
     <string name="add"> mais</string>
 
 </resources>

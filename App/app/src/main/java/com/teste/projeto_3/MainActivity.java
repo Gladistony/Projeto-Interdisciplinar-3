@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,10 +67,8 @@ public class MainActivity extends AppCompatActivity{
                             if (responseAutoLogin.getCode() != 15) { // Code 15 = "Usuario nao logado"
                                 switch (responseAutoLogin.getCode()) {
                                     case 0: // Login bem sucedido
-                                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                        intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
-                                        intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
-                                        intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());
+                                        Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
+                                        intentTelaPrincipal.putExtra("dados", responseAutoLogin);
                                         startActivity(intentTelaPrincipal);
                                         finish();
                                         break;

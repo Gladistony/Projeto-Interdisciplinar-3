@@ -16,7 +16,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
-import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
 public class TelaLogin extends AppCompatActivity{
@@ -68,11 +67,8 @@ public class TelaLogin extends AppCompatActivity{
                             User responseLogin = gson.fromJson(response, User.class);
                             switch (responseLogin.getCode()) {
                                 case 0: // Login bem sucedido
-                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                    Data data = responseLogin.getData();
-                                    intentTelaPrincipal.putExtra("nome_completo", responseLogin.getData().getNome_completo());
-                                    intentTelaPrincipal.putExtra("email", responseLogin.getData().getEmail());
-                                    intentTelaPrincipal.putExtra("url_foto", responseLogin.getData().getUrl_foto());
+                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
+                                    intentTelaPrincipal.putExtra("dados", responseLogin);
                                     startActivity(intentTelaPrincipal);
                                     finish();
                                     break;
@@ -176,10 +172,8 @@ public class TelaLogin extends AppCompatActivity{
                         if (responseAutoLogin.getCode() != 15) { // Code 15 = "Usuario nao logado"
                             switch (responseAutoLogin.getCode()) {
                                 case 0: // Login bem sucedido
-                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipal.class);
-                                    intentTelaPrincipal.putExtra("nome_completo", responseAutoLogin.getNome_completo());
-                                    intentTelaPrincipal.putExtra("email", responseAutoLogin.getEmail());
-                                    intentTelaPrincipal.putExtra("url_foto", responseAutoLogin.getUrl_foto());
+                                    Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
+                                    intentTelaPrincipal.putExtra("dados", responseAutoLogin);
                                     startActivity(intentTelaPrincipal);
                                     finish();
                                     break;

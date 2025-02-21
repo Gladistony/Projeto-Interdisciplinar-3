@@ -70,4 +70,9 @@
         <item name="android:background">@drawable/container_user_dados</item>
     </style>
 
+        <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+            <!-- Desativa o efeito ripple nos botões de BottomNavigationView -->
+            <item name="itemRippleColor">@android:color/transparent</item>
+        </style>
+
 </resources>
