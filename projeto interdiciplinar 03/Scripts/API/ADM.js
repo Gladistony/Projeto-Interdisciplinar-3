@@ -1,4 +1,4 @@
-import { getAllUsers } from './apiConnection.js';
+import { getAllUsers, excluirUsuario } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <td>*******</td>
                     <td>
                         <button class="edit">Editar</button>
-                        <button class="delete">Apagar</button>
+                        <button class="delete" data-usuario="${usuario.usuario}">Apagar</button>
                         <button class="toggle-details">Mostrar Detalhes</button>
                     </td>
                 `;
@@ -69,6 +69,28 @@ document.addEventListener('DOMContentLoaded', async function () {
                     trDetalhes.style.display = trDetalhes.style.display === 'table-row' ? 'none' : 'table-row'; // Alterna a visibilidade dos detalhes
                     const button = tr.querySelector('.toggle-details');
                     button.textContent = button.textContent === 'Mostrar Detalhes' ? 'Esconder Detalhes' : 'Mostrar Detalhes';
+                });
+
+                 // Adicionar evento ao botão de exclusão
+                tr.querySelector('.delete').addEventListener('click', async function () {
+                    const usuario = this.getAttribute('data-usuario');
+                    const id = localStorage.getItem('connectionId'); // ID do admin
+
+                    if (!id) {
+                        alert('Erro: ID do administrador não encontrado.');
+                        return;
+                    }
+
+                    const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuario}?`);
+                    if (!confirmacao) return;
+
+                    try {
+                        await excluirUsuario(usuario);
+                        renderTable(userList.filter(u => u.usuario !== usuario)); // Remove da lista e renderiza novamente
+                    } catch (error) {
+                        console.error('Erro ao excluir usuário:', error);
+                        alert(`Erro ao excluir usuário: ${error.message}`);
+                    }
                 });
             });
         };

@@ -170,5 +170,37 @@ async function getAllUsers() {
     }
 }
 
+// Função para excluir um usuário (apenas para administradores)
+async function excluirUsuario(id, usuario) {
+    try {
+        const response = await fetch(`${API_URL}/delete_user/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario: usuario }) // Enviando o ID do admin e o usuário a ser deletado
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao excluir usuário: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('Resposta do servidor para exclusão:', result);
+
+        if (result.status === "sucesso") {
+            alert(`Usuário ${usuario} excluído com sucesso!`);
+        } else {
+            alert(`Erro: ${result.message}`);
+        }
+
+        return result;
+    } catch (error) {
+        console.error('Erro ao excluir usuário:', error);
+        alert(`Erro ao excluir usuário: ${error.message}`);
+        throw error;
+    }
+}
+
+
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario };
