@@ -1,3 +1,10 @@
+import { initializeOrUpdateConnectionId } from './apiConnection.js';
+
+// Inicializa ou atualiza o ID de conexão ao carregar a página
+document.addEventListener('DOMContentLoaded', async () => {
+    await initializeOrUpdateConnectionId();
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
     form.addEventListener('submit', async function(event) {
