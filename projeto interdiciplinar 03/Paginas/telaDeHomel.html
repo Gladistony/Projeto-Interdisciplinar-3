@@ -5,28 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
     <link rel="stylesheet" href="../Styles/estiloTelaDeHome.css">
-    <script src="../Scripts/telaDeHome.js" defer> </script>
+    <script src="../Scripts/telaDeHome.js" defer></script>
 </head>
 <body>
     <header>
-        <button>
+        <button id="btn-abrir-modal">
             <div class="conteiner-foto">
-                <img src="../IMG/perfil_generico.png" alt="foto-perfil">
+                <img src="../IMG/perfil_generico.png" alt="foto-perfil" id="foto-perfil">
             </div>
         </button>
-        <h1 id="nome-perfil">nome da pessoa</h1>
-        <p id="email-perfil">email da pessoa</p>
+        <h1 id="nome-perfil">Nome da Pessoa</h1>
+        <p id="email-perfil">Email da Pessoa</p>
     </header>
+
     <main>
         <p>Gerencie seus Stocks</p>
         <section id="section-principal">
-            <select id="video-source"></select>
             <button id="btn-produtos">Produtos</button>
-            <button id="stop-video">Desligar Vídeo</button>
-            <button id="deslogar">logout</button>
-            <video id="video" width="640" height="480" autoplay></video>
+            <button id="deslogar">Logout</button>
         </section>
     </main>
+
+    <!-- Modal para trocar a foto de perfil -->
+    <div id="modal-camera" class="modal">
+        <div class="modal-content">
+            <h2>Alterar Foto de Perfil</h2>
+            <select id="video-source-modal"></select>
+            <button id="btn-abrir-camera">Abrir Câmera</button>
+            <button id="btn-capturar">Capturar Foto</button>
+            <input type="file" id="file-input" accept="image/*">
+            <canvas id="canvas" style="display: none;"></canvas>
+            <video id="video" autoplay></video>
+            <button id="btn-fechar-modal">Fechar</button>
+        </div>
+    </div>
 
     <script type="module" src="../Scripts/API/apiConnection.js"></script>
     <script type="module" src="../Scripts/API/verificarAtivacao.js"></script>

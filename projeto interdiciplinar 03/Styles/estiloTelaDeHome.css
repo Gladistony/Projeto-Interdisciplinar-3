@@ -9,8 +9,7 @@ body {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to bottom, #2ecc71 60%, #fff 40%);
-    position: relative;
+    background: #fff
 }
 
 header {
@@ -24,14 +23,27 @@ header > button {
     border: none;
     background: none;
     cursor: pointer;
+    border-radius: 50%;
 }
 
-header > button > div {}
+header > button > div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
 
 header > button > div > img {
     border: 2px solid;
     border-radius: 50%;
-    height: 150px;
+    height: 50%;
+    width: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+header > button > div > img:hover {
+    transform: scale(1.1);
 }
 
 main {
@@ -89,10 +101,61 @@ main > button:hover {
     color: #fff;
 }
 
-video {
-    margin-top: 20px;
+/* Estilizando o Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 350px;
+}
+
+.modal-content h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.modal-content select,
+.modal-content button,
+.modal-content input {
+    height: 40px;
+    width: 250px;
+    background-color: #fff;
     border: 2px solid;
-    border-radius: 5px;
+    padding: 5px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+.modal-content button:hover {
+    background-color: black;
+    color: #fff;
+}
+
+video {
     width: 100%;
     height: auto;
+    border: 2px solid;
+    border-radius: 5px;
+    margin-top: 10px;
 }
