@@ -171,10 +171,10 @@ async function getAllUsers() {
 }
 
 // Função para excluir usuário
-async function excluirUsuario(usuario) {
-    const id = localStorage.getItem('connectionId'); // ID do administrador
+async function excluirUsuario(id, usuario) {
+    const idadm = localStorage.getItem('connectionId'); // ID do administrador
 
-    if (!id) {
+    if (!idadm) {
         throw new Error('ID do administrador não encontrado.');
     }
 

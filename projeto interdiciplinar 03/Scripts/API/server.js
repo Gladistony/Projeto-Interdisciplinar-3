@@ -127,37 +127,20 @@ app.post('/delete_user', async (req, res) => {
 
     try {
         console.log('Recebendo solicitação para /delete_user:', req.body);
+        
         const response = await fetch('http://44.203.201.20/delete_user/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
         });
 
-        console.log("ID:", id);
-        console.log("Usuário:", usuario);
-
-        const text = await response.text();
-        console.log("Resposta bruta:", text);
-
-        const dataa = JSON.parse(text);
-        console.log("Resposta JSON:", dataa);
-
-        const responseBody = await response.text();
-        console.log('Resposta completa do servidor /delete_user:', response.status, responseBody);
-
         if (!response.ok) {
             console.error('Erro ao excluir usuário:', response.status, response.statusText);
             return res.status(response.status).json({ error: 'Erro ao excluir usuário' });
         }
 
-        // Verifica se a resposta é um JSON válido antes de fazer o parse
-        let data;
-        try {
-            data = JSON.parse(responseBody);
-        } catch (jsonError) {
-            console.error('Erro ao parsear resposta JSON:', jsonError);
-            return res.status(500).json({ error: 'Resposta inválida do servidor' });
-        }
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /delete_user:', response.status, data);
 
         res.json(data);
     } catch (error) {
@@ -165,6 +148,7 @@ app.post('/delete_user', async (req, res) => {
         res.status(500).json({ error: 'Erro ao excluir usuário' });
     }
 });
+
 
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
