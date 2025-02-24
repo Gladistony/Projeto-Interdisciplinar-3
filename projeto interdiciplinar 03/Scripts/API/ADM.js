@@ -2,18 +2,15 @@ import { getAllUsers, excluirUsuario } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
-        // Obtenha a lista de usuários
         let usuarios = await getAllUsers();
         console.log('Usuários:', usuarios);
 
         const tbody = document.querySelector('table tbody');
-        tbody.innerHTML = ''; // Limpa o conteúdo existente
+        tbody.innerHTML = '';
 
         const renderTable = (userList) => {
-            tbody.innerHTML = ''; // Limpa o conteúdo existente
-
+            tbody.innerHTML = '';
             userList.forEach((usuario, index) => {
-                // Cria a linha principal do usuário
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${index + 1}</td>
@@ -30,10 +27,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 `;
                 tbody.appendChild(tr);
 
-                // Cria a linha de detalhes do usuário (inicialmente oculta)
                 const trDetalhes = document.createElement('tr');
                 trDetalhes.classList.add('detalhes');
-                trDetalhes.style.display = 'none'; // Oculta os detalhes inicialmente
+                trDetalhes.style.display = 'none';
                 trDetalhes.innerHTML = `
                     <td colspan="7">
                         <div class="detalhe-estoque">
@@ -60,40 +56,16 @@ document.addEventListener('DOMContentLoaded', async function () {
                 `;
                 tbody.appendChild(trDetalhes);
 
-                // Adiciona evento de clique ao botão de detalhes
                 tr.querySelector('.toggle-details').addEventListener('click', () => {
                     const isHidden = trDetalhes.style.display === 'none';
                     trDetalhes.style.display = isHidden ? 'table-row' : 'none';
                     tr.querySelector('.toggle-details').textContent = isHidden ? 'Esconder Detalhes' : 'Mostrar Detalhes';
                 });
-
-                // Evento para excluir usuário
-                tr.querySelector('.delete').addEventListener('click', async function () {
-                    const usuarioNome = this.getAttribute('data-usuario');
-
-                    if (!usuarioNome) {
-                        alert('Erro: Nome do usuário não encontrado.');
-                        return;
-                    }
-
-                    const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuarioNome}?`);
-                    if (!confirmacao) return;
-
-                    try {
-                        await excluirUsuario(usuarioNome);
-                        renderTable(userList.filter(u => u.usuario !== usuarioNome)); // Atualiza a tabela
-                    } catch (error) {
-                        console.error('Erro ao excluir usuário:', error);
-                        alert(`Erro ao excluir usuário: ${error.message}`);
-                    }
-                });
             });
         };
 
-        // Renderiza a tabela inicialmente com todos os usuários
         renderTable(usuarios.contas);
 
-        // Adiciona evento de input ao campo de pesquisa
         document.getElementById('search-input').addEventListener('input', (event) => {
             const searchText = event.target.value.toLowerCase();
             const filteredUsers = usuarios.contas.filter(usuario =>
@@ -101,13 +73,37 @@ document.addEventListener('DOMContentLoaded', async function () {
             );
             renderTable(filteredUsers);
         });
+
+        document.querySelectorAll('.delete').forEach(button => {
+            button.addEventListener('click', async function () {
+                const usuario = this.dataset.usuario;
+                const idAdmin = localStorage.getItem('connectionId');
+
+                if (!idAdmin) {
+                    alert('Erro: ID do administrador não encontrado.');
+                    return;
+                }
+
+                const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuario}?`);
+                if (!confirmacao) return;
+
+                try {
+                    await excluirUsuario(idAdmin, usuario);
+                    alert(`Usuário ${usuario} excluído com sucesso!`);
+                    location.reload();
+                } catch (error) {
+                    console.error('Erro ao excluir usuário:', error);
+                    alert(`Erro ao excluir usuário: ${error.message}`);
+                }
+            });
+        });
+
+        document.getElementById('btn-home').addEventListener('click', () => {
+            window.location.href = 'telaDeHomel.html';
+        });
+
     } catch (error) {
         console.error('Erro ao carregar os usuários:', error);
         alert(`Erro: ${error.message}`);
     }
-
-    // Adiciona evento de clique ao botão de redirecionamento para home
-    document.getElementById('btn-home').addEventListener('click', () => {
-        window.location.href = 'telaDeHomel.html';
-    });
 });

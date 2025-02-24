@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)); // Corrige a importação do node-fetch
+const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); // Corrige a importação do node-fetch
 const app = express();
 
 app.use(cors());
@@ -93,11 +93,12 @@ app.post('/login', async (req, res) => {
     }
 });
 
+// Endpoint para obter todos os usuários
 app.post('/get_all_user', async (req, res) => {
     const { id, usuario, senha } = req.body;
 
     try {
-        console.log('Recebendo dados para login:', req.body);
+        console.log('Recebendo solicitação para /get_all_user:', req.body);
         const response = await fetch('http://44.203.201.20/get_all_user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -109,18 +110,63 @@ app.post('/get_all_user', async (req, res) => {
 
         if (!response.ok) {
             console.error('Erro no get_all_user:', response.status, response.statusText);
-            return res.status(response.status).json({ error: 'Erro ao realizar get_all_user' });
+            return res.status(response.status).json({ error: 'Erro ao obter usuários' });
         }
 
         const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
         res.json(data);
     } catch (error) {
-        console.error('Erro no servidor ao realizar get_all_user:', error);
-        res.status(500).json({ error: 'Erro ao realizar login' });
+        console.error('Erro no servidor ao obter usuários:', error);
+        res.status(500).json({ error: 'Erro ao obter usuários' });
     }
 });
 
+// Endpoint para excluir um usuário
+app.post('/delete_user', async (req, res) => {
+    const { id, usuario } = req.body;
 
+    try {
+        console.log('Recebendo solicitação para /delete_user:', req.body);
+        const response = await fetch('http://44.203.201.20/delete_user/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario })
+        });
+
+        console.log("ID:", id);
+        console.log("Usuário:", usuario);
+
+        const text = await response.text();
+        console.log("Resposta bruta:", text);
+
+        const dataa = JSON.parse(text);
+        console.log("Resposta JSON:", dataa);
+
+        const responseBody = await response.text();
+        console.log('Resposta completa do servidor /delete_user:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro ao excluir usuário:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao excluir usuário' });
+        }
+
+        // Verifica se a resposta é um JSON válido antes de fazer o parse
+        let data;
+        try {
+            data = JSON.parse(responseBody);
+        } catch (jsonError) {
+            console.error('Erro ao parsear resposta JSON:', jsonError);
+            return res.status(500).json({ error: 'Resposta inválida do servidor' });
+        }
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao excluir usuário:', error);
+        res.status(500).json({ error: 'Erro ao excluir usuário' });
+    }
+});
+
+// Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
 });
