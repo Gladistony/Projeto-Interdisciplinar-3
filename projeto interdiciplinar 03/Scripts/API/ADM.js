@@ -3,7 +3,7 @@ import { getAllUsers, excluirUsuario } from './apiConnection.js';
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         // Obtenha a lista de usuários
-        const usuarios = await getAllUsers();
+        let usuarios = await getAllUsers();
         console.log('Usuários:', usuarios);
 
         const tbody = document.querySelector('table tbody');
@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 // Cria a linha de detalhes do usuário (inicialmente oculta)
                 const trDetalhes = document.createElement('tr');
                 trDetalhes.classList.add('detalhes');
+                trDetalhes.style.display = 'none'; // Oculta os detalhes inicialmente
                 trDetalhes.innerHTML = `
                     <td colspan="7">
                         <div class="detalhe-estoque">
@@ -44,11 +45,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                             <h3>Descrição do Estoque</h3>
                             <p>Descrição do Estoque 1</p>
                             <p>Descrição do Estoque 2</p>
-                        </div>
-                        <div class="detalhe-estoque">
-                            <h3>Título do Estoque</h3>
-                            <p>Título do Estoque 1</p>
-                            <p>Título do Estoque 2</p>
                         </div>
                         <div class="detalhe-estoque">
                             <h3>ID de Câmeras</h3>
@@ -66,27 +62,26 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 // Adiciona evento de clique ao botão de detalhes
                 tr.querySelector('.toggle-details').addEventListener('click', () => {
-                    trDetalhes.style.display = trDetalhes.style.display === 'table-row' ? 'none' : 'table-row'; // Alterna a visibilidade dos detalhes
-                    const button = tr.querySelector('.toggle-details');
-                    button.textContent = button.textContent === 'Mostrar Detalhes' ? 'Esconder Detalhes' : 'Mostrar Detalhes';
+                    const isHidden = trDetalhes.style.display === 'none';
+                    trDetalhes.style.display = isHidden ? 'table-row' : 'none';
+                    tr.querySelector('.toggle-details').textContent = isHidden ? 'Esconder Detalhes' : 'Mostrar Detalhes';
                 });
 
-                 // Adicionar evento ao botão de exclusão
+                // Evento para excluir usuário
                 tr.querySelector('.delete').addEventListener('click', async function () {
-                    const usuario = this.getAttribute('data-usuario');
-                    const id = localStorage.getItem('connectionId'); // ID do admin
+                    const usuarioNome = this.getAttribute('data-usuario');
 
-                    if (!id) {
-                        alert('Erro: ID do administrador não encontrado.');
+                    if (!usuarioNome) {
+                        alert('Erro: Nome do usuário não encontrado.');
                         return;
                     }
 
-                    const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuario}?`);
+                    const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuarioNome}?`);
                     if (!confirmacao) return;
 
                     try {
-                        await excluirUsuario(usuario);
-                        renderTable(userList.filter(u => u.usuario !== usuario)); // Remove da lista e renderiza novamente
+                        await excluirUsuario(usuarioNome);
+                        renderTable(userList.filter(u => u.usuario !== usuarioNome)); // Atualiza a tabela
                     } catch (error) {
                         console.error('Erro ao excluir usuário:', error);
                         alert(`Erro ao excluir usuário: ${error.message}`);
