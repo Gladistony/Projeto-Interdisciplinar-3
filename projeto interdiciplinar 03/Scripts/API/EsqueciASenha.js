@@ -1,45 +1,46 @@
-import { initializeOrUpdateConnectionId } from './apiConnection.js';
+import { recoverSenha, getConnectionId } from './apiConnection.js'; 
 
-// Inicializa ou atualiza o ID de conexão ao carregar a página
-document.addEventListener('DOMContentLoaded', async () => {
-    await initializeOrUpdateConnectionId();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
-    form.addEventListener('submit', async function(event) {
+    const mensagem = document.createElement('p');
+    mensagem.style.color = 'red';
+    form.appendChild(mensagem); // Adiciona a mensagem ao formulário
+
+    form.addEventListener('submit', async function (event) {
         event.preventDefault();
 
-        const usuario = document.querySelector('input[type="text"]').value;
-        const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
-
-        if (!id) {
-            console.error('ID de conexão não encontrado.');
-            form.innerHTML = `<p>Erro: ID de conexão não encontrado.</p>`;
+        const usuario = document.querySelector('#usuario').value.trim();
+        if (!usuario) {
+            mensagem.textContent = 'Por favor, insira o nome de usuário.';
             return;
         }
 
-        try {
-            const response = await fetch('http://localhost:3000/recover', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, usuario })
-            });
+        let id = localStorage.getItem('connectionId'); // Pegando o ID do usuário logado
 
-            if (!response.ok) {
-                throw new Error('Erro ao recuperar a senha.');
+        if (!id) {
+            try {
+                id = await getConnectionId(); // Obtém o ID se ainda não estiver salvo
+                localStorage.setItem('connectionId', id); // Salva o ID para uso futuro
+            } catch (error) {
+                mensagem.textContent = 'Erro ao obter ID do usuário.';
+                console.error(error);
+                return;
             }
+        }
 
-            const result = await response.json();
+        try {
+            // Chamar a função para recuperar a senha
+            const result = await recoverSenha(id, usuario);
+
             if (result.status === 'sucesso' && result.code === 21) {
-                // Limpar o formulário e exibir a mensagem de sucesso
-                form.innerHTML = `<p>${result.message}</p>`;
+                mensagem.style.color = 'green';
+                mensagem.textContent = result.message; // Exibir mensagem de sucesso
             } else {
                 throw new Error(result.message);
             }
         } catch (error) {
             console.error('Erro durante a recuperação de senha:', error);
-            form.innerHTML = `<p>Erro: ${error.message}</p>`;
+            mensagem.textContent = `Erro: ${error.message}`;
         }
     });
 });

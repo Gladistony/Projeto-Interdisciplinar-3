@@ -6,7 +6,7 @@ async function getConnectionId() {
         const response = await fetch(`${API_URL}/give`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: "null" }) // Solicita o ID inicial com a string "null"
+            body: JSON.stringify({ id: "null" }) // Solicita o ID inicial
         });
 
         if (!response.ok) {
@@ -14,12 +14,14 @@ async function getConnectionId() {
         }
 
         const data = await response.json();
+        localStorage.setItem('connectionId', data.id); // Salva o ID localmente
         return data.id;
     } catch (error) {
         console.error('Erro ao obter o ID de conexão:', error);
         throw error;
     }
 }
+
 
 // Função para realizar o cadastro
 async function realizarCadastro(id, usuario, senha, nome_completo, email) {
@@ -196,6 +198,48 @@ async function excluirUsuario(id, usuario) {
     }
 }
 
+async function iniciarRecuperacao(usuario) {
+    let idUsuario = localStorage.getItem('connectionId');
+
+    if (!idUsuario) {
+        idUsuario = await getConnectionId(); // Obtém o ID se ainda não estiver salvo
+    }
+
+    try {
+        const result = await recoverSenha(idUsuario, usuario);
+        console.log('Recuperação de senha:', result);
+        return result;
+    } catch (error) {
+        console.error('Erro na recuperação de senha:', error);
+        throw error;
+    }
+}
+
+
+async function recoverSenha(id, usuario) {
+    if (!id) {
+        throw new Error('ID do usuário não encontrado.');
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/recover`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario }) // Enviando o ID correto passado como argumento
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao recuperar senha: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao recuperar senha:', error);
+        throw error;
+    }
+}
+
+
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao };

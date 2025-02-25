@@ -149,6 +149,33 @@ app.post('/delete_user', async (req, res) => {
     }
 });
 
+// Endpoint para esqueci a senha
+app.post('/recover', async (req, res) => {
+    const { id, usuario } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /recover:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/recover/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao redefinir senha usuário:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao redefinir senha' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /recover:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao redefinir senha:', error);
+        res.status(500).json({ error: 'Erro ao redefinir senha' });
+    }
+});
 
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
