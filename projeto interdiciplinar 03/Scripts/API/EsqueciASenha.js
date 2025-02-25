@@ -15,22 +15,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        let id = localStorage.getItem('connectionId'); // Pegando o ID do usuário logado
-
-        if (!id) {
-            try {
-                id = await getConnectionId(); // Obtém o ID se ainda não estiver salvo
-                localStorage.setItem('connectionId', id); // Salva o ID para uso futuro
-            } catch (error) {
-                mensagem.textContent = 'Erro ao obter ID do usuário.';
-                console.error(error);
-                return;
-            }
-        }
-
         try {
-            // Chamar a função para recuperar a senha
-            const result = await recoverSenha(id, usuario);
+            // Agora chamamos recoverSenha apenas com 'usuario', pois a nova versão obtém o ID automaticamente
+            const result = await recoverSenha(usuario);
 
             if (result.status === 'sucesso' && result.code === 21) {
                 mensagem.style.color = 'green';

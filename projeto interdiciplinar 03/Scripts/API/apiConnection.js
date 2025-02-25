@@ -216,16 +216,19 @@ async function iniciarRecuperacao(usuario) {
 }
 
 
-async function recoverSenha(id, usuario) {
+async function recoverSenha(usuario) {
+    let id = localStorage.getItem('connectionId');
+
     if (!id) {
-        throw new Error('ID do usuário não encontrado.');
+        id = await getConnectionId(); // Obtém o ID se ainda não estiver salvo
+        localStorage.setItem('connectionId', id); // Salva para uso futuro
     }
 
     try {
         const response = await fetch(`${API_URL}/recover`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, usuario }) // Enviando o ID correto passado como argumento
+            body: JSON.stringify({ id, usuario }) // Enviando o ID e o usuário corretamente
         });
 
         if (!response.ok) {
