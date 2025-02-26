@@ -177,6 +177,33 @@ app.post('/recover/', async (req, res) => {
     }
 });
 
+app.post('/charge/', async (req, res) => {
+    const { id, usuario, senha, nova_senha } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /recover:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/charge/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario, senha, nova_senha })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao mudar senha:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao mudar senha' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /charge:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao mudar senha:', error);
+        res.status(500).json({ error: 'Erro ao mudar senha' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

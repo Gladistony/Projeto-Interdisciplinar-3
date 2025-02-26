@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <link rel="stylesheet" href="../Styles/estiloTelaDeConfig.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <a href="telaDeHomel.html"><i class="material-icons">chevron_left</i></a>
+    <header>
+        <h1>Configurações</h1>
+    </header>
+    <main>
+        <section class="nova_senha">
+            <div id="open1" class="open">
+                <h2>Alterar Senha</h2>
+                <i class="material-icons">chevron_right</i>
+            </div>
+            <form id="nova_senha_Form" class="" method="post">
+                <div class="caixa-texto">
+                    <i class="material-icons">person</i>
+                    <input type="text" placeholder="Nome de usuário" class="" id="usuarioLogin" name="usuario">
+                </div>
+                <div class="caixa-texto">
+                    <i class="material-icons">lock</i>
+                    <input type="password" placeholder="Senha" id="senhaLogin" name="senha">
+                </div>
+                <div class="caixa-texto">
+                    <i class="material-icons">lock</i>
+                    <input type="password" placeholder="Nova Senha" id="senhaLogin" name="senha">
+                </div>
+                <button type="submit" id="mudarSenha" class="btn-mudar">Mudar</button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="../Scripts/API/config.js"></script>
+    <script src="../Scripts/telaDeConfig.js"></script>
+    <script type="module" src="../Scripts/API/apiConnection.js"></script>
+</body>
+</html>

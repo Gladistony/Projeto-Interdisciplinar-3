@@ -159,3 +159,16 @@ video {
     border-radius: 5px;
     margin-top: 10px;
 }
+
+ /* Estilo do ícone de configurações */
+.config-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-left: 350px;
+}
+
+#linkconfig {
+    text-decoration: none;
+    color: black;
+}

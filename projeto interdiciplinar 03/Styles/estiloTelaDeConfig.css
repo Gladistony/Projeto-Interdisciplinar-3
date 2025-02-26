@@ -1,0 +1,94 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #fff
+}
+
+body > a {
+    margin: 24px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-bottom: 100px;
+    text-decoration: none;
+}
+
+header {
+    margin: 24px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+main {
+    margin: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.open {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 18px;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+main > section > div > i {
+    margin-left: 50px;
+}
+
+#nova_senha_Form {
+    display: none;
+}
+
+.caixa-texto {
+    display: flex;
+    align-items: center;
+    border: 2px solid;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.caixa-texto i {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.caixa-texto input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 5px;
+    background: none;
+    font-size: 16px;
+}
+
+.btn-mudar {
+    height: 50px;
+    background-color: #fff;
+    border: 2px solid;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 18px;
+    margin-left: 30%;
+}
+
+.btn-mudar:hover {
+    background-color: black;
+    color: #fff;
+}

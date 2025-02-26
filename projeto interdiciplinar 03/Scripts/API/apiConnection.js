@@ -242,7 +242,28 @@ async function recoverSenha(usuario) {
     }
 }
 
+async function charge(usuario, senha, nova_senha) {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+
+    try {
+        const response = await fetch(`${API_URL}/charge/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario, senha, nova_senha })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao mudar senha: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao mudar senha:', error);
+        throw error;
+    }
+}
 
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge };
