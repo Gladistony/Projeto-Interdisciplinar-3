@@ -150,7 +150,7 @@ app.post('/delete_user', async (req, res) => {
 });
 
 // Endpoint para esqueci a senha
-app.post('/recover', async (req, res) => {
+app.post('/recover/', async (req, res) => {
     const { id, usuario } = req.body;
 
     try {
