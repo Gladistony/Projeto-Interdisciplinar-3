@@ -264,6 +264,32 @@ async function charge(usuario, senha, nova_senha) {
     }
 }
 
+async function set_img_url(url_foto) {
+    let id = localStorage.getItem('connectionId');
+
+    if (!id) {
+        id = await getConnectionId(); // Obtém o ID se ainda não estiver salvo
+        localStorage.setItem('connectionId', id); // Salva para uso futuro
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/set_img_url`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, url_foto }) // Enviando o ID e o url corretamente
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao mandar foto: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao mandar foto:', error);
+        throw error;
+    }
+}
+
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url };

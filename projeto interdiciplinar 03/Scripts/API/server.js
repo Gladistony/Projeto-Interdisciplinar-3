@@ -204,6 +204,33 @@ app.post('/charge/', async (req, res) => {
     }
 });
 
+app.post('/set_img_url/', async (req, res) => {
+    const { id, url_foto } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /set_img_url:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/set_img_url/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, url_foto })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao mandar foto:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao mandar foto' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /set_img_url:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao mandar foto:', error);
+        res.status(500).json({ error: 'Erro ao mandar foto' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

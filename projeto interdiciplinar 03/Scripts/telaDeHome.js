@@ -1,3 +1,5 @@
+import { set_img_url } from './API/apiConnection.js';
+
 document.getElementById('btn-produtos').addEventListener('click', function() {
     location.href = 'telaDeStocks.html';
 });
