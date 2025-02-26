@@ -33,25 +33,3 @@ document.addEventListener('DOMContentLoaded', async function () {
     // Adiciona o evento de clique ao botão de deslogar
     document.getElementById('deslogar').addEventListener('click', deslogarUsuario);
 });
-
-document.addEventListener('DOMContentLoaded', function () {
-    const configIcon = document.getElementById('config-icon');
-    const configMenu = document.getElementById('config-menu');
-
-    // Mostra/esconde o menu ao clicar no ícone de engrenagem
-    configIcon.addEventListener('click', function () {
-        configMenu.style.display = (configMenu.style.display === 'block') ? 'none' : 'block';
-    });
-
-    // Esconde o menu ao clicar fora dele
-    document.addEventListener('click', function (event) {
-        if (!configIcon.contains(event.target) && !configMenu.contains(event.target)) {
-            configMenu.style.display = 'none';
-        }
-    });
-
-    // Ação do botão "Alterar Senha"
-    document.getElementById('btn-alterar-senha').addEventListener('click', function () {
-        window.location.href = "telaDeAlterarSenha.html"; // Redireciona para a página de alteração de senha
-    });
-});
