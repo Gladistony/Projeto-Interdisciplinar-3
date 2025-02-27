@@ -1,5 +1,6 @@
 package com.teste.projeto_3;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -57,32 +58,40 @@ public class FragPerfil extends Fragment {
             TextView email = view.findViewById(R.id.textEmailUsuario);
             ImageView fotoPerfil = view.findViewById(R.id.imageView);
 
-            if (dados.getData() == null) {
-            nome.setText(dados.getNome_completo());
-            email.setText(dados.getEmail());
-            if (dados.getUrl_foto() != null) {
-                try {
-                    Picasso.get().load(dados.getUrl_foto()).into(fotoPerfil);
-                } catch (Exception e) {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show());
-                }
-            }
-            } else {
+            String nomeUsuario;
+            String emailUsuario;
+            String urlFoto;
+
+            if (dados.getData() == null) { // Login por requisição de get_dados
+                nomeUsuario = dados.getNome_completo();
+                emailUsuario = dados.getEmail();
+                urlFoto = dados.getUrl_foto();
+            } else { // Login por requisição de login
                 Data dadosData = dados.getData();
-                nome.setText(dadosData.getNome_completo());
-                email.setText(dadosData.getEmail());
-                if (dadosData.getUrl_foto() != null) {
+                nomeUsuario = dadosData.getNome_completo();
+                emailUsuario = dadosData.getEmail();
+                urlFoto = dadosData.getUrl_foto();
+            }
+
+            // Atualiza o nome e o email
+            nome.setText(nomeUsuario);
+            email.setText(emailUsuario);
+
+            // Atualiza a foto de perfil
+            if (urlFoto != null) {
                     try {
-                        Picasso.get().load(dadosData.getUrl_foto()).into(fotoPerfil);
+                        Picasso.get().load(urlFoto).into(fotoPerfil);
                     } catch (Exception e) {
-                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show());
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show()
+                        );
                     }
                 }
-            }
         });
 
         return view;
     }
+
 
     private void deslogar() {
         if (er.possuiInternet(requireContext())) {
@@ -125,14 +134,22 @@ public class FragPerfil extends Fragment {
     }
 
     private void confirmLogOff(){
-        new android.app.AlertDialog.Builder(getContext())
+        AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
                 .setTitle("Sair da conta")
-                .setMessage("Você tem certeza que deseja sair desta conta?")
-                .setPositiveButton("Sair", (dialog, which) -> {
-                    deslogar();
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
-                .show();
+                .setMessage("Você tem certeza que deseja sair?")
+                .setPositiveButton("Sair", (dialogConfirmar, which) -> deslogar())
+                .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
+                .create();
+
+        // Altera a cor do botão exibido
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(getResources().getColor(R.color.green2));
+            negativeButton.setTextColor(getResources().getColor(R.color.modern_red));
+        });
+
+        dialog.show();
     }
 
     private void abrirTelaAlterarSenha() {

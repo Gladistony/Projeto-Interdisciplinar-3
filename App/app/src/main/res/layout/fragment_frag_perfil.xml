@@ -24,6 +24,7 @@
         android:layout_height="170dp"
         android:layout_margin="16dp"
         android:src="@drawable/ic_user"
+        android:tag="@drawable/ic_user"
         android:scaleType="centerCrop"
         app:layout_constraintStart_toStartOf="@id/containerUser"
         app:layout_constraintEnd_toEndOf="@id/containerUser"
@@ -87,6 +88,14 @@
             android:text="@string/text_configuracoes_perfil"/>
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/buttonAlterarFotoPerfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableStart="@drawable/pencil_edit"
+            android:text="@string/button_alterar_foto_perfil"
+            style="@style/ButtonProfile"/>
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/buttonAlterarSenha"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -99,6 +108,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/exit_account"
+            android:backgroundTint="@color/modern_red"
             android:text="@string/button_sair_logoff"
             style="@style/ButtonProfile"/>
     </LinearLayout>
