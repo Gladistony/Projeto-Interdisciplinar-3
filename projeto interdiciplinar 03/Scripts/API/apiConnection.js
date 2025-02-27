@@ -290,6 +290,28 @@ async function set_img_url(url_foto) {
     }
 }
 
+async function upload_img( file, destino ) {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+
+    try {
+        const response = await fetch(`${API_URL}/upload_img/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, file, destino })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao obter upload: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao obter upload:', error);
+        throw error;
+    }
+}
+
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img };

@@ -231,6 +231,33 @@ app.post('/set_img_url/', async (req, res) => {
     }
 });
 
+app.post('/upload_img', async (req, res) => {
+    const { id, file, destino } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /upload_img:', req.body);
+        const response = await fetch('http://44.203.201.20/upload_img', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, file, destino })
+        });
+
+        const responseBody = await response.text(); // Lê a resposta como texto
+        console.log('Resposta completa do servidor /upload_img:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no upload_img:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao obter usuários' });
+        }
+
+        const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao obter upload:', error);
+        res.status(500).json({ error: 'Erro ao obter upload' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
