@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background">
+        
+        <TextView
+            android:id="@+id/chooseGallery"
+            android:drawableStart="@drawable/icon_choose_gallery"
+            android:drawablePadding="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Selecionar da galeria"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:layout_marginStart="30dp" />
+
+        <TextView
+            android:id="@+id/chooseCamera"
+            android:drawableStart="@drawable/icon_choose_camera"
+            android:drawablePadding="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Tirar foto"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            android:layout_marginStart="30dp"/>
+
+</LinearLayout>
