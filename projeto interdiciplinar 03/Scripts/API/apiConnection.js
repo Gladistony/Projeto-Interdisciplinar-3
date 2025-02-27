@@ -290,28 +290,36 @@ async function set_img_url(url_foto) {
     }
 }
 
-async function upload_img( file, destino ) {
-    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+async function upload_img(file, destino) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID de conexão armazenado
+
+    if (!(file instanceof File)) {
+        console.error("Erro: O arquivo fornecido não é válido.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", id);
+    formData.append("file", file); // O arquivo precisa ser um File
+    formData.append("destino", destino);
 
     try {
-        const response = await fetch(`${API_URL}/upload_img/`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, file, destino })
+        const response = await fetch(`${API_URL}/upload-image/`, {
+            method: "POST",
+            body: formData, // Enviar como multipart/form-data
         });
 
         if (!response.ok) {
-            throw new Error(`Erro ao obter upload: ${response.statusText}`);
+            throw new Error(`Erro ao fazer upload: ${response.statusText}`);
         }
 
         const result = await response.json();
         return result;
     } catch (error) {
-        console.error('Erro ao obter upload:', error);
+        console.error("Erro ao enviar imagem:", error);
         throw error;
     }
 }
-
 
 // Exporta as funções para uso em outros arquivos
 export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img };

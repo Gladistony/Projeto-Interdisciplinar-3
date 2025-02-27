@@ -6,7 +6,7 @@ document.getElementById('btn-produtos').addEventListener('click', function() {
 
 document.addEventListener("DOMContentLoaded", function () {
     let currentStream = null;
-    let imageDataURL = null; // Armazena a imagem atual selecionada ou capturada
+    let imageFile = null; // Armazena a imagem capturada ou selecionada
 
     const modal = document.getElementById("modal-camera");
     const btnAbrirModal = document.getElementById("btn-abrir-modal");
@@ -75,19 +75,22 @@ document.addEventListener("DOMContentLoaded", function () {
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Converter para imagem e armazenar
-        imageDataURL = canvas.toDataURL("image/png");
-        fotoPerfil.src = imageDataURL;
+        // Converter para Blob e armazenar como arquivo
+        canvas.toBlob((blob) => {
+            imageFile = new File([blob], "captura.jpg", { type: "image/jpeg" });
+            const objectURL = URL.createObjectURL(blob);
+            fotoPerfil.src = objectURL;
+        }, "image/jpeg");
     });
 
     // Escolher foto do arquivo
     fileInput.addEventListener("change", function (event) {
         const file = event.target.files[0];
         if (file) {
+            imageFile = file;
             const reader = new FileReader();
             reader.onload = function (e) {
-                imageDataURL = e.target.result;
-                fotoPerfil.src = imageDataURL;
+                fotoPerfil.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -95,12 +98,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Botão "Enviar" - Faz o upload da imagem e define a foto de perfil
     btnEnviar.addEventListener("click", async function () {
-        if (imageDataURL) {
+        if (imageFile) {
             try {
-                const uploadedImage = await upload_img(imageDataURL, ""); // Enviar imagem
+                const formData = new FormData();
+                formData.append("file", imageFile);
+                formData.append("destino", "perfil"); // Definindo o destino da imagem
+
+                const uploadedImage = await upload_img(formData);
                 if (uploadedImage && uploadedImage.url) {
-                    await set_img_url(uploadedImage.url); // Definir como foto de perfil
-                    fotoPerfil.src = uploadedImage.url; // Atualizar a imagem no frontend
+                    await set_img_url(uploadedImage.url);
+                    fotoPerfil.src = uploadedImage.url;
                     console.log("Imagem definida com sucesso:", uploadedImage.url);
                 } else {
                     console.error("Erro: Resposta do upload sem URL.");
@@ -124,6 +131,6 @@ document.addEventListener("DOMContentLoaded", function () {
             currentStream = null;
         }
         modal.style.display = "none";
-        imageDataURL = null; // Reseta a imagem armazenada
+        imageFile = null; // Reseta a imagem armazenada
     }
 });
