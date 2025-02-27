@@ -93,26 +93,26 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // Botão "Enviar" - Envia a imagem e fecha o modal
+    // Botão "Enviar" - Faz o upload da imagem e define a foto de perfil
     btnEnviar.addEventListener("click", async function () {
         if (imageDataURL) {
-            await enviarImagem(imageDataURL);
+            try {
+                const uploadedImage = await upload_img(imageDataURL, ""); // Enviar imagem
+                if (uploadedImage && uploadedImage.url) {
+                    await set_img_url(uploadedImage.url); // Definir como foto de perfil
+                    fotoPerfil.src = uploadedImage.url; // Atualizar a imagem no frontend
+                    console.log("Imagem definida com sucesso:", uploadedImage.url);
+                } else {
+                    console.error("Erro: Resposta do upload sem URL.");
+                }
+            } catch (error) {
+                console.error("Erro ao enviar imagem:", error);
+            }
             closeModal();
         } else {
             console.error("Nenhuma imagem foi selecionada ou capturada.");
         }
     });
-
-    // Função para enviar a imagem para o servidor
-    async function enviarImagem(imageURL) {
-        try {
-            console.log("Enviando imagem para o servidor...");
-            const response = await set_img_url(imageURL);
-            console.log("Resposta do servidor:", response);
-        } catch (error) {
-            console.error("Erro ao enviar imagem:", error);
-        }
-    }
 
     // Fechar modal ao clicar no botão "Fechar"
     btnFecharModal.addEventListener("click", closeModal);
