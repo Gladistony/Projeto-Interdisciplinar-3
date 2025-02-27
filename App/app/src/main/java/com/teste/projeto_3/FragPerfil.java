@@ -39,8 +39,9 @@ public class FragPerfil extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Button logoff = view.findViewById(R.id.buttonLogOff);
+        Button alterarSenha = view.findViewById(R.id.buttonAlterarSenha);
         logoff.setOnClickListener(v -> confirmLogOff());
-
+        alterarSenha.setOnClickListener(v -> abrirTelaAlterarSenha());
     }
 
 
@@ -134,4 +135,8 @@ public class FragPerfil extends Fragment {
                 .show();
     }
 
+    private void abrirTelaAlterarSenha() {
+        Intent telaAlterar = new Intent(getContext(), TelaAlterarSenha.class);
+        startActivity(telaAlterar);
+    }
 }
