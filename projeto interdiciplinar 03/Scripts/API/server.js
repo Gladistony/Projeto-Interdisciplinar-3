@@ -258,6 +258,32 @@ app.post('/upload_img', async (req, res) => {
     }
 });
 
+app.get('/ativar', async (req, res) => {
+    const { usuario, codigo } = req.query;
+
+    try {
+        console.log('Recebendo solicitação para /ativar:', req.query);
+        
+        const response = await fetch(`http://44.203.201.20/ativar?usuario=${usuario}&codigo=${codigo}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao ativar conta:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao ativar conta' });
+        }
+
+        const data = await response.json();
+        console.log('Resposta completa do servidor /ativar:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao ativar conta:', error);
+        res.status(500).json({ error: 'Erro ao ativar conta' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

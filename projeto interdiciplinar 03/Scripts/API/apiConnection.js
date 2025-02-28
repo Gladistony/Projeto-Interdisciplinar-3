@@ -86,14 +86,11 @@ async function realizarLogin(id, usuario, senha) {
 }
 
 // Função para ativar a conta
-async function ativarConta(id, usuario, senha) {
-    const ativacaoData = { id, usuario, senha };
-
+async function ativarConta(id, usuario, codigo) {
     try {
-        const response = await fetch(`${API_URL}/ativar`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(ativacaoData)
+        const response = await fetch(`${API_URL}/ativar?usuario=${usuario}&codigo=${codigo}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' }
         });
 
         if (!response.ok) {
@@ -117,6 +114,7 @@ async function ativarConta(id, usuario, senha) {
         throw error;
     }
 }
+
 
 // Função para obter os dados do usuário
 async function getDadosUsuario() {

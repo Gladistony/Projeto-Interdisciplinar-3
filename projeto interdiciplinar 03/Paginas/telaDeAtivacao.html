@@ -11,17 +11,17 @@
 <body>
     <main>
         <div class="conteiner">
-            <form id="ativacaoForm" action="" method="post"> <!-- Adicionei o id "ativacaoForm" -->
+            <form id="ativacaoForm" action="" method="post">
                 <div class="caixa-texto">
                     <i class="material-icons">account_circle</i>
-                    <input type="text" id="nomeDeAtivacao" placeholder="Coloque o nome do usuário">
+                    <input type="text" id="nomeDeAtivacao" placeholder="Coloque o nome do usuário" required>
                 </div>
                 <div class="caixa-texto">
-                    <input type="text" id="codigoDeAtivacao" placeholder="Coloque o código de Ativação">
+                    <input type="text" id="codigoDeAtivacao" placeholder="Coloque o código de Ativação" required>
                 </div>
-                <button type="submit" class="" id="BotaoDeAtivar">Continuar</button>
+                <button type="submit" id="BotaoDeAtivar">Continuar</button>
             </form>
-            <div><p class="mensagemDeErro"> </p> </div>
+            <div><p class="mensagemDeErro"> </p></div>
             <div id="loading" class="loading-spinner" style="display: none;"></div>
         </div>
     </main>
