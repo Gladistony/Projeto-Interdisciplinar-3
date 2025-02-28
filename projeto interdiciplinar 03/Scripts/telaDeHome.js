@@ -9,10 +9,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnEnviar = document.getElementById("btn-enviar-modal");
     const fileInput = document.getElementById("file-input");
     const fotoPerfil = document.getElementById("foto-perfil");
+    const produtosbtn = document.getElementById("btn-produtos");
 
     // Abrir modal ao clicar na foto de perfil
     btnAbrirModal.addEventListener("click", function () {
         modal.style.display = "flex";
+    });
+
+    produtosbtn.addEventListener("click", function () {
+        window.location.href = '../Paginas/telaDeStocks.html';
     });
 
     // Escolher foto do arquivo
