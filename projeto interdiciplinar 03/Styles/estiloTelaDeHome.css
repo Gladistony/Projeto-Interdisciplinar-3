@@ -36,10 +36,12 @@ header > button > div {
 header > button > div > img {
     border: 2px solid;
     border-radius: 50%;
-    height: 50%;
-    width: 50%;
+    height: 200px;
+    width: 200px;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
+    object-fit: cover; /* Mantém a proporção da imagem */
+    object-position: center;
 }
 
 header > button > div > img:hover {
@@ -125,6 +127,11 @@ main > button:hover {
     align-items: center;
     gap: 15px;
     width: 350px;
+}
+
+.modal-content > p {
+    padding: 4px;
+    color: red;
 }
 
 .modal-content h2 {
