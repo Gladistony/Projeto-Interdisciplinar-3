@@ -28,6 +28,7 @@ if escolha not in webcams_disponiveis:
 
 def capture_and_send():
     cap = cv2.VideoCapture(escolha)
+    #url = f"http://44.203.201.20/receive/{CAMERA_ID}"
     url = f"http://127.0.0.1:8000/receive/{CAMERA_ID}"
     print("Sending frames to", url)
     while True:
