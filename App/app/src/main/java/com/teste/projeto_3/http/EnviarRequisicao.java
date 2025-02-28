@@ -4,6 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.Uri;
+
+import java.io.File;
 
 public class EnviarRequisicao {
 
@@ -20,6 +23,14 @@ public class EnviarRequisicao {
             callback.onResponse(response);
         }).start();
     }
+
+    /*public void postMultidata(String method, String json, File file, Callback callback) {
+        new Thread(() -> {
+            HttpHelper httpHelper = new HttpHelper();
+            String response = httpHelper.post(method, json, file);
+            callback.onResponse(response);
+        }).start();
+    } */
 
     public void get(String method, String json, Callback callback) {
         new Thread(() -> {

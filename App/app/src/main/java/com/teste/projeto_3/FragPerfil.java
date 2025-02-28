@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.Manifest;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -19,7 +15,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,14 +30,57 @@ import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
 
-import java.io.IOException;
-
 public class FragPerfil extends Fragment {
-
     EnviarRequisicao er;
     private final Gson gson = new Gson();
-    private static final int CAMERA_PERMISSION_CODE = 100;
     private ImageView fotoPerfil;
+    private CameraGaleria cg;
+    private Uri uriFotoPerfil;
+
+    // Variáveis com métodos individuais da classe para câmera e galeria
+    public final ActivityResultLauncher<Intent> cameraLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    uriFotoPerfil = cg.getImagemUri();
+                    if (uriFotoPerfil != null) {
+                        try {
+                            //Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uriFotoPerfil);
+                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
+                            cg.deletarImagemUri(uriFotoPerfil);
+                            upload_img(imagemBase64);
+                        } catch (Exception e) {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "Erro ao processar a alteração da foto de perfil", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                } else {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao obter a imagem", Toast.LENGTH_SHORT).show()
+                    );
+                }
+            });
+    public final ActivityResultLauncher<Intent> galleryLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    uriFotoPerfil = result.getData().getData();
+                    if (uriFotoPerfil != null) {
+                        try {
+                            //Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imagemSelecionada);
+                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
+                            upload_img(imagemBase64);
+                        } catch (Exception e) {
+                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                }
+            });
+    public final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    cg.abrirGaleria();
+                } else {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Permissão necessária para acessar a galeria.", Toast.LENGTH_SHORT).show());
+                }
+            });
 
     public FragPerfil() {
         // Required empty public constructor
@@ -52,6 +90,7 @@ public class FragPerfil extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         er = new EnviarRequisicao(requireContext());
+        cg = new CameraGaleria(requireContext(), cameraLauncher, galleryLauncher, requestPermissionLauncher);
     }
 
     @Override
@@ -61,12 +100,11 @@ public class FragPerfil extends Fragment {
         Button logoff = view.findViewById(R.id.buttonLogOff);
         Button alterarSenha = view.findViewById(R.id.buttonAlterarSenha);
         Button alterarFoto = view.findViewById(R.id.buttonAlterarFotoPerfil);
-        logoff.setOnClickListener(v -> confirmLogOff());
+        logoff.setOnClickListener(v -> confirmarLogOff());
         alterarSenha.setOnClickListener(v -> abrirTelaAlterarSenha());
         alterarFoto.setOnClickListener(v -> escolherGaleriaCamera());
 
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -101,19 +139,18 @@ public class FragPerfil extends Fragment {
 
             // Atualiza a foto de perfil
             if (urlFoto != null) {
-                    try {
-                        Picasso.get().load(urlFoto).into(fotoPerfil);
-                    } catch (Exception e) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show()
-                        );
-                    }
+                try {
+                    Picasso.get().load(urlFoto).into(fotoPerfil);
+                } catch (Exception e) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show()
+                    );
                 }
+            }
         });
 
         return view;
     }
-
 
     private void deslogar() {
         if (er.possuiInternet(requireContext())) {
@@ -155,7 +192,7 @@ public class FragPerfil extends Fragment {
         }
     }
 
-    private void confirmLogOff(){
+    private void confirmarLogOff() {
         AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
                 .setTitle("Sair da conta")
                 .setMessage("Você tem certeza que deseja sair?")
@@ -167,8 +204,8 @@ public class FragPerfil extends Fragment {
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            positiveButton.setTextColor(getResources().getColor(R.color.green2));
-            negativeButton.setTextColor(getResources().getColor(R.color.modern_red));
+            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green2));
+            negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.modern_red));
         });
 
         dialog.show();
@@ -179,99 +216,68 @@ public class FragPerfil extends Fragment {
         startActivity(telaAlterar);
     }
 
-    private final ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Bundle extras = result.getData().getExtras();
-                    Bitmap imageBitmap = (Bitmap) extras.get("data");
-                    fotoPerfil.setImageBitmap(imageBitmap);
-                }
+    private void escolherGaleriaCamera() {
+            Dialog dialog = new Dialog(requireContext());
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.layout_bottom_sheet);
+
+            TextView escolherGaleria = dialog.findViewById(R.id.chooseGallery);
+            TextView escolherCamera = dialog.findViewById(R.id.chooseCamera);
+
+            escolherGaleria.setOnClickListener(v -> {
+                cg.pedirPermissaoGaleria();
+                dialog.dismiss();
+            });
+            escolherCamera.setOnClickListener(v -> {
+                cg.pedirPermissaoCamera();
+                dialog.dismiss();
             });
 
-    private final ActivityResultLauncher<Intent> galleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri selectedImage = result.getData().getData();
+            dialog.show();
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+            dialog.getWindow().setGravity(Gravity.BOTTOM);
+        }
+
+    private void upload_img(String imagemBase64) {
+        if (er.possuiInternet(requireContext())) {
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setDestino("perfil");
+            user.setFile(imagemBase64);
+
+            // Converter o objeto User para JSON
+            String userJson = gson.toJson(user);
+
+            er.post("upload_img", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
+                    );
+                } else {
                     try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImage);
-                        fotoPerfil.setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
+                        // Processar resposta da requisição
+                        User responseUpload = gson.fromJson(response, User.class);
+                        if (responseUpload.getCode() == 0) {
+                            try {
+                                requireActivity().runOnUiThread(() -> Picasso.get().load(responseUpload.getUrl()).into(fotoPerfil));
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show()
+                                );
+                            }
+                        }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show()
+                        );
                     }
                 }
             });
-
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    abrirGaleria();
-                } else {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Permissão necessária para acessar a galeria.", Toast.LENGTH_SHORT).show());
-                }
-            });
-
-    private void pedirPermissaoCamera() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         } else {
-            abrirCamera();
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
-    }
-
-    private void pedirPermissaoGaleria() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                abrirGaleria();
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
-            }
-        } else { // Android 12 ou inferior
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                abrirGaleria();
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-            }
-        }
-    }
-
-    private void abrirCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraLauncher.launch(cameraIntent);
-    }
-
-    private void abrirGaleria() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        galleryLauncher.launch(intent);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                abrirCamera();
-            } else {
-                requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Permissão da câmera é necessária.", Toast.LENGTH_SHORT).show());
-            }
-        }
-    }
-
-    private void escolherGaleriaCamera() {
-        Dialog dialog = new Dialog(requireContext());
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.layout_bottom_sheet);
-
-        TextView escolherGaleria = dialog.findViewById(R.id.chooseGallery);
-        TextView escolherCamera = dialog.findViewById(R.id.chooseCamera);
-
-        escolherGaleria.setOnClickListener(v -> pedirPermissaoGaleria());
-        escolherCamera.setOnClickListener(v -> pedirPermissaoCamera());
-
-        dialog.show();
-        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
     }
 }
