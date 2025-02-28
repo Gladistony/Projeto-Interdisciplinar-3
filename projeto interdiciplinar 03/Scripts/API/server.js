@@ -2,9 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args)); // Corrige a importação do node-fetch
 const app = express();
+const path = require('path'); 
 
 app.use(cors());
 app.use(express.json());
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Rota básica para verificar se o servidor está funcionando
 app.get('/', (req, res) => {
@@ -258,13 +261,14 @@ app.post('/upload_img', async (req, res) => {
     }
 });
 
-app.get('/ativar', async (req, res) => {
-    const { usuario, codigo } = req.query;
+
+app.get('/ativar/:usuario/:codigo', async (req, res) => {
+    const { usuario, codigo } = req.params;
 
     try {
-        console.log('Recebendo solicitação para /ativar:', req.query);
-        
-        const response = await fetch(`http://44.203.201.20/ativar?usuario=${usuario}&codigo=${codigo}`, {
+        console.log('Recebendo solicitação para /ativar:', req.params);
+
+        const response = await fetch(`http://44.203.201.20/ativar/${usuario}/${codigo}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -272,6 +276,20 @@ app.get('/ativar', async (req, res) => {
         if (!response.ok) {
             console.error('Erro ao ativar conta:', response.status, response.statusText);
             return res.status(response.status).json({ error: 'Erro ao ativar conta' });
+        }
+
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            // Se a resposta não for JSON, devolva o HTML como está
+            const text = await response.text();
+            console.log('Resposta do servidor é HTML:', text);
+
+            // Verifique se o HTML contém a mensagem de sucesso
+            if (text.includes('Operação realizada com sucesso')) {
+                return res.status(200).json({ status: 'sucesso' });
+            } else {
+                return res.status(200).json({ status: 'erro', mensagem: 'Erro na ativação' });
+            }
         }
 
         const data = await response.json();

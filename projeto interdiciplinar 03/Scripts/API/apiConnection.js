@@ -88,7 +88,10 @@ async function realizarLogin(id, usuario, senha) {
 // Função para ativar a conta
 async function ativarConta(id, usuario, codigo) {
     try {
-        const response = await fetch(`${API_URL}/ativar?usuario=${usuario}&codigo=${codigo}`, {
+        const url = `${API_URL}/ativar/${usuario}/${codigo}`;
+        console.log("URL de requisição:", url); // Log para verificar a URL
+
+        const response = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -106,6 +109,7 @@ async function ativarConta(id, usuario, codigo) {
         } else {
             localStorage.removeItem('usuarioAtivo');
             localStorage.removeItem('connectionId');
+            throw new Error('Erro na ativação da conta.');
         }
 
         return result;

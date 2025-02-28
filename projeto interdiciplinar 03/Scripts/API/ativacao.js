@@ -5,6 +5,7 @@ document.getElementById('ativacaoForm').addEventListener('submit', async functio
     event.preventDefault();
 
     try {
+        const formData = new FormData(event.target);
         const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
         const usuario = document.getElementById('nomeDeAtivacao').value;
         const codigo = document.getElementById('codigoDeAtivacao').value;
@@ -17,7 +18,7 @@ document.getElementById('ativacaoForm').addEventListener('submit', async functio
             alert('Conta ativada com sucesso!');
 
             // Redirecionar para a tela de home
-            window.location.href = '../Paginas/homel.html';
+            window.location.href = '../Paginas/telaDeHomel.html';
         } else {
             throw new Error('Erro na ativação da conta.');
         }
