@@ -290,23 +290,22 @@ async function set_img_url(url_foto) {
     }
 }
 
-async function upload_img(file, destino) {
-    const id = localStorage.getItem('connectionId'); // Obtém o ID de conexão armazenado
+async function upload_img(base64String, destino) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
 
-    if (!(file instanceof File)) {
-        console.error("Erro: O arquivo fornecido não é válido.");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append("id", id);
-    formData.append("file", file); // O arquivo precisa ser um File
-    formData.append("destino", destino);
+    const payload = {
+        id: id,
+        destino: destino,
+        file: base64String
+    };
 
     try {
-        const response = await fetch(`${API_URL}/upload-image/`, {
+        const response = await fetch(`${API_URL}/upload_img/`, {
             method: "POST",
-            body: formData, // Enviar como multipart/form-data
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -314,12 +313,25 @@ async function upload_img(file, destino) {
         }
 
         const result = await response.json();
+
+        if (result.url) {
+            console.log("Imagem enviada com sucesso:", result.url);
+
+            // Envia a URL da imagem para ativação no sistema
+            const setUrlResponse = await set_img_url(result.url);
+            console.log("Resposta do set_img_url:", setUrlResponse);
+        } else {
+            console.error("Erro: Resposta do upload sem URL.");
+        }
+
         return result;
     } catch (error) {
         console.error("Erro ao enviar imagem:", error);
         throw error;
     }
 }
+
+
 
 // Exporta as funções para uso em outros arquivos
 export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img };
