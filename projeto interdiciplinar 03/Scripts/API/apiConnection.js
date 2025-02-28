@@ -333,7 +333,32 @@ async function upload_img(base64String, destino) {
     }
 }
 
+/*async function getUserData(id, usuario) {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+    let usuarios = await getAllUsers();
+    let nameuser = usuarios.usuario;
+    let usuario = nameuser
 
+    try {
+        const response = await fetch(`${API_URL}/get_user_data/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario })
+        });
+        const result1 = await response;
+        console.log(result1)
+
+        if (!response.ok) {
+            throw new Error(`Erro ao obter todos os dados de usuários: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao obter todos os dados de usuários:', error);
+        throw error;
+    }
+}*/
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, /*getUserData*/ };

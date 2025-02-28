@@ -303,6 +303,60 @@ app.get('/ativar/:usuario/:codigo', async (req, res) => {
     }
 });
 
+app.post('/delete_user', async (req, res) => {
+    const { id, usuario } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /delete_user:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/delete_user/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao excluir usuário:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao excluir usuário' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /delete_user:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao excluir usuário:', error);
+        res.status(500).json({ error: 'Erro ao excluir usuário' });
+    }
+});
+
+/*app.post('/get_user_data', async (req, res) => {
+    const { id, usuario } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /delete_user:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/get_user_data/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao obter todos os dados de usuários:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao obter todos os dados de usuários:' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /delete_user:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao obter todos os dados de usuários:', error);
+        res.status(500).json({ error: 'Erro ao obter todos os dados de usuários:' });
+    }
+});*/
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

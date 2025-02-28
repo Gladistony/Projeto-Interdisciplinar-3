@@ -1,8 +1,9 @@
-import { getAllUsers, excluirUsuario } from './apiConnection.js';
+import { getAllUsers, excluirUsuario /*getUserData*/ } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         let usuarios = await getAllUsers();
+        //let dadosUser = await getUserData();
         console.log('Usuários:', usuarios);
 
         const tbody = document.querySelector('table tbody');
@@ -16,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <td>${index + 1}</td>
                     <td><img src="../IMG/perfil_generico.png" alt="Foto de Perfil" class="perfil"></td>
                     <td>${usuario.usuario}</td>
-                    <td>${usuario.nome_completo || 'Nome Completo'}</td>
+                    <td>${usuario.nome_completo}</td>
                     <td>${usuario.email}</td>
                     <td>*******</td>
                     <td>
