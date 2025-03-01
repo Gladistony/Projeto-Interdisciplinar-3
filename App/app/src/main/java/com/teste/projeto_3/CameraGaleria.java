@@ -30,21 +30,24 @@ public class CameraGaleria {
     private Uri imagemUri;
     private final ActivityResultLauncher<Intent> cameraLauncher;
     private final ActivityResultLauncher<Intent> galeriaLauncher;
-    private final ActivityResultLauncher<String> requestPermissionLauncher;
+    private final ActivityResultLauncher<String> requestPermissionGalleryLauncher;
+    private final ActivityResultLauncher<String> requestPermissionCameraLauncher;
 
     public CameraGaleria(Context context,
                          ActivityResultLauncher<Intent> cameraLauncher,
                          ActivityResultLauncher<Intent> galeriaLauncher,
-                         ActivityResultLauncher<String> requestPermissionLauncher) {
+                         ActivityResultLauncher<String> requestPermissionGalleryLauncher,
+                         ActivityResultLauncher<String> requestPermissionCameraLauncher) {
         this.context = context;
         this.cameraLauncher = cameraLauncher;
         this.galeriaLauncher = galeriaLauncher;
-        this.requestPermissionLauncher = requestPermissionLauncher;
+        this.requestPermissionGalleryLauncher = requestPermissionGalleryLauncher;
+        this.requestPermissionCameraLauncher = requestPermissionCameraLauncher;
     }
 
     public void pedirPermissaoCamera() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
+            requestPermissionCameraLauncher.launch(Manifest.permission.CAMERA);
         } else {
             abrirCamera();
         }
@@ -55,13 +58,13 @@ public class CameraGaleria {
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
                 abrirGaleria();
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+                requestPermissionGalleryLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
             }
         } else { // Android 12 ou inferior
             if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 abrirGaleria();
             } else {
-                requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                requestPermissionGalleryLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
             }
         }
     }
@@ -211,8 +214,20 @@ public class CameraGaleria {
 
     public String bitmapParaBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        int qualidade = 100;
+        bitmap.compress(Bitmap.CompressFormat.JPEG, qualidade, byteArrayOutputStream);
+
         byte[] byteArray = byteArrayOutputStream.toByteArray();
+
+        // Verifica se o tamanho da string Base64 irá possuir mais de um milhão de caracteres.
+        // Se tiver, diminui a qualidade até que seja menor.
+        while ((byteArray.length * 4 / 3) > 1000000 && qualidade > 70) {
+            byteArrayOutputStream.reset();
+            qualidade -= 10;
+            bitmap.compress(Bitmap.CompressFormat.JPEG, qualidade, byteArrayOutputStream);
+            byteArray = byteArrayOutputStream.toByteArray();
+        }
+
         try {
             byteArrayOutputStream.close();
         } catch (IOException e) {

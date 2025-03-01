@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,12 +77,23 @@ public class FragPerfil extends Fragment {
                     }
                 }
             });
-    public final ActivityResultLauncher<String> requestPermissionLauncher =
+
+    public final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    cg.abrirCamera();
+                } else {
+                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à câmera negado",
+                            "É necessário permissão para acessar a câmera ao executar esta ação. Vá para as configurações e permita manualmente."));
+                }
+            });
+    public final ActivityResultLauncher<String> requestPermissionGalleryLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     cg.abrirGaleria();
                 } else {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Permissão necessária para acessar a galeria.", Toast.LENGTH_SHORT).show());
+                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
+                            "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
                 }
             });
 
@@ -93,7 +105,7 @@ public class FragPerfil extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         er = new EnviarRequisicao(requireContext());
-        cg = new CameraGaleria(requireContext(), cameraLauncher, galleryLauncher, requestPermissionLauncher);
+        cg = new CameraGaleria(requireContext(), cameraLauncher, galleryLauncher, requestPermissionGalleryLauncher, requestCameraPermissionLauncher);
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
     }
 
@@ -268,7 +280,7 @@ public class FragPerfil extends Fragment {
                     });
                 } else if (response.startsWith("<html>")) {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Request Entity Too Large. Corrigir isso", Toast.LENGTH_LONG).show();
+                        Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show();
                         animacaoCarregandoImagem.setVisibility(View.GONE);
                     });
                 } else {
@@ -294,6 +306,11 @@ public class FragPerfil extends Fragment {
                                     animacaoCarregandoImagem.setVisibility(View.GONE);
                                 });
                             }
+                        } else if (responseUpload.getCode() == 23) { // Erro ao carregar imagem
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(requireContext(), "Erro ao carregar imagem.", Toast.LENGTH_SHORT).show();
+                                animacaoCarregandoImagem.setVisibility(View.GONE);
+                            });
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
@@ -333,6 +350,30 @@ public class FragPerfil extends Fragment {
                 .setNegativeButton("Cancelar", null)
                 .create();
 
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green2));
+            negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.modern_red));
+        });
+
+        dialog.show();
+    }
+
+    private void popupPermissao(String titulo, String mensagem) {
+        AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
+                .setTitle(titulo)
+                .setMessage(mensagem)
+                .setPositiveButton("Ir para configurações", (dialogConfirmar, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
+                .create();
+
+        // Altera a cor do botão exibido
         dialog.setOnShowListener(dialogInterface -> {
             Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
