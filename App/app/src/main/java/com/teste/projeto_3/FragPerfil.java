@@ -21,6 +21,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
+import android.text.InputType;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -223,6 +225,7 @@ public class FragPerfil extends Fragment {
 
             TextView escolherGaleria = dialog.findViewById(R.id.chooseGallery);
             TextView escolherCamera = dialog.findViewById(R.id.chooseCamera);
+            TextView escolherUrl = dialog.findViewById(R.id.chooseUrl);
 
             escolherGaleria.setOnClickListener(v -> {
                 cg.pedirPermissaoGaleria();
@@ -230,6 +233,10 @@ public class FragPerfil extends Fragment {
             });
             escolherCamera.setOnClickListener(v -> {
                 cg.pedirPermissaoCamera();
+                dialog.dismiss();
+            });
+            escolherUrl.setOnClickListener(v -> {
+                popupUrlImagem();
                 dialog.dismiss();
             });
 
@@ -267,6 +274,15 @@ public class FragPerfil extends Fragment {
                                         Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show()
                                 );
                             }
+                            /*
+                            SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+                            viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
+                                if (dados.getData() == null) {
+                                    dados.getUrl_foto() = responseUpload.getUrl();
+                                } else {
+
+                                }
+                            }); */
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() ->
@@ -279,5 +295,78 @@ public class FragPerfil extends Fragment {
             requireActivity().runOnUiThread(() ->
                     Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    private void popupUrlImagem() {
+        EditText input = new EditText(requireContext());
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
+        input.setHint("Insira a URL aqui");
+
+        AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
+                .setTitle("Inserir URL")
+                .setMessage("Insira uma URL de imagem válida abaixo")
+                .setView(input)
+                .setPositiveButton("Alterar", (dialogConfirmar, which) -> {
+                    String url = input.getText().toString();
+                    if (url.length() > 250) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "A URL não pode ter mais de 250 caracteres", Toast.LENGTH_SHORT).show());
+                    } else if (!url.startsWith("http")) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "URL inválida. Deve começar com HTTP ou HTTPS", Toast.LENGTH_SHORT).show());
+                    } else {
+                        set_img_url(url);
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green2));
+            negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.modern_red));
+        });
+
+        dialog.show();
+    }
+
+    private void set_img_url(String url) {
+        if (er.possuiInternet(requireContext())) {
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setUrl_foto(url);
+
+            // Converter o objeto User para JSON
+            String userJson = gson.toJson(user);
+
+            er.post("set_img_url", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
+                    );
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseUpload = gson.fromJson(response, User.class);
+                        if (responseUpload.getCode() == 0) {
+                            try {
+                                requireActivity().runOnUiThread(() -> Picasso.get().load(url).into(fotoPerfil));
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() ->
+                                        Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show()
+                                );
+                            }
+                        }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show()
+                        );
+                    }
+                }
+            });
+        } else {
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+
     }
 }
