@@ -22,5 +22,8 @@
     <string name="button_sair_logoff">Sair da conta</string>
     <string name="text_default">Lorem ipsum dolor sit amet</string>
     <string name="add"> mais</string>
+    <string name="linear_layout_camera"> Abrir câmera</string>
+    <string name="linear_layout_galeria"> Selecionar da galeria</string>
+    <string name="linear_layout_url"> Inserir URL de imagem</string>
 
 </resources>

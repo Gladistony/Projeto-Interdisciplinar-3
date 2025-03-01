@@ -36,6 +36,19 @@
         android:padding="3dp"/>
 
 
+    <ProgressBar
+        android:id="@+id/animacaoCarregandoImagem"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:indeterminateBehavior="repeat"
+        android:visibility="gone"
+        android:indeterminateTint="@color/green"
+        app:layout_constraintBottom_toBottomOf="@+id/containerUser"
+        app:layout_constraintEnd_toEndOf="@+id/containerUser"
+        app:layout_constraintStart_toStartOf="@+id/containerUser"
+        app:layout_constraintTop_toTopOf="@+id/containerUser" />
+
     <TextView
         android:id="@+id/textNomeUsuario"
         android:layout_width="wrap_content"
