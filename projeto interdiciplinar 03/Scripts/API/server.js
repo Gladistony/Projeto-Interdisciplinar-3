@@ -411,6 +411,33 @@ app.post('/set_user_data', async (req, res) => {
     }
 });
 
+app.post('/criar_estoque', async (req, res) => {
+    const { id, nome, descricao, imagem } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /criar_estoque:', req.body);
+        const response = await fetch('http://44.203.201.20/criar_estoque', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, nome, descricao, imagem })
+        });
+
+        const responseBody = await response.text(); // Lê a resposta como texto
+        console.log('Resposta completa do servidor /criar_estoque:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no criar_estoque:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao obter usuários' });
+        }
+
+        const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao criar estoque:', error);
+        res.status(500).json({ error: 'Erro ao criar estoque' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

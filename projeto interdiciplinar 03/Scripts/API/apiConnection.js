@@ -385,6 +385,35 @@ async function set_user_data(id, usuario, senha) {
     }
 }
 
+async function criar_estoque(base64String, destino) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    const payload = {
+        id: id,
+        destino: destino,
+        file: base64String
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/criar_estoque/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao fazer upload: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao enviar imagem:", error);
+        throw error;
+    }
+}
+
 
 // Exporta as funções para uso em outros arquivos
 export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data };
