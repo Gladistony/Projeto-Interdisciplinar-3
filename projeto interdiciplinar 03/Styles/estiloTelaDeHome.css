@@ -12,6 +12,19 @@ body {
     background: #fff
 }
 
+body > button {
+    border: none;
+    background-color: black;
+    color: white;
+    cursor: pointer;
+    border-radius: 10px;
+    padding: 10px;
+    position: absolute;
+    margin: 24px;
+    left: 0;
+    top: 0;
+}
+
 header {
     margin: 24px;
     text-align: center;

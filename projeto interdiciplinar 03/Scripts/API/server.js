@@ -357,6 +357,33 @@ app.post('/get_user_data', async (req, res) => {
     }
 });
 
+app.post('/get_dados', async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /get_dados:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/get_dados/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao obter todos os dados de usuário:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao obter todos os dados de usuário:' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /get_dados:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao obter todos os dados de usuário:', error);
+        res.status(500).json({ error: 'Erro ao obter todos os dados de usuário:' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
