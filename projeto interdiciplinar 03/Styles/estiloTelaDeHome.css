@@ -5,11 +5,15 @@
 }
 
 body {
+    width: 100vw;
+    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: #fff
+    background: linear-gradient(135deg, #2ecc71 50%, white 50%);
+    background-size: cover;
+    background-position: center;
 }
 
 body > button {
