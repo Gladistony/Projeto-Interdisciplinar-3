@@ -333,11 +333,12 @@ async function upload_img(base64String, destino) {
     }
 }
 
-/*async function getUserData(id, usuario) {
+async function getUserData(usuario) {
     const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
-    let usuarios = await getAllUsers();
-    let nameuser = usuarios.usuario;
-    let usuario = nameuser
+    if (!id) {
+        console.error("ID de conexão não encontrado no localStorage.");
+        return;
+    }
 
     try {
         const response = await fetch(`${API_URL}/get_user_data/`, {
@@ -345,20 +346,20 @@ async function upload_img(base64String, destino) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
         });
-        const result1 = await response;
-        console.log(result1)
 
         if (!response.ok) {
-            throw new Error(`Erro ao obter todos os dados de usuários: ${response.statusText}`);
+            throw new Error(`Erro ao obter os dados do usuário: ${response.statusText}`);
         }
 
         const result = await response.json();
+        console.log("Dados do usuário recebidos:", result);
         return result;
     } catch (error) {
-        console.error('Erro ao obter todos os dados de usuários:', error);
+        console.error('Erro ao obter os dados do usuário:', error);
         throw error;
     }
-}*/
+}
+
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, /*getUserData*/ };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData };

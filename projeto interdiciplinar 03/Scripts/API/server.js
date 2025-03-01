@@ -330,11 +330,11 @@ app.post('/delete_user', async (req, res) => {
     }
 });
 
-/*app.post('/get_user_data', async (req, res) => {
+app.post('/get_user_data', async (req, res) => {
     const { id, usuario } = req.body;
 
     try {
-        console.log('Recebendo solicitação para /delete_user:', req.body);
+        console.log('Recebendo solicitação para /get_user_data:', req.body);
         
         const response = await fetch('http://44.203.201.20/get_user_data/', {
             method: 'POST',
@@ -355,7 +355,7 @@ app.post('/delete_user', async (req, res) => {
         console.error('Erro no servidor ao obter todos os dados de usuários:', error);
         res.status(500).json({ error: 'Erro ao obter todos os dados de usuários:' });
     }
-});*/
+});
 
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {

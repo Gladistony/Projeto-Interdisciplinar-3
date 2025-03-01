@@ -1,24 +1,25 @@
-import { getAllUsers, excluirUsuario /*getUserData*/ } from './apiConnection.js';
+import { getAllUsers, excluirUsuario, getUserData } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
         let usuarios = await getAllUsers();
-        //let dadosUser = await getUserData();
         console.log('Usuários:', usuarios);
 
         const tbody = document.querySelector('table tbody');
         tbody.innerHTML = '';
 
-        const renderTable = (userList) => {
+        const renderTable = async (userList) => {
             tbody.innerHTML = '';
-            userList.forEach((usuario, index) => {
+            for (const usuario of userList) {
+                let dadosUser = await getUserData(usuario.usuario);
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td><img src="../IMG/perfil_generico.png" alt="Foto de Perfil" class="perfil"></td>
+                    <td>${userList.indexOf(usuario) + 1}</td>
+                    <td><img src="${dadosUser.data.url_foto || '../IMG/perfil_generico.png'}" alt="Foto de Perfil" class="perfil"></td>
                     <td>${usuario.usuario}</td>
-                    <td>${usuario.nome_completo}</td>
-                    <td>${usuario.email}</td>
+                    <td>${dadosUser.data.nome_completo || 'Não informado'}</td>
+                    <td>${dadosUser.data.email}</td>
                     <td>*******</td>
                     <td>
                         <button class="edit">Editar</button>
@@ -33,6 +34,12 @@ document.addEventListener('DOMContentLoaded', async function () {
                 trDetalhes.style.display = 'none';
                 trDetalhes.innerHTML = `
                     <td colspan="7">
+                        <div class="detalhe-usuario">
+                            <h3>Detalhes do Usuário</h3>
+                            <p><strong>Data de Criação:</strong> ${new Date(dadosUser.data.criacao).toLocaleString()}</p>
+                            <p><strong>Último Login:</strong> ${new Date(dadosUser.data.ultimo_login).toLocaleString()}</p>
+                            <p><strong>Tipo de Conta:</strong> ${dadosUser.data.tipo_conta}</p>
+                        </div>
                         <div class="detalhe-estoque">
                             <h3>Fotos do Estoque</h3>
                             <img src="../IMG/estoque1.jpg" alt="Foto do Estoque" class="estoque">
@@ -62,7 +69,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     trDetalhes.style.display = isHidden ? 'table-row' : 'none';
                     tr.querySelector('.toggle-details').textContent = isHidden ? 'Esconder Detalhes' : 'Mostrar Detalhes';
                 });
-            });
+            }
         };
 
         renderTable(usuarios.contas);
@@ -75,9 +82,9 @@ document.addEventListener('DOMContentLoaded', async function () {
             renderTable(filteredUsers);
         });
 
-        document.querySelectorAll('.delete').forEach(button => {
-            button.addEventListener('click', async function () {
-                const usuario = this.dataset.usuario;
+        document.addEventListener('click', async (event) => {
+            if (event.target.classList.contains('delete')) {
+                const usuario = event.target.dataset.usuario;
                 const idAdmin = localStorage.getItem('connectionId');
 
                 if (!idAdmin) {
@@ -96,7 +103,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     console.error('Erro ao excluir usuário:', error);
                     alert(`Erro ao excluir usuário: ${error.message}`);
                 }
-            });
+            }
         });
 
         document.getElementById('btn-home').addEventListener('click', () => {
