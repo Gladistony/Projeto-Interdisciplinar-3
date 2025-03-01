@@ -1,4 +1,4 @@
-import { getAllUsers, excluirUsuario, getUserData } from './apiConnection.js';
+import { getAllUsers, excluirUsuario, getUserData, set_user_data } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -20,9 +20,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <td>${usuario.usuario}</td>
                     <td>${dadosUser.data.nome_completo || 'Não informado'}</td>
                     <td>${dadosUser.data.email}</td>
-                    <td>*******</td>
+                    <td class="senha-container">*******</td>
                     <td>
-                        <button class="edit">Editar</button>
+                        <button class="edit" data-usuario="${usuario.usuario}">Editar</button>
                         <button class="delete" data-usuario="${usuario.usuario}">Apagar</button>
                         <button class="toggle-details">Mostrar Detalhes</button>
                     </td>
@@ -83,8 +83,10 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
 
         document.addEventListener('click', async (event) => {
-            if (event.target.classList.contains('delete')) {
-                const usuario = event.target.dataset.usuario;
+            const target = event.target;
+
+            if (target.classList.contains('delete')) {
+                const usuario = target.dataset.usuario;
                 const idAdmin = localStorage.getItem('connectionId');
 
                 if (!idAdmin) {
@@ -102,6 +104,35 @@ document.addEventListener('DOMContentLoaded', async function () {
                 } catch (error) {
                     console.error('Erro ao excluir usuário:', error);
                     alert(`Erro ao excluir usuário: ${error.message}`);
+                }
+            }
+
+            if (target.classList.contains('edit')) {
+                const tr = target.closest('tr');
+                const usuario = target.dataset.usuario;
+                const senhaContainer = tr.querySelector('.senha-container');
+
+                if (target.textContent === 'Editar') {
+                    senhaContainer.innerHTML = `<input type="password" placeholder="Nova senha" class="senha-input">`;
+                    target.textContent = 'Confirmar';
+                } else if (target.textContent === 'Confirmar') {
+                    const novaSenha = senhaContainer.querySelector('.senha-input').value;
+                    const idAdmin = localStorage.getItem('connectionId');
+
+                    if (!novaSenha) {
+                        alert('Digite uma nova senha!');
+                        return;
+                    }
+
+                    try {
+                        await set_user_data(idAdmin, usuario, novaSenha);
+                        alert(`Senha do usuário ${usuario} atualizada com sucesso!`);
+                        senhaContainer.innerHTML = '*******';
+                        target.textContent = 'Editar';
+                    } catch (error) {
+                        console.error('Erro ao atualizar senha:', error);
+                        alert(`Erro ao atualizar senha: ${error.message}`);
+                    }
                 }
             }
         });

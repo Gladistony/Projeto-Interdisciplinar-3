@@ -384,6 +384,33 @@ app.post('/get_dados', async (req, res) => {
     }
 });
 
+app.post('/set_user_data', async (req, res) => {
+    const { id, usuario, senha } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /set_user_data:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/set_user_data/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario, senha })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao editar usuário:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao editar usuário' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /set_user_data:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao editar usuário:', error);
+        res.status(500).json({ error: 'Erro ao editar usuário' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

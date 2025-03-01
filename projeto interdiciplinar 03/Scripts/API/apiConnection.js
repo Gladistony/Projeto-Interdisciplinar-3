@@ -360,6 +360,31 @@ async function getUserData(usuario) {
     }
 }
 
+async function set_user_data(id, usuario, senha) {
+    const idadm = localStorage.getItem('connectionId'); // ID do administrador
+
+    if (!idadm) {
+        throw new Error('ID do administrador não encontrado.');
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/set_user_data/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, usuario, senha }) // Enviando o ID do admin e o nome do usuário
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao editar usuário: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Erro ao editar usuário:', error);
+        throw error;
+    }
+}
+
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data };
