@@ -8,8 +8,12 @@ document.addEventListener('DOMContentLoaded', async function () {
         const tbody = document.querySelector('table tbody');
         tbody.innerHTML = '';
 
+        const estoquesPorPagina = 5;
+        let paginasEstoques = {}; // Armazena a página atual de cada usuário
+
         const renderTable = async (userList) => {
             tbody.innerHTML = '';
+
             for (const usuario of userList) {
                 let dadosUser = await getUserData(usuario.usuario);
 
@@ -40,43 +44,88 @@ document.addEventListener('DOMContentLoaded', async function () {
                             <p><strong>Último Login:</strong> ${new Date(dadosUser.data.ultimo_login).toLocaleString()}</p>
                             <p><strong>Tipo de Conta:</strong> ${dadosUser.data.tipo_conta}</p>
                         </div>
-                        <div class="detalhe-estoque-container">
-                            ${dadosUser.data.estoque.map(estoque => `
-                                <div class="detalhe-estoque">
-                                    <h3>Nome do Estoque:</h3>
-                                    <p><strong>${estoque.nome}</strong></p>
-                                    <h3>Fotos do Estoque</h3>
-                                    <img src="${estoque.url_foto}" alt="Foto do Estoque" class="estoque">
-                                    <h3>Descrição do Estoque</h3>
-                                    <p>${estoque.descricao}</p>
-                                    <h3>ID de Câmeras</h3>
-                                    <p>${estoque.id_camera}</p>
-                                    <h3>ID do Estoque</h3>
-                                    <p>${estoque.id}</p>
-                                    <h3>Produtos no Estoque</h3>
-                                    ${estoque.produtos ? estoque.produtos.map(produto => `
-                                        <div class="detalhe-produto">
-                                            <p>Produto: ${produto.nome} - Quantidade: ${produto.quantidade}</p>
-                                            <button class="edit-produto">Editar</button>
-                                            <button class="delete-produto">Apagar</button>
-                                        </div>
-                                    `).join('') : '<p>Sem produtos</p>'}
-                                    <button class="edit-estoque">Editar Estoque</button>
-                                    <button class="delete-estoque">Apagar Estoque</button>
-                                </div>
-                            `).join('')}
-                        </div>
+                        <div class="detalhe-estoque-container"></div>
                     </td>
                 `;
-                tbody.appendChild(trDetalhes);                                                          
+                tbody.appendChild(trDetalhes);
+
+                paginasEstoques[usuario.usuario] = 0; // Inicia página 0 para cada usuário
 
                 tr.querySelector('.toggle-details').addEventListener('click', () => {
                     const isHidden = trDetalhes.style.display === 'none';
                     trDetalhes.style.display = isHidden ? 'table-row' : 'none';
                     tr.querySelector('.toggle-details').textContent = isHidden ? 'Esconder Detalhes' : 'Mostrar Detalhes';
+
+                    if (isHidden) {
+                        const containerEstoques = trDetalhes.querySelector('.detalhe-estoque-container');
+                        renderizarEstoques(dadosUser, containerEstoques, usuario.usuario);
+                    }
                 });
             }
         };
+
+        function renderizarEstoques(dadosUser, container, usuario) {
+            container.innerHTML = '';
+
+            const paginaAtual = paginasEstoques[usuario];
+            const inicio = paginaAtual * estoquesPorPagina;
+            const fim = inicio + estoquesPorPagina;
+            const estoquesPagina = dadosUser.data.estoque.slice(inicio, fim);
+
+            estoquesPagina.forEach(estoque => {
+                const divEstoque = document.createElement('div');
+                divEstoque.classList.add('detalhe-estoque');
+                divEstoque.innerHTML = `
+                    <h3>Nome do Estoque:</h3>
+                    <p><strong>${estoque.nome}</strong></p>
+                    <h3>Fotos do Estoque</h3>
+                    <img src="${estoque.url_foto}" alt="Foto do Estoque" class="estoque">
+                    <h3>Descrição do Estoque</h3>
+                    <p>${estoque.descricao}</p>
+                    <h3>ID de Câmeras</h3>
+                    <p>${estoque.id_camera}</p>
+                    <h3>ID do Estoque</h3>
+                    <p>${estoque.id}</p>
+                    <h3>Produtos no Estoque</h3>
+                    ${estoque.produtos ? estoque.produtos.map(produto => `
+                        <div class="detalhe-produto">
+                            <p>Produto: ${produto.nome} - Quantidade: ${produto.quantidade}</p>
+                            <button class="edit-produto">Editar</button>
+                            <button class="delete-produto">Apagar</button>
+                        </div>
+                    `).join('') : '<p>Sem produtos</p>'}
+                    <button class="edit-estoque">Editar Estoque</button>
+                    <button class="delete-estoque">Apagar Estoque</button>
+                `;
+                container.appendChild(divEstoque);
+            });
+
+            const totalPaginas = Math.ceil(dadosUser.data.estoque.length / estoquesPorPagina);
+            const navContainer = document.createElement('div');
+            navContainer.classList.add('paginacao-estoques');
+
+            if (paginaAtual > 0) {
+                const btnAnterior = document.createElement('button');
+                btnAnterior.innerHTML = '⬅️';
+                btnAnterior.onclick = () => {
+                    paginasEstoques[usuario]--;
+                    renderizarEstoques(dadosUser, container, usuario);
+                };
+                navContainer.appendChild(btnAnterior);
+            }
+
+            if (paginaAtual < totalPaginas - 1) {
+                const btnProximo = document.createElement('button');
+                btnProximo.innerHTML = '➡️';
+                btnProximo.onclick = () => {
+                    paginasEstoques[usuario]++;
+                    renderizarEstoques(dadosUser, container, usuario);
+                };
+                navContainer.appendChild(btnProximo);
+            }
+
+            container.appendChild(navContainer);
+        }
 
         renderTable(usuarios.contas);
 
@@ -100,16 +149,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                const confirmacao = confirm(`Tem certeza de que deseja excluir o usuário ${usuario}?`);
-                if (!confirmacao) return;
-
-                try {
+                if (confirm(`Tem certeza de que deseja excluir o usuário ${usuario}?`)) {
                     await excluirUsuario(idAdmin, usuario);
                     alert(`Usuário ${usuario} excluído com sucesso!`);
                     location.reload();
-                } catch (error) {
-                    console.error('Erro ao excluir usuário:', error);
-                    alert(`Erro ao excluir usuário: ${error.message}`);
                 }
             }
 
@@ -121,7 +164,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 if (target.textContent === 'Editar') {
                     senhaContainer.innerHTML = `<input type="password" placeholder="Nova senha" class="senha-input">`;
                     target.textContent = 'Confirmar';
-                } else if (target.textContent === 'Confirmar') {
+                } else {
                     const novaSenha = senhaContainer.querySelector('.senha-input').value;
                     const idAdmin = localStorage.getItem('connectionId');
 
@@ -130,15 +173,10 @@ document.addEventListener('DOMContentLoaded', async function () {
                         return;
                     }
 
-                    try {
-                        await set_user_data(idAdmin, usuario, novaSenha);
-                        alert(`Senha do usuário ${usuario} atualizada com sucesso!`);
-                        senhaContainer.innerHTML = '*******';
-                        target.textContent = 'Editar';
-                    } catch (error) {
-                        console.error('Erro ao atualizar senha:', error);
-                        alert(`Erro ao atualizar senha: ${error.message}`);
-                    }
+                    await set_user_data(idAdmin, usuario, novaSenha);
+                    alert(`Senha do usuário ${usuario} atualizada com sucesso!`);
+                    senhaContainer.innerHTML = '*******';
+                    target.textContent = 'Editar';
                 }
             }
         });
