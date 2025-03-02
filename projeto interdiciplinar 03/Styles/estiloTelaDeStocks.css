@@ -84,8 +84,16 @@ main {
 }
 
 .box > div > h2 {
+    background-color: #002183;
+    color: white;
     margin: 10px;
     text-align: center;
+    padding: 5px;
+}
+
+.box > div > p {
+    text-align: center;
+    padding: 5px;
 }
 
 .box > div > img {
