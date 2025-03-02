@@ -17,7 +17,9 @@ body {
 header {
     background-color: #2ecc71;
     width: 100px;
-    height: 100VH;
+    height: 100vh;
+    position: sticky;
+    top: 0;
 }
 
 header > nav {
@@ -67,6 +69,15 @@ main {
 
 .box {
     cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.box:hover {
+    background-color: rgb(221, 221, 221);
+    transform: scale(1.04);
 }
 
 .box > div > h2 {
@@ -75,8 +86,10 @@ main {
 }
 
 .box > div > img {
-    width: 400px;
-    height: auto;
+    height: 300px;
+    width: 300px;
+    object-fit: cover; /* Mantém a proporção da imagem */
+    object-position: center;
 }
 
 /* grid-area name */
@@ -217,4 +230,37 @@ main {
 
 .modal-content button:hover {
     background-color: #27ae60;
+}
+
+.actions {
+    margin-bottom: 10px;
+}
+
+.actions .edit-btn,
+.actions .delete-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.actions .edit-btn {
+    background-color: #FFA500;
+}
+
+.actions .delete-btn {
+    background-color: #FF4500;
+}
+
+.actions .edit-btn:hover {
+    background-color: #FF8C00;
+    transform: scale(1.04);
+}
+
+.actions .delete-btn:hover {
+    background-color: #FF0000;
+    transform: scale(1.04);
 }

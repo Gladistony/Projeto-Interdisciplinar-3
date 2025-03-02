@@ -452,6 +452,33 @@ app.post('/criar_estoque', async (req, res) => {
     }
 });
 
+app.post('/get_estoque', async (req, res) => {
+    const { id } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /get_estoque:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/get_estoque/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao obter todos os dados do estoque:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao obter todos os dados  do estoque:' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /get_estoque:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao obter todos os dados  do estoque:', error);
+        res.status(500).json({ error: 'Erro ao obter todos os dados  do estoque:' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

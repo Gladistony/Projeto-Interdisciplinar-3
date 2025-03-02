@@ -1,6 +1,6 @@
-import { criar_estoque, upload_imgeral } from './API/apiConnection.js';
+import { criar_estoque, upload_imgeral, getEstoque } from './API/apiConnection.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const addButton = document.getElementById('add-stock');
     const containerBox = document.getElementById('container-box');
     const modal = document.getElementById('modal-stock');
@@ -10,8 +10,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const stockDescriptionInput = document.getElementById('stock-description');
     const stockImageInput = document.getElementById('stock-image-file');
 
-    const imagemPadrao = "../IMG/Logo.webp"; // Caminho da imagem padrão
+    const imagemPadrao = "../IMG/Logo.webp";
 
+    // === LISTAR ESTOQUES EXISTENTES ===
+    try {
+        const resposta = await getEstoque();  // Aqui pega a resposta completa da API
+        const estoques = resposta.estoque;    // Extrai apenas o array "estoque"
+
+        estoques.forEach(estoque => {
+            adicionarBoxEstoqueNaTela(estoque.id, estoque.nome, estoque.descricao, estoque.imagem || imagemPadrao);
+        });
+    } catch (error) {
+        console.error('❌ Erro ao carregar estoques existentes:', error);
+        alert('Erro ao carregar estoques existentes.');
+    }
+
+    // === EVENTOS PARA ABRIR E FECHAR MODAL ===
     addButton.addEventListener('click', () => {
         modal.style.display = 'block';
     });
@@ -20,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'none';
     });
 
+    // === ADICIONAR NOVO ESTOQUE ===
     addStockButton.addEventListener('click', async () => {
         const name = stockNameInput.value.trim();
         const description = stockDescriptionInput.value.trim();
@@ -30,24 +45,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            let imageUrl = imagemPadrao; // Define imagem padrão por segurança
+            let imageUrl = imagemPadrao;
 
             if (stockImageInput.files.length > 0) {
                 const file = stockImageInput.files[0];
 
                 try {
-                    console.log("📸 Imagem recebida:", file.name);
                     const compressedImage = await resizeImage(file, 800, 800);
-                    console.log("✅ Imagem comprimida com sucesso!");
-
                     const uploadResult = await upload_imgeral(compressedImage, "estoque");
-                    console.log("🌐 Resposta do servidor:", uploadResult);
 
                     if (uploadResult.url) {
                         imageUrl = uploadResult.url;
-                        console.log("🔗 URL da imagem final:", imageUrl);
-                    } else {
-                        console.warn("⚠️ Servidor não retornou URL. Usando imagem padrão.");
                     }
                 } catch (error) {
                     console.error("❌ Erro no upload da imagem:", error);
@@ -55,44 +63,45 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            console.log("📦 Criando estoque com imagem:", imageUrl);
-            await adicionarEstoque(name, description, imageUrl);
-        } catch (error) {
-            console.error("❌ Erro ao adicionar estoque:", error);
-            alert("Erro ao adicionar estoque. Verifique o console.");
-        }
-    });
+            const novoEstoque = await criar_estoque(name, description, imageUrl);
 
-    async function adicionarEstoque(name, description, imageUrl) {
-        try {
-            await criar_estoque(name, description, imageUrl);
+            adicionarBoxEstoqueNaTela(novoEstoque.id, name, description, imageUrl);
 
-            const newBox = document.createElement('button');
-            newBox.className = 'box';
-            newBox.innerHTML = `
-                <div class="clickable-div">
-                    <h2>${name}</h2>
-                    <p>${description}</p>
-                    <img src="${imageUrl}" alt="Imagem do Estoque">
-                </div>
-            `;
-
-            newBox.addEventListener('click', () => {
-                window.location.href = 'tela-parcial-camera.html';
-            });
-
-            containerBox.appendChild(newBox);
             modal.style.display = 'none';
             stockNameInput.value = '';
             stockDescriptionInput.value = '';
-            stockImageInput.value = ''; // Limpa o input de arquivo
+            stockImageInput.value = ''; 
         } catch (error) {
             console.error("❌ Erro ao criar estoque:", error);
             alert("Erro ao criar estoque. Verifique o console.");
         }
+    });
+
+    // === FUNÇÃO PARA ADICIONAR BOX DE ESTOQUE NA TELA ===
+    function adicionarBoxEstoqueNaTela(id, name, description, imageUrl) {
+        const newBox = document.createElement('button');
+        newBox.className = 'box';
+        newBox.innerHTML = `
+            <div class="clickable-div">
+                <h2>${name}</h2>
+                <p>${description}</p>
+                <img src="${imageUrl}" alt="Imagem do Estoque">
+                <div class="actions">
+                    <button class="edit-btn">Editar</button>
+                    <button class="delete-btn">Deletar</button>
+                </div>
+            </div>
+        `;
+
+        newBox.addEventListener('click', () => {
+            localStorage.setItem('estoqueSelecionado', id); // Armazena o ID para próxima tela
+            window.location.href = 'tela-parcial-camera.html';
+        });
+
+        containerBox.appendChild(newBox);
     }
 
-    // Função para redimensionar a imagem antes do upload
+    // === FUNÇÃO PARA REDIMENSIONAR IMAGEM ===
     function resizeImage(file, maxWidth, maxHeight) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -123,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     const ctx = canvas.getContext("2d");
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    console.log("🎨 Imagem redimensionada:", width, "x", height);
                     resolve(canvas.toDataURL("image/jpeg", 0.7));
                 };
             };
