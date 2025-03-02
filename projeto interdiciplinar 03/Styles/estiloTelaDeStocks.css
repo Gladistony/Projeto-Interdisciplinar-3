@@ -70,6 +70,9 @@ main {
 .box {
     cursor: pointer;
     border: none;
+    height: 450px;
+    width: 400px;
+    margin-bottom: 20px;
     transition: background-color 0.3s ease;
     transition: transform 0.2s ease-in-out;
     box-shadow: 4px 6px 16px rgba(0, 0, 0, 0.3);
