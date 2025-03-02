@@ -385,16 +385,30 @@ async function set_user_data(id, usuario, senha) {
     }
 }
 
-async function criar_estoque(base64String, destino) {
+async function criar_estoque(nome, descricao, imagemBase64) {
     const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
 
-    const payload = {
-        id: id,
-        destino: destino,
-        file: base64String
-    };
+    if (!id) {
+        console.error("Erro: ID do usuário não encontrado.");
+        throw new Error("ID do usuário não encontrado.");
+    }
 
     try {
+        // Primeiro, fazer o upload da imagem e obter a URL
+        const uploadResponse = await upload_img(imagemBase64, "estoque");
+
+        if (!uploadResponse.url) {
+            throw new Error("Erro ao obter URL da imagem.");
+        }
+
+        // Criar o estoque com a URL da imagem obtida
+        const payload = {
+            id: id,
+            nome: nome,
+            descricao: descricao,
+            url_foto: uploadResponse.url // Usando a URL da imagem
+        };
+
         const response = await fetch(`${API_URL}/criar_estoque/`, {
             method: "POST",
             headers: {
@@ -404,16 +418,15 @@ async function criar_estoque(base64String, destino) {
         });
 
         if (!response.ok) {
-            throw new Error(`Erro ao fazer upload: ${response.statusText}`);
+            throw new Error(`Erro ao criar estoque: ${response.statusText}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error("Erro ao enviar imagem:", error);
+        console.error("Erro ao criar estoque:", error);
         throw error;
     }
 }
 
-
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque };

@@ -414,27 +414,41 @@ app.post('/set_user_data', async (req, res) => {
 app.post('/criar_estoque', async (req, res) => {
     const { id, nome, descricao, imagem } = req.body;
 
+    // Verificação de dados obrigatórios
+    if (!id || !nome || !descricao || !imagem) {
+        return res.status(400).json({ error: 'Todos os campos são obrigatórios!' });
+    }
+
     try {
         console.log('Recebendo solicitação para /criar_estoque:', req.body);
+
         const response = await fetch('http://44.203.201.20/criar_estoque', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, nome, descricao, imagem })
+            body: JSON.stringify({ id, nome, descricao, imagem }) // Enviando os dados corretamente
         });
 
-        const responseBody = await response.text(); // Lê a resposta como texto
+        // Verificar o tipo da resposta antes de processar
+        const contentType = response.headers.get('content-type');
+        let responseBody;
+        
+        if (contentType && contentType.includes('application/json')) {
+            responseBody = await response.json(); // Se for JSON, processa como JSON
+        } else {
+            responseBody = await response.text(); // Se for texto, processa como texto
+        }
+
         console.log('Resposta completa do servidor /criar_estoque:', response.status, responseBody);
 
         if (!response.ok) {
             console.error('Erro no criar_estoque:', response.status, response.statusText);
-            return res.status(response.status).json({ error: 'Erro ao obter usuários' });
+            return res.status(response.status).json({ error: 'Erro ao criar estoque' });
         }
 
-        const data = JSON.parse(responseBody); // Faz o parse da resposta como JSON
-        res.json(data);
+        res.json(responseBody);
     } catch (error) {
         console.error('Erro no servidor ao criar estoque:', error);
-        res.status(500).json({ error: 'Erro ao criar estoque' });
+        res.status(500).json({ error: 'Erro interno ao criar estoque' });
     }
 });
 

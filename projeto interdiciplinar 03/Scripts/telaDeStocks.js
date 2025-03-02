@@ -1,84 +1,76 @@
+import { criar_estoque, upload_img, set_img_url } from './apiConnection.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-    const addButton = document.querySelector('header > nav > button');
+    const addButton = document.getElementById('add-stock');
     const containerBox = document.getElementById('container-box');
+    const modal = document.getElementById('modal-stock');
+    const addStockButton = document.getElementById('btn-add-stock');
+    const closeModalButton = document.getElementById('btn-close-modal');
+    const stockNameInput = document.getElementById('stock-name');
+    const stockDescriptionInput = document.getElementById('stock-description');
+    const stockImageInput = document.getElementById('stock-image-file'); // Novo input de arquivo
 
     addButton.addEventListener('click', () => {
-        const newBox = document.createElement('button');
-        newBox.className = 'box';
-        
-        newBox.innerHTML = `
-            <div class="clickable-div">
-                <h2>Stock Novo</h2>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias culpa, quia iusto iure voluptates voluptas odio distinctio placeat voluptatem in sequi ex, veritatis repudiandae! Vel doloribus maiores fugiat necessitatibus exercitationem.</p>
-                <img src="../IMG/Logo.webp" alt="">
-            </div>
-        `;
-
-        newBox.addEventListener('click', () => {
-            window.location.href = 'tela-parcial-camera.html';
-        });
-
-        containerBox.appendChild(newBox);
+        modal.style.display = 'block';
     });
-});
 
-// parte da câmera 
+    closeModalButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
 
-let currentStream = null;
+    addStockButton.addEventListener('click', async () => {
+        const name = stockNameInput.value.trim();
+        const description = stockDescriptionInput.value.trim();
+        const file = stockImageInput.files[0];
 
-function getDevices() {
-    navigator.mediaDevices.enumerateDevices()
-    .then(function(devices) {
-        const videoSelect = document.getElementById('video-source');
-        videoSelect.innerHTML = '';
-        devices.forEach(function(device) {
-            if (device.kind === 'videoinput') {
-                const option = document.createElement('option');
-                option.value = device.deviceId;
-                option.text = device.label || `Camera ${videoSelect.length + 1}`;
-                videoSelect.appendChild(option);
+        if (name && description && file) {
+            try {
+                // Converte imagem para base64
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Image = reader.result.split(',')[1]; // Remove o prefixo base64
+
+                    // Envia a imagem para o servidor e obtém a URL
+                    const uploadResponse = await upload_img(base64Image, "estoque");
+                    if (!uploadResponse.url) {
+                        alert("Erro ao fazer upload da imagem!");
+                        return;
+                    }
+
+                    // Ativa a URL da imagem no sistema
+                    await set_img_url(uploadResponse.url);
+
+                    // Cria o estoque no servidor
+                    await criar_estoque(name, description, uploadResponse.url);
+
+                    // Atualiza a interface
+                    const newBox = document.createElement('button');
+                    newBox.className = 'box';
+                    newBox.innerHTML = `
+                        <div class="clickable-div">
+                            <h2>${name}</h2>
+                            <p>${description}</p>
+                            <img src="${uploadResponse.url}" alt="">
+                        </div>
+                    `;
+
+                    newBox.addEventListener('click', () => {
+                        window.location.href = 'tela-parcial-camera.html';
+                    });
+
+                    containerBox.appendChild(newBox);
+                    modal.style.display = 'none';
+                    stockNameInput.value = '';
+                    stockDescriptionInput.value = '';
+                    stockImageInput.value = ''; // Limpa o input de arquivo
+                };
+            } catch (error) {
+                console.error("Erro ao adicionar estoque:", error);
+                alert("Erro ao adicionar estoque. Verifique o console para mais detalhes.");
             }
-        });
-    })
-    .catch(function(err) {
-        console.log("Erro ao listar dispositivos: " + err);
-    });
-}
-
-function startVideo(deviceId) {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-    }
-
-    const constraints = {
-        video: {
-            deviceId: deviceId ? { exact: deviceId } : undefined
+        } else {
+            alert('Todos os campos são obrigatórios!');
         }
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-    .then(function(stream) {
-        currentStream = stream;
-        const video = document.getElementById('video');
-        video.srcObject = stream;
-        video.play();
-    })
-    .catch(function(err) {
-        console.log("Erro ao acessar a câmera: " + err);
     });
-}
-
-document.getElementById('btn-produtos').addEventListener('click', function() {
-    const videoSelect = document.getElementById('video-source');
-    const deviceId = videoSelect.value;
-    startVideo(deviceId);
 });
-
-document.getElementById('stop-video').addEventListener('click', function() {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-        currentStream = null;
-    }
-});
-
-getDevices();

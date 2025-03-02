@@ -10,7 +10,7 @@
 <body>
     <header>
         <nav>
-            <button>
+            <button id="add-stock">
                 <i class="material-icons">add</i>
             </button>
             <a href="telaDeHomel.html"><i class="material-icons">home</i></a>
@@ -21,6 +21,17 @@
         <section id="container-box">
         </section>
     </main>
+
+    <div id="modal-stock" class="modal">
+        <div class="modal-content">
+            <h2>Adicionar Novo Stock</h2>
+            <input type="text" id="stock-name" placeholder="Nome do Stock">
+            <textarea id="stock-description" placeholder="Descrição do Stock"></textarea>
+            <input type="file" id="stock-image-file" accept="image/*">
+            <button id="btn-add-stock">Adicionar</button>
+            <button id="btn-close-modal">Fechar</button>
+        </div>
+    </div>
 
     <script type="module" src="../Scripts/telaDeStocks.js"></script>
     <script type="module" src="../Scripts/API/verificarAtivacao.js"></script>
