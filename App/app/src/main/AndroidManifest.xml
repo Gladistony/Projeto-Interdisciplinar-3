@@ -48,7 +48,7 @@
             android:name=".TelaAlterarSenha"
             android:exported="false" />
         <activity
-            android:name=".TelaPrincipalActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
@@ -64,7 +64,7 @@
             android:name=".TelaValidacao"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".TelaPrincipalActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

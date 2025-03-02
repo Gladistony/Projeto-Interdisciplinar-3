@@ -16,6 +16,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
@@ -31,11 +33,15 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+
 public class FragProdutos extends Fragment {
 
     private ActivityResultLauncher<Intent> cameraLauncher;
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
+
+    ArrayList<EstoqueItem> arrayEstoque = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,6 +51,14 @@ public class FragProdutos extends Fragment {
 
         // Inicializa o layout principal
         mainLayout = rootView.findViewById(R.id.main);
+
+        Button teste = rootView.findViewById(R.id.testee);
+
+        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewEstoque);
+        criarListaEstoque();
+        AdaptadorItemRecyclerView adaptadorItem = new AdaptadorItemRecyclerView(requireContext(), arrayEstoque);
+        recyclerView.setAdapter(adaptadorItem);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         // Configura o botão para adicionar novos "boxes"
         Button buttonAdd = rootView.findViewById(R.id.button_add);
@@ -202,6 +216,16 @@ public class FragProdutos extends Fragment {
 
         constraintSet.applyTo(mainLayout);
         boxCounter++;
+    }
+
+    private void criarListaEstoque() {
+        String[] nomeEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] descricaoEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String[] quantidadeEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+
+        for (int i = 0; i < nomeEstoque.length; i++) {
+            arrayEstoque.add(new EstoqueItem(nomeEstoque[i], descricaoEstoque[i], quantidadeEstoque[i]));
+        }
     }
 
 

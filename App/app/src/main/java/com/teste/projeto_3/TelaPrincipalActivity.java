@@ -50,9 +50,11 @@ public class TelaPrincipalActivity extends AppCompatActivity {
 
         // Cria o objeto para compartilhar os dados do login para os fragments
         Intent dados = getIntent();
+        /*
         User user = dados.getParcelableExtra("dados"); // Dados da tela de login ou get_dados
         SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         viewModel.setUser(user);
+         */
 
         inicioFrag = new FragInicio();
         perfilFrag = new FragPerfil();

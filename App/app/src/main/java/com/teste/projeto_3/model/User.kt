@@ -2,7 +2,6 @@ package com.teste.projeto_3.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import java.io.File
 
 @Parcelize
 class User(
@@ -22,11 +21,12 @@ class User(
     var file: String = "",
     var destino: String = "",
     var data: Data? = null,
+    var estoque: MutableList<Estoque> = mutableListOf(),
     var ip: String = "",
     var url: String = "" // URL após envio de imagem
 ) : Parcelable {
 
     override fun toString(): String {
-        return "User(id='$id', status='$status', code='$code', message='$message', usuario='$usuario', senha='$senha', nova_senha='$nova_senha', email='$email', nome_completo='$nome_completo', criacao='$criacao', ultimo_login='$ultimo_login', url_foto='$url_foto', restante='$restante', file='$file', destino='$destino', data='$data', ip='$ip', url='$url')"
+        return "User(id='$id', status='$status', code='$code', message='$message', usuario='$usuario', senha='$senha', nova_senha='$nova_senha', email='$email', nome_completo='$nome_completo', criacao='$criacao', ultimo_login='$ultimo_login', url_foto='$url_foto', restante='$restante', file='$file', destino='$destino', data='$data', estoque='$estoque', ip='$ip', url='$url')"
     }
 }

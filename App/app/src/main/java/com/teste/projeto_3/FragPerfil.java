@@ -131,6 +131,7 @@ public class FragPerfil extends Fragment {
         TextView nome = view.findViewById(R.id.textNomeUsuario);
         TextView email = view.findViewById(R.id.textEmailUsuario);
 
+        /*
         // Obter o ViewModel compartilhado
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
 
@@ -164,6 +165,8 @@ public class FragPerfil extends Fragment {
                 }
             }
         });
+
+         */
 
         return view;
     }

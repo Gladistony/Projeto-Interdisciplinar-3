@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity{
                 // Converter o objeto User para JSON
                 Gson gson = new Gson();
                 String userJson = gson.toJson(userLogin);
-                System.out.println(userJson);
 
                 // Fazer a requisição
                 er.post("get_dados", userJson, response -> {

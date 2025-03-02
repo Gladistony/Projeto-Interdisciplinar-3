@@ -67,6 +67,7 @@ public class FragInicio extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_frag_inicio, container, false);
 
+        /*
         // Obter o ViewModel compartilhado
         SharedViewModel viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
@@ -80,6 +81,8 @@ public class FragInicio extends Fragment {
                 bemVindo.setText("Bem vindo(a), " + dadosData.getNome_completo());
             }
         });
+
+         */
 
         return view;
     }
