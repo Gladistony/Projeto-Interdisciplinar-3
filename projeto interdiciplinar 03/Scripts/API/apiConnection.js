@@ -385,7 +385,7 @@ async function set_user_data(id, usuario, senha) {
     }
 }
 
-async function criar_estoque(nome, descricao, imagemBase64) {
+async function criar_estoque(nome, descricao, imagem = "") {
     const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
 
     if (!id) {
@@ -394,20 +394,15 @@ async function criar_estoque(nome, descricao, imagemBase64) {
     }
 
     try {
-        // Primeiro, fazer o upload da imagem e obter a URL
-        const uploadResponse = await upload_img(imagemBase64, "estoque");
-
-        if (!uploadResponse.url) {
-            throw new Error("Erro ao obter URL da imagem.");
-        }
-
-        // Criar o estoque com a URL da imagem obtida
+        // Criar o estoque diretamente com a imagem Base64 ou uma string vazia
         const payload = {
             id: id,
             nome: nome,
             descricao: descricao,
-            url_foto: uploadResponse.url // Usando a URL da imagem
+            imagem: "oi"
         };
+
+        console.log("Payload enviado:", JSON.stringify(payload, null, 2));
 
         const response = await fetch(`${API_URL}/criar_estoque/`, {
             method: "POST",
@@ -418,6 +413,8 @@ async function criar_estoque(nome, descricao, imagemBase64) {
         });
 
         if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
             throw new Error(`Erro ao criar estoque: ${response.statusText}`);
         }
 

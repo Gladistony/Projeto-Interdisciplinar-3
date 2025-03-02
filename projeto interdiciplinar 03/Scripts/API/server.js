@@ -422,7 +422,7 @@ app.post('/criar_estoque', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /criar_estoque:', req.body);
 
-        const response = await fetch('http://44.203.201.20/criar_estoque', {
+        const response = await fetch('http://44.203.201.20/criar_estoque/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, nome, descricao, imagem }) // Enviando os dados corretamente
