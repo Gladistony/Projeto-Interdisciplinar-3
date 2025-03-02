@@ -40,29 +40,35 @@ document.addEventListener('DOMContentLoaded', async function () {
                             <p><strong>Último Login:</strong> ${new Date(dadosUser.data.ultimo_login).toLocaleString()}</p>
                             <p><strong>Tipo de Conta:</strong> ${dadosUser.data.tipo_conta}</p>
                         </div>
-                        <div class="detalhe-estoque">
-                            <h3>Fotos do Estoque</h3>
-                            <img src="../IMG/estoque1.jpg" alt="Foto do Estoque" class="estoque">
-                            <img src="../IMG/estoque2.jpg" alt="Foto do Estoque" class="estoque">
-                        </div>
-                        <div class="detalhe-estoque">
-                            <h3>Descrição do Estoque</h3>
-                            <p>Descrição do Estoque 1</p>
-                            <p>Descrição do Estoque 2</p>
-                        </div>
-                        <div class="detalhe-estoque">
-                            <h3>ID de Câmeras</h3>
-                            <p>ID Câmera 1</p>
-                            <p>ID Câmera 2</p>
-                        </div>
-                        <div class="detalhe-estoque">
-                            <h3>ID de Cada Estoque</h3>
-                            <p>ID Estoque 1</p>
-                            <p>ID Estoque 2</p>
+                        <div class="detalhe-estoque-container">
+                            ${dadosUser.data.estoque.map(estoque => `
+                                <div class="detalhe-estoque">
+                                    <h3>Nome do Estoque:</h3>
+                                    <p><strong>${estoque.nome}</strong></p>
+                                    <h3>Fotos do Estoque</h3>
+                                    <img src="${estoque.url_foto}" alt="Foto do Estoque" class="estoque">
+                                    <h3>Descrição do Estoque</h3>
+                                    <p>${estoque.descricao}</p>
+                                    <h3>ID de Câmeras</h3>
+                                    <p>${estoque.id_camera}</p>
+                                    <h3>ID do Estoque</h3>
+                                    <p>${estoque.id}</p>
+                                    <h3>Produtos no Estoque</h3>
+                                    ${estoque.produtos ? estoque.produtos.map(produto => `
+                                        <div class="detalhe-produto">
+                                            <p>Produto: ${produto.nome} - Quantidade: ${produto.quantidade}</p>
+                                            <button class="edit-produto">Editar</button>
+                                            <button class="delete-produto">Apagar</button>
+                                        </div>
+                                    `).join('') : '<p>Sem produtos</p>'}
+                                    <button class="edit-estoque">Editar Estoque</button>
+                                    <button class="delete-estoque">Apagar Estoque</button>
+                                </div>
+                            `).join('')}
                         </div>
                     </td>
                 `;
-                tbody.appendChild(trDetalhes);
+                tbody.appendChild(trDetalhes);                                                          
 
                 tr.querySelector('.toggle-details').addEventListener('click', () => {
                     const isHidden = trDetalhes.style.display === 'none';

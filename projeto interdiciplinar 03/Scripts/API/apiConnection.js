@@ -385,7 +385,45 @@ async function set_user_data(id, usuario, senha) {
     }
 }
 
-async function criar_estoque(nome, descricao, imagem = "") {
+async function upload_imgeral(base64String, destino) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    const payload = {
+        id: id,
+        destino: destino,
+        file: base64String
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/upload_img/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao fazer upload: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Resposta completa do upload:", result);
+
+        if (result.url) {
+            console.log("Imagem enviada com sucesso:", result.url);
+        } else {
+            console.error("Erro: Resposta do upload sem URL.");
+        }
+
+        return result;
+    } catch (error) {
+        console.error("Erro ao enviar imagem:", error);
+        throw error;
+    }
+}
+
+async function criar_estoque(nome, descricao, imagem) {
     const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
 
     if (!id) {
@@ -394,12 +432,12 @@ async function criar_estoque(nome, descricao, imagem = "") {
     }
 
     try {
-        // Criar o estoque diretamente com a imagem Base64 ou uma string vazia
+        // Criar o estoque diretamente com a URL da imagem ou uma string vazia
         const payload = {
             id: id,
             nome: nome,
             descricao: descricao,
-            imagem: "oi"
+            imagem: imagem // Usando a URL da imagem
         };
 
         console.log("Payload enviado:", JSON.stringify(payload, null, 2));
@@ -426,4 +464,4 @@ async function criar_estoque(nome, descricao, imagem = "") {
 }
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral };
