@@ -485,5 +485,86 @@ async function getEstoque() {
     }
 }
 
+async function registro_produto(nome, descricao, imagem) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    if (!id) {
+        console.error("Erro: ID do usuário não encontrado.");
+        throw new Error("ID do usuário não encontrado.");
+    }
+
+    try {
+        // Criar o estoque diretamente com a URL da imagem ou uma string vazia
+        const payload = {
+            id: id,
+            nome: nome,
+            descricao: descricao,
+            imagem: imagem // Usando a URL da imagem
+        };
+
+        console.log("Payload enviado:", JSON.stringify(payload, null, 2));
+
+        const response = await fetch(`${API_URL}/registro_produto/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
+            throw new Error(`Erro ao criar produto: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao criar produto:", error);
+        throw error;
+    }
+}
+
+async function registro_produto_estoque(id_estoque, id_produto, quantidade, data_validade, preco) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    if (!id) {
+        console.error("Erro: ID do usuário não encontrado.");
+        throw new Error("ID do usuário não encontrado.");
+    }
+
+    try {
+        const payload = {
+            id: id,
+            id_estoque,
+            id_produto,
+            quantidade,
+            data_validade,
+            preco
+        };
+
+        console.log("Payload enviado:", JSON.stringify(payload, null, 2));
+
+        const response = await fetch(`${API_URL}/registro_produto_estoque/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
+            throw new Error(`Erro ao registrar produto: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao registrar produto:", error);
+        throw error;
+    }
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque };

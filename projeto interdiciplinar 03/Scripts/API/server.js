@@ -479,6 +479,78 @@ app.post('/get_estoque', async (req, res) => {
     }
 });
 
+app.post('/registro_produto', async (req, res) => {
+    const { id, nome, descricao, imagem } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /registro_produto:', req.body);
+
+        const response = await fetch('http://44.203.201.20/registro_produto/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, nome, descricao, imagem }) // Enviando os dados corretamente
+        });
+
+        // Verificar o tipo da resposta antes de processar
+        const contentType = response.headers.get('content-type');
+        let responseBody;
+        
+        if (contentType && contentType.includes('application/json')) {
+            responseBody = await response.json();
+        } else {
+            responseBody = await response.text();
+        }
+
+        console.log('Resposta completa do servidor /registro_produto:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no registro_produto:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao criar produto' });
+        }
+
+        res.json(responseBody);
+    } catch (error) {
+        console.error('Erro no servidor ao criar produto:', error);
+        res.status(500).json({ error: 'Erro interno ao criar produto' });
+    }
+});
+
+app.post('/registro_produto_estoque', async (req, res) => {
+    const { id, id_estoque, id_produto, quantidade, data_validade, preco } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /registro_produto_estoque:', req.body);
+
+        const response = await fetch('http://44.203.201.20/registro_produto_estoque/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, id_estoque, id_produto, quantidade, data_validade, preco }) // Enviando os dados corretamente
+        });
+
+        // Verificar o tipo da resposta antes de processar
+        const contentType = response.headers.get('content-type');
+        let responseBody;
+        
+        if (contentType && contentType.includes('application/json')) {
+            responseBody = await response.json();
+        } else {
+            responseBody = await response.text();
+        }
+
+        console.log('Resposta completa do servidor /registro_produto_estoque:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no registro_produto_estoque:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao inserir produto' });
+        }
+
+        res.json(responseBody);
+    } catch (error) {
+        console.error('Erro no servidor ao inserir produto:', error);
+        res.status(500).json({ error: 'Erro interno ao inserir produto' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
