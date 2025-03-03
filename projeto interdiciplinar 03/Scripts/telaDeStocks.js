@@ -92,14 +92,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
             </div>
         `;
-
+    
         newBox.addEventListener('click', () => {
-            localStorage.setItem('estoqueSelecionado', id); // Armazena o ID para próxima tela
+            const estoqueSelecionado = {
+                id: id,
+                name: name,
+                description: description,
+                imageUrl: imageUrl
+            };
+            localStorage.setItem('estoqueSelecionado', JSON.stringify(estoqueSelecionado)); // Armazena todas as informações no localStorage
             window.location.href = 'tela-parcial-camera.html';
         });
-
+    
         containerBox.appendChild(newBox);
-    }
+    }    
 
     // === FUNÇÃO PARA REDIMENSIONAR IMAGEM ===
     function resizeImage(file, maxWidth, maxHeight) {
