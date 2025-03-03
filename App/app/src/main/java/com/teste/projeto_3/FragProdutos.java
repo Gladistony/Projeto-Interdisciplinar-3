@@ -41,6 +41,8 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
 
+    private AdaptadorItemRecyclerView adaptadorItem;
+
     ArrayList<EstoqueItem> arrayEstoque = new ArrayList<>();
 
     @Override
@@ -57,7 +59,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewEstoque);
         criarListaEstoque();
-        AdaptadorItemRecyclerView adaptadorItem = new AdaptadorItemRecyclerView(requireContext(), arrayEstoque, this);
+        adaptadorItem = new AdaptadorItemRecyclerView(requireContext(), arrayEstoque, this);
         recyclerView.setAdapter(adaptadorItem);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
@@ -253,6 +255,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
         for (int i = 0; i < novasFotos.length; i++) {
             arrayEstoque.get(i).setImagemEstoque(novasFotos[i]);
         }
+        adaptadorItem.notifyDataSetChanged();
 
     }
 
@@ -261,5 +264,11 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
     public void onItemClick(int position) {
         Intent intentProduto = new Intent(requireContext(), ProdutoItem.class);
         startActivity(intentProduto);
+    }
+
+    @Override
+    public void onItemLongClick(int position) {
+        arrayEstoque.remove(position);
+        adaptadorItem.notifyItemRemoved(position);
     }
 }

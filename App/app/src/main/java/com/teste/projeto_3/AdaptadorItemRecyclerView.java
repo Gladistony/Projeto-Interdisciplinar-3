@@ -80,6 +80,19 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
                 }
             });
 
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (recyclerViewInterface != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            recyclerViewInterface.onItemLongClick(position);
+                        }
+                    }
+                    return true;
+                }
+            });
+
         }
     }
 }
