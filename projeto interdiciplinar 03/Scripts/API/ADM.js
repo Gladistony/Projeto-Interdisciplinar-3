@@ -1,4 +1,4 @@
-import { getAllUsers, excluirUsuario, getUserData, set_user_data } from './apiConnection.js';
+import { getAllUsers, excluirUsuario, getUserData, set_user_data, apagar_estoque, mudar_produto } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -89,16 +89,99 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <h3>Produtos no Estoque</h3>
                     ${estoque.produtos ? estoque.produtos.map(produto => `
                         <div class="detalhe-produto">
-                            <p>Produto: ${produto.nome} - Quantidade: ${produto.quantidade}</p>
-                            <button class="edit-produto">Editar</button>
-                            <button class="delete-produto">Apagar</button>
+                            <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade}</span></p>
+                            <button class="edit-produto" data-produto="${produto.id}">Editar</button>
+                            <button class="delete-produto" data-produto="${produto.id}">Apagar</button>
                         </div>
                     `).join('') : '<p>Sem produtos</p>'}
                     <button class="edit-estoque">Editar Estoque</button>
                     <button class="delete-estoque">Apagar Estoque</button>
                 `;
                 container.appendChild(divEstoque);
-            });
+            
+                // Evento para o botão de deletar estoque
+                divEstoque.querySelector('.delete-estoque').addEventListener('click', async (event) => {
+                    event.stopPropagation(); // Impede o clique do box ao deletar
+                    const confirmar = confirm(`Tem certeza que deseja deletar o estoque ${estoque.nome}?`);
+                    if (confirmar) {
+                        try {
+                            const payload = { id_estoque: estoque.id.toString() };
+                            console.log("Tentando deletar o estoque com payload:", payload);
+            
+                            await apagar_estoque(estoque.id.toString()); // Chama a função apagar_estoque passando o id_estoque como string
+                            divEstoque.remove(); // Remove o box da tela
+                            console.log(`Estoque ${estoque.nome} deletado com sucesso.`);
+                        } catch (error) {
+                            console.error(`❌ Erro ao deletar o estoque ${estoque.nome}:`, error);
+                            alert(`Erro ao deletar o estoque ${estoque.nome}. Verifique o console.`);
+                        }
+                    }
+                });
+            
+                // Evento para o botão de editar produto
+                divEstoque.querySelectorAll('.edit-produto').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const produtoDiv = event.target.closest('.detalhe-produto');
+                        const quantidadeSpan = produtoDiv.querySelector('.produto-quantidade');
+                        const quantidadeAtual = quantidadeSpan.textContent;
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.value = quantidadeAtual;
+                        quantidadeSpan.replaceWith(input);
+                        input.focus();
+            
+                        const confirmButton = document.createElement('button');
+                        confirmButton.className = 'confirm';
+                        confirmButton.textContent = 'Confirmar';
+                        button.replaceWith(confirmButton);
+            
+                        confirmButton.addEventListener('click', async () => {
+                            const novaQuantidade = input.value;
+                            const idProduto = button.getAttribute('data-produto');
+            
+                            try {
+                                await mudar_produto(idProduto, estoque.id.toString(), novaQuantidade);
+                                input.replaceWith(quantidadeSpan);
+                                quantidadeSpan.textContent = novaQuantidade;
+                                confirmButton.replaceWith(button);
+                                alert('Quantidade atualizada com sucesso!');
+                            } catch (error) {
+                                console.error('Erro ao mudar produto:', error);
+                                alert('Erro ao mudar produto. Verifique o console.');
+                            }
+                        });
+            
+                        input.addEventListener('keydown', (event) => {
+                            if (event.key === 'Enter') {
+                                confirmButton.click();
+                            }
+                        });
+                    });
+                });
+            
+                // Evento para o botão de deletar produto
+                divEstoque.querySelectorAll('.delete-produto').forEach(button => {
+                    button.addEventListener('click', async (event) => {
+                        const confirmar = confirm('Tem certeza que deseja apagar este produto?');
+                        if (confirmar) {
+                            const idProduto = button.getAttribute('data-produto');
+                            try {
+                                const resposta = await mudar_produto(idProduto, estoque.id.toString(), '-99999999');
+                                if (resposta.status === 'erro' && resposta.code === 28) {
+                                    button.closest('.detalhe-produto').remove();
+                                    alert('Produto deletado com sucesso!');
+                                } else {
+                                    alert('Erro ao deletar produto. Verifique o console.');
+                                    console.error('Erro ao deletar produto:', resposta);
+                                }
+                            } catch (error) {
+                                console.error('Erro ao deletar produto:', error);
+                                alert('Erro ao deletar produto. Verifique o console.');
+                            }
+                        }
+                    });
+                });
+            });                   
 
             const totalPaginas = Math.ceil(dadosUser.data.estoque.length / estoquesPorPagina);
             const navContainer = document.createElement('div');

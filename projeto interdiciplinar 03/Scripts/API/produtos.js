@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <strong>Data de Vencimento:</strong> <span>${produto.data_validade}</span>, 
                         <strong>Preço cada:</strong> <span>R$: ${produto.preco_medio}</span>
                         <button class="edit" data-produto="${produto.id}">Editar</button>
+                        <button class="delete" data-produto="${produto.id}">Apagar</button>
                     `;
                     listaProdutos.appendChild(li);
                 });
@@ -70,6 +71,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 confirmButton.click();
                             }
                         });
+                    });
+                });
+
+                document.querySelectorAll('.delete').forEach(button => {
+                    button.addEventListener('click', async (event) => {
+                        const confirmar = confirm('Tem certeza que deseja apagar este produto?');
+                        if (confirmar) {
+                            const idProduto = button.getAttribute('data-produto');
+                            try {
+                                const resposta = await mudar_produto(idProduto, estoqueSelecionado.id.toString(), '-99999999');
+                                if (resposta.status === 'erro' && resposta.code === 28) {
+                                    button.closest('li').remove();
+                                    alert('Produto deletado com sucesso!');
+                                } else {
+                                    alert('Erro ao deletar produto. Verifique o console.');
+                                    console.error('Erro ao deletar produto:', resposta);
+                                }
+                            } catch (error) {
+                                console.error('Erro ao deletar produto:', error);
+                                alert('Erro ao deletar produto. Verifique o console.');
+                            }
+                        }
                     });
                 });
             }

@@ -394,6 +394,22 @@ main {
     transform: scale(1.03);
 }
 
+#lista-produtos ul li .delete {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+#lista-produtos ul li .delete:hover {
+    background-color: #d32f2f;
+    transform: scale(1.03);
+}
+
 #camera-select {
     background: none;
     border: none;
