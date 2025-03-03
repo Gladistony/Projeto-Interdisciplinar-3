@@ -64,15 +64,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <EditText
+        android:id="@+id/caixaPesquisa"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/edit_text"
+        android:hint="Pesquisar estoques..."
+        android:inputType="text"
+        android:padding="10dp"
+        android:singleLine="true"
+        android:textColor="#FF000000"
+        android:textColorHint="#858585"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/containerTop" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewEstoque"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/containerTop">
+        app:layout_constraintTop_toBottomOf="@+id/caixaPesquisa">
 
     </androidx.recyclerview.widget.RecyclerView>
 

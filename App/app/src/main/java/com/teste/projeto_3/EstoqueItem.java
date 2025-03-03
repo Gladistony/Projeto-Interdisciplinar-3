@@ -6,13 +6,13 @@ public class EstoqueItem {
     public String nomeEstoque;
     public String descricaoEstoque;
     public String quantidadeItemEstoque;
-    public ImageView imagemEstoque;
+    public String imagemEstoque;
 
-    public EstoqueItem(String nomeEstoque, String descricaoEstoque, String quantidadeItemEstoque) {
+    public EstoqueItem(String nomeEstoque, String descricaoEstoque, String quantidadeItemEstoque, String imagemEstoque) {
         this.nomeEstoque = nomeEstoque;
         this.descricaoEstoque = descricaoEstoque;
         this.quantidadeItemEstoque = quantidadeItemEstoque;
-        //this.imagemEstoque = imagemEstoque;
+        this.imagemEstoque = imagemEstoque;
     }
 
     public String getNomeEstoque() {
@@ -27,7 +27,11 @@ public class EstoqueItem {
         return quantidadeItemEstoque;
     }
 
-    public ImageView getImagemEstoque() {
+    public String getImagemEstoque() {
         return imagemEstoque;
+    }
+
+    public void setImagemEstoque(String imagemEstoque) {
+        this.imagemEstoque = imagemEstoque;
     }
 }

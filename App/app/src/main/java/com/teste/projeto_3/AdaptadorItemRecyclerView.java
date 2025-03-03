@@ -10,18 +10,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 
 public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorItemRecyclerView.MyViewHolder> {
     Context context;
     ArrayList<EstoqueItem> arrayEstoque;
+    private final RecyclerViewInterface recyclerViewInterface;
 
 
-    public AdaptadorItemRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque) {
+    public AdaptadorItemRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.arrayEstoque = arrayEstoque;
-
-
+        this.recyclerViewInterface = recyclerViewInterface;
     }
 
     @NonNull
@@ -30,7 +32,7 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.layout_item_recyclerview, parent, false);
 
-        return new AdaptadorItemRecyclerView.MyViewHolder(view);
+        return new AdaptadorItemRecyclerView.MyViewHolder(view, recyclerViewInterface);
     }
 
     @Override
@@ -38,6 +40,7 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
         holder.nomeEstoque.setText(arrayEstoque.get(position).getNomeEstoque());
         holder.descricaoEstoque.setText(arrayEstoque.get(position).getDescricaoEstoque());
         holder.quantidadeProdutoEstoque.setText(arrayEstoque.get(position).getQuantidadeItemEstoque());
+        Picasso.get().load(arrayEstoque.get(position).getImagemEstoque()).into(holder.imagemEstoque);
         //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
     }
 
@@ -46,18 +49,36 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
         return arrayEstoque.size();
     }
 
+    public void atualizarLista(ArrayList<EstoqueItem> novaLista) {
+        this.arrayEstoque.clear();
+        this.arrayEstoque.addAll(novaLista);
+        notifyDataSetChanged(); // Atualiza a lista no RecyclerView
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemEstoque;
         public TextView nomeEstoque;
         public TextView descricaoEstoque;
         public TextView quantidadeProdutoEstoque;
 
-        public MyViewHolder(@NonNull View itemView) {
+        public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             imagemEstoque = itemView.findViewById(R.id.imagemEstoque);
             nomeEstoque = itemView.findViewById(R.id.nomeEstoque);
             descricaoEstoque = itemView.findViewById(R.id.descricaoEstoque);
             quantidadeProdutoEstoque = itemView.findViewById(R.id.quantidadeProdutoEstoque);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view){
+                    if (recyclerViewInterface != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            recyclerViewInterface.onItemClick(position);
+                        }
+                    }
+                }
+            });
 
         }
     }
