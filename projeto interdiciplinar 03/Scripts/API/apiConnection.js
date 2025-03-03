@@ -566,5 +566,37 @@ async function registro_produto_estoque(id_estoque, id_produto, quantidade, data
     }
 }
 
+async function apagar_estoque(id_estoque) {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+    if (!id) {
+        console.error("ID de conexão não encontrado no localStorage.");
+        return;
+    }
+
+    const payload = { id, id_estoque: id_estoque.toString() };
+    console.log("Payload enviado para apagar_estoque:", JSON.stringify(payload, null, 2));
+
+    try {
+        const response = await fetch(`${API_URL}/apagar_estoque/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
+            throw new Error(`Erro ao apagar_estoque: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Dados do apagar_estoque recebidos:", result);
+        return result;
+    } catch (error) {
+        console.error('Erro ao apagar_estoque:', error);
+        throw error;
+    }
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque };

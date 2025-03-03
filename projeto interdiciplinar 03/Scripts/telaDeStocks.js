@@ -1,4 +1,4 @@
-import { criar_estoque, upload_imgeral, getEstoque } from './API/apiConnection.js';
+import { criar_estoque, upload_imgeral, getEstoque, apagar_estoque } from './API/apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const addButton = document.getElementById('add-stock');
@@ -93,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
         `;
     
+        // Armazena informações no localStorage e redireciona para outra tela ao clicar no box
         newBox.addEventListener('click', () => {
             const estoqueSelecionado = {
                 id: id,
@@ -100,10 +101,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 description: description,
                 imageUrl: imageUrl
             };
-            localStorage.setItem('estoqueSelecionado', JSON.stringify(estoqueSelecionado)); // Armazena todas as informações no localStorage
+            localStorage.setItem('estoqueSelecionado', JSON.stringify(estoqueSelecionado));
             window.location.href = 'tela-parcial-camera.html';
         });
-    
+
+        // Evento para o botão de deletar
+        newBox.querySelector('.delete-btn').addEventListener('click', async (event) => {
+            event.stopPropagation(); // Impede o clique do box ao deletar
+            
+            const confirmar = confirm(`Tem certeza que deseja deletar o estoque ${name}?`);
+            if (confirmar) {
+                try {
+                    const payload = { id_estoque: id.toString() };
+                    console.log("Tentando deletar o estoque com payload:", payload);
+        
+                    await apagar_estoque(id.toString()); // Chama a função apagar_estoque passando o id_estoque como string
+                    newBox.remove(); // Remove o box da tela
+                    console.log(`Estoque ${name} deletado com sucesso.`);
+                } catch (error) {
+                    console.error(`❌ Erro ao deletar o estoque ${name}:`, error);
+                    alert(`Erro ao deletar o estoque ${name}. Verifique o console.`);
+                }
+            }
+        });              
+
         containerBox.appendChild(newBox);
     }    
 

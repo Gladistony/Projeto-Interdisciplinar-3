@@ -551,6 +551,33 @@ app.post('/registro_produto_estoque', async (req, res) => {
     }
 });
 
+app.post('/apagar_estoque', async (req, res) => {
+    const { id, id_estoque } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /apagar_estoque:', req.body);
+        
+        const response = await fetch('http://44.203.201.20/apagar_estoque/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, id_estoque })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao excluir estoque:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao excluir estoque' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /apagar_estoque:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao excluir estoque:', error);
+        res.status(500).json({ error: 'Erro ao excluir estoque' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');
