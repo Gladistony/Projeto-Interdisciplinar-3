@@ -10,17 +10,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.ArrayList;
 
-public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorItemRecyclerView.MyViewHolder> {
+public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<AdaptadorProdutoRecyclerView.MyViewHolder> {
     Context context;
     ArrayList<EstoqueItem> arrayEstoque;
     private final RecyclerViewInterface recyclerViewInterface;
 
 
-    public AdaptadorItemRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque, RecyclerViewInterface recyclerViewInterface) {
+    public AdaptadorProdutoRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.arrayEstoque = arrayEstoque;
         this.recyclerViewInterface = recyclerViewInterface;
@@ -28,19 +29,22 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
 
     @NonNull
     @Override
-    public AdaptadorItemRecyclerView.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AdaptadorProdutoRecyclerView.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.layout_item_recyclerview, parent, false);
+        View view = inflater.inflate(R.layout.layout_produto_item_recyclerview, parent, false);
 
-        return new AdaptadorItemRecyclerView.MyViewHolder(view, recyclerViewInterface);
+        return new AdaptadorProdutoRecyclerView.MyViewHolder(view, recyclerViewInterface);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdaptadorItemRecyclerView.MyViewHolder holder, int position) {
-        holder.nomeEstoque.setText(arrayEstoque.get(position).getNomeEstoque());
-        holder.descricaoEstoque.setText(arrayEstoque.get(position).getDescricaoEstoque());
-        holder.quantidadeProdutoEstoque.setText(arrayEstoque.get(position).getQuantidadeItemEstoque());
-        Picasso.get().load(arrayEstoque.get(position).getImagemEstoque()).into(holder.imagemEstoque);
+    public void onBindViewHolder(@NonNull AdaptadorProdutoRecyclerView.MyViewHolder holder, int position) {
+        holder.nomeProduto.setText(arrayEstoque.get(position).getNomeEstoque());
+        holder.descricaoProduto.setText(arrayEstoque.get(position).getDescricaoEstoque());
+        holder.quantidadeProduto.setText(arrayEstoque.get(position).getQuantidadeItemEstoque());
+        Glide.with(context)
+                .load(arrayEstoque.get(position).getImagemEstoque())
+                .diskCacheStrategy(DiskCacheStrategy.ALL) // Mantém cache em disco e memória
+                .into(holder.imagemProduto);
         //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
     }
 
@@ -49,24 +53,18 @@ public class AdaptadorItemRecyclerView extends RecyclerView.Adapter<AdaptadorIte
         return arrayEstoque.size();
     }
 
-    public void atualizarLista(ArrayList<EstoqueItem> novaLista) {
-        this.arrayEstoque.clear();
-        this.arrayEstoque.addAll(novaLista);
-        notifyDataSetChanged(); // Atualiza a lista no RecyclerView
-    }
-
     public static class MyViewHolder extends RecyclerView.ViewHolder {
-        public ImageView imagemEstoque;
-        public TextView nomeEstoque;
-        public TextView descricaoEstoque;
-        public TextView quantidadeProdutoEstoque;
+        public ImageView imagemProduto;
+        public TextView nomeProduto;
+        public TextView descricaoProduto;
+        public TextView quantidadeProduto;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
-            imagemEstoque = itemView.findViewById(R.id.imagemEstoque);
-            nomeEstoque = itemView.findViewById(R.id.nomeEstoque);
-            descricaoEstoque = itemView.findViewById(R.id.descricaoEstoque);
-            quantidadeProdutoEstoque = itemView.findViewById(R.id.quantidadeProdutoEstoque);
+            imagemProduto = itemView.findViewById(R.id.imagemProduto);
+            nomeProduto = itemView.findViewById(R.id.nomeProduto);
+            descricaoProduto = itemView.findViewById(R.id.descricaoProduto);
+            quantidadeProduto = itemView.findViewById(R.id.quantidadeProduto);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

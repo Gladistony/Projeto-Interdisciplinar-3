@@ -15,11 +15,11 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +30,7 @@ import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.jetbrains.annotations.NotNull;
+import com.teste.projeto_3.http.EnviarRequisicao;
 
 import java.util.ArrayList;
 
@@ -41,7 +40,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
 
-    private AdaptadorItemRecyclerView adaptadorItem;
+    private AdaptadorEstoqueRecyclerView adaptadorItem;
 
     ArrayList<EstoqueItem> arrayEstoque = new ArrayList<>();
 
@@ -59,7 +58,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
 
         RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewEstoque);
         criarListaEstoque();
-        adaptadorItem = new AdaptadorItemRecyclerView(requireContext(), arrayEstoque, this);
+        adaptadorItem = new AdaptadorEstoqueRecyclerView(requireContext(), arrayEstoque, this);
         recyclerView.setAdapter(adaptadorItem);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
@@ -252,10 +251,19 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
         "https://tm.ibxk.com.br/2017/07/13/13160112901226.jpg",
         "https://s2-techtudo.glbimg.com/SkyLTd6VJy8WiUMg5L6EeUwgyMw=/0x0:620x548/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_08fbf48bc0524877943fe86e43087e7a/internal_photos/bs/2021/B/t/limPwzQmSeI4WJO7haZg/2012-08-15-mf1.jpg"};
 
+        String novaImagem = "https://tm.ibxk.com.br/2017/07/13/13160112901226.jpg";
+        String novaDescricao = "aqui";
+        String novoNome = "titulo";
+        String qtd = "ajdak";
+/*
         for (int i = 0; i < novasFotos.length; i++) {
             arrayEstoque.get(i).setImagemEstoque(novasFotos[i]);
         }
-        adaptadorItem.notifyDataSetChanged();
+
+ */
+        int posicao = arrayEstoque.size();
+        arrayEstoque.add(posicao, new EstoqueItem(novoNome, novaDescricao,qtd, novaImagem));
+        adaptadorItem.notifyItemInserted(posicao);
 
     }
 
