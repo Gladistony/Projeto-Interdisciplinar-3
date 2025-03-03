@@ -7,6 +7,15 @@
     <link rel="stylesheet" href="../Styles/estiloTelaDeStocks.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
+<style>
+    body {
+        display: grid;
+        grid-template-areas:
+        "header h1 h1"
+        "header main main"
+        "header main main" !important;
+    }
+</style>
 <body>
     <h1 id="h1">stock 1</h1>
     <header>
@@ -26,6 +35,7 @@
                 <option value="padrao">Padrão</option>
                 <option value="ia">Com IA</option>
             </select>
+            <button id="camera-select"><i class="material-icons">switch_camera</i></button>
         </section>
 
         <section id="texto-stock">

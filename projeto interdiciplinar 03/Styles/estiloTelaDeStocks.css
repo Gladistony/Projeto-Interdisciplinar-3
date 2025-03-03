@@ -9,7 +9,7 @@
 body {
     display: grid;
     grid-template-areas:
-    "header h1 h1"
+    "header main main"
     "header main main"
     "header main main";
 }
@@ -159,6 +159,7 @@ main {
 
 /* Estilo para o select */
 #camera-tipo {
+    cursor: pointer;
     width: 200px;
     padding: 10px;
     border-radius: 5px;
@@ -391,4 +392,16 @@ main {
 #lista-produtos ul li .edit:hover, #lista-produtos ul li .confirm:hover {
     background-color: #005f7a;
     transform: scale(1.03);
+}
+
+#camera-select {
+    background: none;
+    border: none;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+#camera-select:hover {
+    transform: scale(1.2);
+    transition: transform 0.3s;
 }
