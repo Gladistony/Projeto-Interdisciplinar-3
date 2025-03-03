@@ -4,6 +4,8 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const path = require('path'); 
 
+const baseUrl = 'http://44.203.201.20';
+
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -19,7 +21,7 @@ app.get('/', (req, res) => {
 app.post('/give', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /give');
-        const response = await fetch('http://44.203.201.20/give', {
+        const response = await fetch(`${baseUrl}/give`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: "null" }) // Envia o valor "null" como string
@@ -47,7 +49,7 @@ app.post('/cadastro', async (req, res) => {
 
     try {
         console.log('Recebendo dados para cadastro:', req.body);
-        const response = await fetch('http://44.203.201.20/cadastro', {
+        const response = await fetch(`${baseUrl}/cadastro`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario, senha, nome_completo, email }) // Ordem ajustada dos campos
@@ -75,7 +77,7 @@ app.post('/login', async (req, res) => {
 
     try {
         console.log('Recebendo dados para login:', req.body);
-        const response = await fetch('http://44.203.201.20/login', {
+        const response = await fetch(`${baseUrl}/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario, senha })
@@ -103,7 +105,7 @@ app.post('/get_all_user', async (req, res) => {
 
     try {
         console.log('Recebendo solicitação para /get_all_user:', req.body);
-        const response = await fetch('http://44.203.201.20/get_all_user', {
+        const response = await fetch(`${baseUrl}/get_all_user`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario, senha })
@@ -132,7 +134,7 @@ app.post('/delete_user', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /delete_user:', req.body);
         
-        const response = await fetch('http://44.203.201.20/delete_user/', {
+        const response = await fetch(`${baseUrl}/delete_user/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
@@ -160,7 +162,7 @@ app.post('/recover/', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /recover:', req.body);
         
-        const response = await fetch('http://44.203.201.20/recover/', {
+        const response = await fetch(`${baseUrl}/recover/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
@@ -187,7 +189,7 @@ app.post('/charge/', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /recover:', req.body);
         
-        const response = await fetch('http://44.203.201.20/charge/', {
+        const response = await fetch(`${baseUrl}/charge/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario, senha, nova_senha })
@@ -214,7 +216,7 @@ app.post('/set_img_url/', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /set_img_url:', req.body);
         
-        const response = await fetch('http://44.203.201.20/set_img_url/', {
+        const response = await fetch(`${baseUrl}/set_img_url/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, url_foto })
@@ -240,7 +242,7 @@ app.post('/upload_img', async (req, res) => {
 
     try {
         console.log('Recebendo solicitação para /upload_img:', req.body);
-        const response = await fetch('http://44.203.201.20/upload_img', {
+        const response = await fetch(`${baseUrl}/upload_img`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, file, destino })
@@ -269,7 +271,7 @@ app.get('/ativar/:usuario/:codigo', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /ativar:', req.params);
 
-        const response = await fetch(`http://44.203.201.20/ativar/${usuario}/${codigo}`, {
+        const response = await fetch(`${baseUrl}/ativar/${usuario}/${codigo}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
@@ -309,7 +311,7 @@ app.post('/delete_user', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /delete_user:', req.body);
         
-        const response = await fetch('http://44.203.201.20/delete_user/', {
+        const response = await fetch(`${baseUrl}/delete_user/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
@@ -336,7 +338,7 @@ app.post('/get_user_data', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /get_user_data:', req.body);
         
-        const response = await fetch('http://44.203.201.20/get_user_data/', {
+        const response = await fetch(`${baseUrl}/get_user_data/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario })
@@ -363,7 +365,7 @@ app.post('/get_dados', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /get_dados:', req.body);
         
-        const response = await fetch('http://44.203.201.20/get_dados/', {
+        const response = await fetch(`${baseUrl}/get_dados/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
@@ -390,7 +392,7 @@ app.post('/set_user_data', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /set_user_data:', req.body);
         
-        const response = await fetch('http://44.203.201.20/set_user_data/', {
+        const response = await fetch(`${baseUrl}/set_user_data/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, usuario, senha })
@@ -422,7 +424,7 @@ app.post('/criar_estoque', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /criar_estoque:', req.body);
 
-        const response = await fetch('http://44.203.201.20/criar_estoque/', {
+        const response = await fetch(`${baseUrl}/criar_estoque/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, nome, descricao, imagem }) // Enviando os dados corretamente
@@ -458,7 +460,7 @@ app.post('/get_estoque', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /get_estoque:', req.body);
         
-        const response = await fetch('http://44.203.201.20/get_estoque/', {
+        const response = await fetch(`${baseUrl}/get_estoque/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id })
@@ -485,7 +487,7 @@ app.post('/registro_produto', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /registro_produto:', req.body);
 
-        const response = await fetch('http://44.203.201.20/registro_produto/', {
+        const response = await fetch(`${baseUrl}/registro_produto/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, nome, descricao, imagem }) // Enviando os dados corretamente
@@ -521,7 +523,7 @@ app.post('/registro_produto_estoque', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /registro_produto_estoque:', req.body);
 
-        const response = await fetch('http://44.203.201.20/registro_produto_estoque/', {
+        const response = await fetch(`${baseUrl}/registro_produto_estoque/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, id_estoque, id_produto, quantidade, data_validade, preco }) // Enviando os dados corretamente
@@ -557,7 +559,7 @@ app.post('/apagar_estoque', async (req, res) => {
     try {
         console.log('Recebendo solicitação para /apagar_estoque:', req.body);
         
-        const response = await fetch('http://44.203.201.20/apagar_estoque/', {
+        const response = await fetch(`${baseUrl}/apagar_estoque/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id, id_estoque })
