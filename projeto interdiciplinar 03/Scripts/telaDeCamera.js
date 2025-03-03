@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('descricao').textContent = estoqueSelecionado.description;
     } else {
         alert('Nenhum estoque selecionado.');
-        window.location.href = 'telaDeStocks.html'; // Redireciona de volta para a tela de estoques se nenhum estoque foi selecionado
+        window.location.href = '../telaDeStocks.html'; // Redireciona de volta para a tela de estoques se nenhum estoque foi selecionado
     }
 
     // Adiciona evento de clique ao #lista-produtos
@@ -21,15 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
             listaProdutos.style.marginTop = '-110px';
             listaProdutos.style.height = '110%';
 
-            document.getElementById('descricao').style.display = 'none';
             document.getElementById('camera-opcao').style.display = 'none';
+            document.getElementById('product-form').style.display = 'none';
         } else {
             listaProdutos.style.width = '';
             listaProdutos.style.marginLeft = '';
             listaProdutos.style.marginTop = '';
             listaProdutos.style.height = '';
 
-            document.getElementById('descricao').style.display = '';
+            document.getElementById('product-form').style.display = '';
             document.getElementById('camera-opcao').style.display = '';
         }
         isExpanded = !isExpanded;
