@@ -580,6 +580,42 @@ app.post('/apagar_estoque', async (req, res) => {
     }
 });
 
+app.post('/mudar_produto', async (req, res) => {
+    const { id, id_produto, id_estoque, quantidade } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /mudar_produto:', req.body);
+
+        const response = await fetch(`${baseUrl}/mudar_produto/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, id_produto, id_estoque, quantidade }) // Enviando os dados corretamente
+        });
+
+        // Verificar o tipo da resposta antes de processar
+        const contentType = response.headers.get('content-type');
+        let responseBody;
+        
+        if (contentType && contentType.includes('application/json')) {
+            responseBody = await response.json();
+        } else {
+            responseBody = await response.text();
+        }
+
+        console.log('Resposta completa do servidor /mudar_produto:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no mudar_produto:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao mudar produto' });
+        }
+
+        res.json(responseBody);
+    } catch (error) {
+        console.error('Erro no servidor ao mudar produto:', error);
+        res.status(500).json({ error: 'Erro interno ao mudar produto' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

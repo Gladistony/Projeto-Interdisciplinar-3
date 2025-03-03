@@ -598,5 +598,44 @@ async function apagar_estoque(id_estoque) {
     }
 }
 
+async function mudar_produto(id_produto, id_estoque, quantidade) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    if (!id) {
+        console.error("Erro: ID do usuário não encontrado.");
+        throw new Error("ID do usuário não encontrado.");
+    }
+
+    try {
+        const payload = {
+            id: id,
+            id_produto,
+            id_estoque,
+            quantidade
+        };
+
+        console.log("Payload enviado:", JSON.stringify(payload, null, 2));
+
+        const response = await fetch(`${API_URL}/mudar_produto/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
+            throw new Error(`Erro ao mudar produto: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao mudar produto:", error);
+        throw error;
+    }
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto };

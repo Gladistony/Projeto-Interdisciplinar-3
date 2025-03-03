@@ -138,7 +138,7 @@ main {
 }
 
 #texto-stock {
-    margin-top: 140px;
+    margin-top: 100px;
     width: 50vh;
     height: auto;
     display: flex;
@@ -154,7 +154,7 @@ main {
 
 #camera-opcao {
     margin-top: 50px;
-    margin-right: -195px;
+    margin-right: -155px;
 }
 
 /* Estilo para o select */
@@ -287,7 +287,6 @@ main {
     transform: scale(1.04);
 }
 
-
 .input-group {
     display: flex;
     flex-direction: column;
@@ -376,4 +375,20 @@ main {
     background-color: #e3e3e3c9;
     color: #4CAF50;
     text-align: center;
+}
+
+#lista-produtos ul li .edit, #lista-produtos ul li .confirm {
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 10px;
+}
+
+#lista-produtos ul li .edit:hover, #lista-produtos ul li .confirm:hover {
+    background-color: #005f7a;
+    transform: scale(1.03);
 }
