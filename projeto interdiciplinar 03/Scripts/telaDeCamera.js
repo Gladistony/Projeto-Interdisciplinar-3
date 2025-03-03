@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listaProdutos.style.marginLeft = '180px';
             listaProdutos.style.marginTop = '-110px';
             listaProdutos.style.height = '110%';
+            listaProdutos.style.maxHeight = '110%';
 
             document.getElementById('camera-opcao').style.display = 'none';
             document.getElementById('product-form').style.display = 'none';
@@ -27,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listaProdutos.style.width = '';
             listaProdutos.style.marginLeft = '';
             listaProdutos.style.marginTop = '';
-            listaProdutos.style.height = '';
+            listaProdutos.style.height = '40%';
 
             document.getElementById('product-form').style.display = '';
             document.getElementById('camera-opcao').style.display = '';

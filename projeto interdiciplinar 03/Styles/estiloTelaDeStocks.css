@@ -193,7 +193,7 @@ main {
     align-items: center;
     height: 1;
     width: 100%;
-    max-height: 110%; /* Altura máxima da caixa */
+    max-height: 40%; /* Altura máxima da caixa */
     overflow-y: auto; /* Adiciona a barra de rolagem vertical */
     transition: all 0.3s ease-in-out; 
 }
@@ -338,4 +338,42 @@ main {
 
 #addPd:hover {
     background-color: #45a049;
+}
+
+/*parte da lista*/
+
+#lista-produtos h2 {
+    color: #4CAF50;
+}
+
+#lista-produtos p {
+    padding: 5px;
+}
+
+#lista-produtos ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#lista-produtos ul li {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+#lista-produtos ul li:hover {
+    background-color: #f1f1f1;
+}
+
+#lista-produtos ul li strong {
+    color: #4CAF50;
+}
+
+#id {
+    background-color: #e3e3e3c9;
+    color: #4CAF50;
+    text-align: center;
 }
