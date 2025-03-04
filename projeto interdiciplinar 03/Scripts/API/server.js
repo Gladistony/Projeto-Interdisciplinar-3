@@ -616,6 +616,33 @@ app.post('/mudar_produto', async (req, res) => {
     }
 });
 
+app.post('/charge_estoque_url', async (req, res) => {
+    const { id, url_foto, id_estoque } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /charge_estoque_url:', req.body);
+        
+        const response = await fetch(`${baseUrl}/charge_estoque_url/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, url_foto, id_estoque })
+        });
+
+        if (!response.ok) {
+            console.error('Erro ao mudar url de estoque:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao  mudar url de estoque' });
+        }
+
+        const data = await response.json(); // Lê a resposta diretamente como JSON
+        console.log('Resposta completa do servidor /charge_estoque_url:', response.status, data);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Erro no servidor ao  mudar url de estoque:', error);
+        res.status(500).json({ error: 'Erro ao  mudar url de estoque' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

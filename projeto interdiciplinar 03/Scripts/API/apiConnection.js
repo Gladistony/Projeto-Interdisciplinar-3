@@ -638,5 +638,37 @@ async function mudar_produto(id_produto, id_estoque, quantidade) {
     }
 }
 
+async function charge_estoque_url(url_foto, id_estoque) {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+    if (!id) {
+        console.error("ID de conexão não encontrado no localStorage.");
+        return;
+    }
+
+    const payload = { id, url_foto: url_foto.toString(), id_estoque: id_estoque.toString() };
+    console.log("Payload enviado para charge_estoque_url:", JSON.stringify(payload, null, 2));
+
+    try {
+        const response = await fetch(`${API_URL}/charge_estoque_url/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorDetails = await response.json();
+            console.error("Detalhes do erro:", errorDetails);
+            throw new Error(`Erro ao charge_estoque_url: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log("Dados do charge_estoque_url recebidos:", result);
+        return result;
+    } catch (error) {
+        console.error('Erro ao charge_estoque_url:', error);
+        throw error;
+    }
+}
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto, charge_estoque_url };
