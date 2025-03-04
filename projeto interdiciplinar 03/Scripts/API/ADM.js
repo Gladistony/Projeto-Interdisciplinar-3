@@ -89,7 +89,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <h3>Produtos no Estoque</h3>
                     ${estoque.produtos ? estoque.produtos.map(produto => `
                         <div class="detalhe-produto">
-                            <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade}</span></p>
+                            <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade} - Validade: ${produto.data_validade} </span></p>
+                            <img src="${produto.foto}" alt="Foto do produto" class="produto-img">
+                            <p class="descricao">${produto.descricao}</p>
                             <button class="edit-produto" data-produto="${produto.id}">Editar</button>
                             <button class="delete-produto" data-produto="${produto.id}">Apagar</button>
                         </div>
