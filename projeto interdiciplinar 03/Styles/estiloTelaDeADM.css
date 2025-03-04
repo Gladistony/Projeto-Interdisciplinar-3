@@ -201,10 +201,10 @@ button:hover {
 }
 
 .detalhe-produto img {
-    width: 50px;
+    width: 100px;
     height: 100px;
     margin-right: 50%;
-    margin-left: 85px;
+    margin-left: 65px;
     object-fit: cover;
     border-radius: 5px;
     margin-bottom: 2px;

@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isExpanded) {
             listaProdutos.style.width = '150%';
             listaProdutos.style.marginLeft = '180px';
-            listaProdutos.style.marginTop = '-110px';
-            listaProdutos.style.height = '110%';
+            listaProdutos.style.marginTop = '-80px';
+            listaProdutos.style.height = '105%';
             listaProdutos.style.maxHeight = '110%';
 
             document.getElementById('camera-opcao').style.display = 'none';
