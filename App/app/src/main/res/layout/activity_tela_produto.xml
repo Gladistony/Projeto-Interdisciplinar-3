@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".ProdutoItem">
+    tools:context=".TelaProduto">
 
     <View
         android:id="@+id/containerTop"
@@ -32,18 +32,17 @@
         />
 
     <TextView
-        android:id="@+id/tituloProduto"
+        android:id="@+id/tituloEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stock"
+        android:text="Produto"
         android:textColor="@color/black"
-        android:textSize="30sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="@+id/containerTop"
-        app:layout_constraintRight_toRightOf="@+id/containerTop"
+        app:layout_constraintBottom_toBottomOf="@+id/containerTop"
         app:layout_constraintLeft_toLeftOf="@+id/containerTop"
-        />
+        app:layout_constraintRight_toRightOf="@+id/containerTop"
+        app:layout_constraintTop_toTopOf="@+id/containerTop" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/botaoCamera"

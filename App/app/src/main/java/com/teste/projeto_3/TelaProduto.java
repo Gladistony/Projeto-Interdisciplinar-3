@@ -15,7 +15,7 @@ import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
 
-public class ProdutoItem extends AppCompatActivity implements RecyclerViewInterface{
+public class TelaProduto extends AppCompatActivity implements RecyclerViewInterface{
 
     private AdaptadorProdutoRecyclerView adaptadorItem;
     public ArrayList<Produto> produto;
@@ -25,7 +25,7 @@ public class ProdutoItem extends AppCompatActivity implements RecyclerViewInterf
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_produto_item);
+        setContentView(R.layout.activity_tela_produto);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -40,6 +40,8 @@ public class ProdutoItem extends AppCompatActivity implements RecyclerViewInterf
             TextView textoProdutoVazio = findViewById(R.id.textoProdutoVazio);
             textoProdutoVazio.setVisibility(View.GONE);
         }
+        TextView tituloEstoque = findViewById(R.id.tituloEstoque);
+        tituloEstoque.setText(getIntent().getStringExtra("tituloEstoque"));
         RecyclerView recyclerView = findViewById(R.id.recyclerViewProduto);
         adaptadorItem = new AdaptadorProdutoRecyclerView(this, produto, this);
         recyclerView.setAdapter(adaptadorItem);

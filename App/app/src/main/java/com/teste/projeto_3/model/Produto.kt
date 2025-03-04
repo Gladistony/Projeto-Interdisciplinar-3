@@ -13,8 +13,9 @@ class Produto(
     var dataValidade: MutableList<String> = mutableListOf(),
     var preco_medio: Double = -1.00,
     var lista_quantidades: MutableList<Int> = mutableListOf(),
+    var lista_precos: MutableList<Double> = mutableListOf()
 ) : Parcelable {
     override fun toString(): String {
-        return "Produto(id='$id', nome='$nome', descricao='$descricao', foto='$foto', quantidade='$quantidade', dataValidade='$dataValidade', preco_medio='$preco_medio', lista_quantidades='$lista_quantidades')"
+        return "Produto(id='$id', nome='$nome', descricao='$descricao', foto='$foto', quantidade='$quantidade', dataValidade='$dataValidade', preco_medio='$preco_medio', lista_quantidades='$lista_quantidades', lista_precos='$lista_precos')"
     }
 }

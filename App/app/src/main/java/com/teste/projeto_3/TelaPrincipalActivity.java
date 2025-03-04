@@ -1,5 +1,6 @@
 package com.teste.projeto_3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -58,7 +59,9 @@ public class TelaPrincipalActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
 
         // Cria o objeto para compartilhar os dados do login para os fragments
-        //Intent dados = getIntent();
+        Intent dados = getIntent();
+
+        /*
         Produto produto1 = new Produto();
         produto1.setNome("Maçã");
         produto1.setDescricao("Maçãs agentinas e fuji");
@@ -73,6 +76,8 @@ public class TelaPrincipalActivity extends AppCompatActivity {
         produto2.setFoto("");
         produto2.setDataValidade(new ArrayList<>(Arrays.asList("2025-03-28")));
         produto2.setQuantidade("100");
+        produto2.setLista_precos(new ArrayList<>(Arrays.asList(10.0, 20.0)));
+        produto2.setPreco_medio(15);
 
         Estoque estoque1 = new Estoque();
         estoque1.setNome("Frutas");
@@ -86,11 +91,10 @@ public class TelaPrincipalActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         viewModel.setUser(user);
-        /*
+        */
         User user = dados.getParcelableExtra("dados"); // Dados da tela de login ou get_dados
         SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         viewModel.setUser(user);
-         */
 
         inicioFrag = new FragInicio();
         perfilFrag = new FragPerfil();

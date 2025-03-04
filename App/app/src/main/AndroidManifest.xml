@@ -32,7 +32,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".ProdutoItem"
+            android:name=".TelaProduto"
             android:exported="false" />
 
         <provider
@@ -51,7 +51,7 @@
             android:name=".TelaAlterarSenha"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".TelaPrincipalActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity
@@ -67,7 +67,7 @@
             android:name=".TelaValidacao"
             android:exported="false" />
         <activity
-            android:name=".TelaPrincipalActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

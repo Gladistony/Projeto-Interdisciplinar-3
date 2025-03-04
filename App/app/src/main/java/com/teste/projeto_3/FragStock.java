@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.teste.projeto_3.model.Estoque;
-import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
 
@@ -239,13 +238,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void onItemClick(int position) {
-        Intent intentProduto = new Intent(requireContext(), ProdutoItem.class);
+        Intent intentProduto = new Intent(requireContext(), TelaProduto.class);
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
             if (dados.getData() == null) { // Login por requisição de get_dados
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getEstoque().get(position).getProdutos()));
             } else { // Login por requisição de login
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getData().getEstoque().get(position).getProdutos()));
             }
+            intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
             startActivity(intentProduto);
         });
     }

@@ -9,7 +9,7 @@ class Estoque(
     var nome: String = "",
     var descricao: String = "",
     var imagem: String = "",
-    var cameras: String = "",
+    var cameras: MutableList<Produto> = mutableListOf(),
     var produtos: MutableList<Produto> = mutableListOf(),
 ) : Parcelable {
 

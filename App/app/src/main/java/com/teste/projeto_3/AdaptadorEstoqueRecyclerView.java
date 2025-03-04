@@ -38,7 +38,11 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
     public void onBindViewHolder(@NonNull AdaptadorEstoqueRecyclerView.MyViewHolder holder, int position) {
         holder.nomeEstoque.setText(estoque.get(position).getNome());
         holder.descricaoEstoque.setText(estoque.get(position).getDescricao());
-        holder.quantidadeProdutoEstoque.setText(estoque.get(position).getDescricao());
+        if (!estoque.get(position).getProdutos().isEmpty()) {
+            holder.quantidadeProdutosCadastradosEstoque.setText("Quantidade de produtos cadastrados: " + estoque.get(position).getProdutos().size());
+        } else {
+            holder.quantidadeProdutosCadastradosEstoque.setText("Nenhum produto cadastrado neste Stock");
+        }
         if (!estoque.get(position).getImagem().isEmpty()) {
             Glide.with(context)
                     .load(estoque.get(position).getImagem())
@@ -57,14 +61,14 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
         public ImageView imagemEstoque;
         public TextView nomeEstoque;
         public TextView descricaoEstoque;
-        public TextView quantidadeProdutoEstoque;
+        public TextView quantidadeProdutosCadastradosEstoque;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             imagemEstoque = itemView.findViewById(R.id.imagemEstoque);
             nomeEstoque = itemView.findViewById(R.id.nomeEstoque);
             descricaoEstoque = itemView.findViewById(R.id.descricaoEstoque);
-            quantidadeProdutoEstoque = itemView.findViewById(R.id.quantidadeProdutoEstoque);
+            quantidadeProdutosCadastradosEstoque = itemView.findViewById(R.id.quantidadeProdutoEstoque);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -39,15 +39,27 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
 
     @Override
     public void onBindViewHolder(@NonNull AdaptadorProdutoRecyclerView.MyViewHolder holder, int position) {
-        holder.nomeProduto.setText(produto.get(position).getNome());
-        holder.descricaoProduto.setText(produto.get(position).getDescricao());
-        holder.quantidadeProduto.setText(produto.get(position).getQuantidade());
         if (!produto.get(position).getFoto().isEmpty()) {
             Glide.with(context)
                     .load(produto.get(position).getFoto())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Mantém cache em disco e memória
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imagemProduto);
-            //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
+        }
+        holder.nomeProduto.setText(produto.get(position).getNome());
+        holder.descricaoProduto.setText(produto.get(position).getDescricao());
+        holder.quantidadeProduto.setText("Quantidade: " + produto.get(position).getQuantidade());
+        holder.precoMedioProduto.setText("Preço médio do produto: " + Double.toString(produto.get(position).getPreco_medio()));
+        if (!produto.get(position).getLista_precos().isEmpty()) {
+            ArrayList<Double> precos = new ArrayList<>(produto.get(position).getLista_precos());
+            int precosLista = produto.get(position).getLista_precos().size();
+            Double totalPrecos = 0.0;
+            for (int i = 0; i < precosLista; i++) {
+                totalPrecos += precos.get(i);
+            }
+            holder.precoProduto.setText("Preço: " + totalPrecos);
+        }
+        else {
+            holder.precoProduto.setText("Preço: ainda não fornecido");
         }
     }
 
@@ -61,6 +73,8 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         public TextView nomeProduto;
         public TextView descricaoProduto;
         public TextView quantidadeProduto;
+        public TextView precoProduto;
+        public TextView precoMedioProduto;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
@@ -68,6 +82,9 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             nomeProduto = itemView.findViewById(R.id.nomeProduto);
             descricaoProduto = itemView.findViewById(R.id.descricaoProduto);
             quantidadeProduto = itemView.findViewById(R.id.quantidadeProduto);
+            precoProduto = itemView.findViewById(R.id.precoProduto);
+            precoMedioProduto = itemView.findViewById(R.id.precoMedioProduto);
+
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
