@@ -1,4 +1,4 @@
-import { criar_estoque, upload_imgeral, getEstoque, apagar_estoque } from './API/apiConnection.js';
+import { criar_estoque, upload_imgeral, getEstoque, apagar_estoque, charge_estoque_url } from './API/apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const addButton = document.getElementById('add-stock');
@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // === LISTAR ESTOQUES EXISTENTES ===
     try {
-        const resposta = await getEstoque();  // Aqui pega a resposta completa da API
-        const estoques = resposta.estoque;    // Extrai apenas o array "estoque"
+        const resposta = await getEstoque();
+        const estoques = resposta.estoque;
 
         estoques.forEach(estoque => {
             adicionarBoxEstoqueNaTela(estoque.id, estoque.nome, estoque.descricao, estoque.imagem || imagemPadrao);
@@ -85,15 +85,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             <div class="clickable-div">
                 <h2>${name}</h2>
                 <p>${description}</p>
-                <img src="${imageUrl}" alt="Imagem do Estoque">
+                <img src="${imageUrl}" alt="Imagem do Estoque" class="estoque-img">
                 <div class="actions">
                     <button class="edit-btn">Editar</button>
                     <button class="delete-btn">Deletar</button>
                 </div>
             </div>
         `;
-    
-        // Armazena informações no localStorage e redireciona para outra tela ao clicar no box
+
+        // Redirecionamento ao clicar no box
         newBox.addEventListener('click', () => {
             const estoqueSelecionado = {
                 id: id,
@@ -105,25 +105,57 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'tela-parcial-camera.html';
         });
 
-        // Evento para o botão de deletar
+        // === EVENTO PARA ALTERAR A IMAGEM DO ESTOQUE ===
+        newBox.querySelector('.edit-btn').addEventListener('click', async (event) => {
+            event.stopPropagation(); // Impede o clique do box ao editar
+
+            // Criar input para selecionar a nova imagem
+            const inputFile = document.createElement('input');
+            inputFile.type = 'file';
+            inputFile.accept = 'image/*';
+            inputFile.click();
+
+            inputFile.addEventListener('change', async () => {
+                if (inputFile.files.length > 0) {
+                    const file = inputFile.files[0];
+
+                    try {
+                        const compressedImage = await resizeImage(file, 800, 800);
+                        const uploadResult = await upload_imgeral(compressedImage, "estoque");
+
+                        if (uploadResult.url) {
+                            const novaUrl = uploadResult.url;
+
+                            await charge_estoque_url(novaUrl, id);
+                            console.log(`Imagem do estoque ${name} atualizada com sucesso.`);
+
+                            // Atualizar a imagem na tela
+                            newBox.querySelector('.estoque-img').src = novaUrl;
+                        }
+                    } catch (error) {
+                        console.error("❌ Erro ao atualizar a imagem:", error);
+                        alert("Erro ao atualizar a imagem do estoque.");
+                    }
+                }
+            });
+        });
+
+        // Evento para deletar estoque
         newBox.querySelector('.delete-btn').addEventListener('click', async (event) => {
-            event.stopPropagation(); // Impede o clique do box ao deletar
+            event.stopPropagation();
             
             const confirmar = confirm(`Tem certeza que deseja deletar o estoque ${name}?`);
             if (confirmar) {
                 try {
-                    const payload = { id_estoque: id.toString() };
-                    console.log("Tentando deletar o estoque com payload:", payload);
-        
-                    await apagar_estoque(id.toString()); // Chama a função apagar_estoque passando o id_estoque como string
-                    newBox.remove(); // Remove o box da tela
+                    await apagar_estoque(id.toString());
+                    newBox.remove();
                     console.log(`Estoque ${name} deletado com sucesso.`);
                 } catch (error) {
                     console.error(`❌ Erro ao deletar o estoque ${name}:`, error);
                     alert(`Erro ao deletar o estoque ${name}. Verifique o console.`);
                 }
             }
-        });              
+        });
 
         containerBox.appendChild(newBox);
     }    

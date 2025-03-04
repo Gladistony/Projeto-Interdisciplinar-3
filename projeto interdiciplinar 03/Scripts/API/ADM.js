@@ -1,4 +1,4 @@
-import { getAllUsers, excluirUsuario, getUserData, set_user_data, apagar_estoque, mudar_produto } from './apiConnection.js';
+import { getAllUsers, excluirUsuario, getUserData, set_user_data, apagar_estoque, mudar_produto, charge_estoque_url, upload_imgeral } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -98,7 +98,88 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <button class="delete-estoque">Apagar Estoque</button>
                 `;
                 container.appendChild(divEstoque);
-            
+
+                divEstoque.querySelector('.edit-estoque').addEventListener('click', async () => {
+                    const form = document.createElement('form');
+                    form.classList.add('form-editar-estoque');
+                    form.innerHTML = `
+                        <label>Foto (nova):</label>
+                        <input type="file" class="input-foto">
+                        <button type="submit">Salvar Imagem</button>
+                        <button type="button" class="cancelar-edicao">Cancelar</button>
+                    `;
+                
+                    divEstoque.innerHTML = '';
+                    divEstoque.appendChild(form);
+                
+                    // Botão cancelar
+                    form.addEventListener('submit', async (event) => {
+                        event.preventDefault();
+                    
+                        const arquivoFoto = form.querySelector('.input-foto').files[0];
+                        if (!arquivoFoto) {
+                            alert('Selecione uma nova imagem para salvar.');
+                            return;
+                        }
+                    
+                        try {
+                            const base64Reduzido = await resizeImage(arquivoFoto, 800, 800);
+                    
+                            // Faz o upload direto do base64 puro
+                            const uploadResult = await upload_imgeral(base64Reduzido, `estoque/${usuario}/${estoque.id}`);
+                            const novaUrlFoto = uploadResult.url;
+                    
+                            await charge_estoque_url(novaUrlFoto, estoque.id);
+                    
+                            alert('Imagem atualizada com sucesso!');
+                            renderizarEstoques(dadosUser, container, usuario);
+                        } catch (error) {
+                            console.error('Erro ao atualizar imagem:', error);
+                            alert('Erro ao atualizar a imagem. Verifique o console.');
+                        }
+                    });
+                });
+                
+                // === FUNÇÃO PARA REDIMENSIONAR IMAGEM ===
+                function resizeImage(file, maxWidth, maxHeight) {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(file);
+                
+                        reader.onload = (event) => {
+                            const img = new Image();
+                            img.src = event.target.result;
+                
+                            img.onload = () => {
+                                const canvas = document.createElement("canvas");
+                                let width = img.width;
+                                let height = img.height;
+                
+                                if (width > maxWidth || height > maxHeight) {
+                                    if (width > height) {
+                                        height *= maxWidth / width;
+                                        width = maxWidth;
+                                    } else {
+                                        width *= maxHeight / height;
+                                        height = maxHeight;
+                                    }
+                                }
+                
+                                canvas.width = width;
+                                canvas.height = height;
+                
+                                const ctx = canvas.getContext("2d");
+                                ctx.drawImage(img, 0, 0, width, height);
+                
+                                const base64 = canvas.toDataURL("image/jpeg", 0.7);
+                                resolve(base64.replace(/^data:image\/jpeg;base64,/, "")); // só a string base64 pura
+                            };
+                        };
+                
+                        reader.onerror = (error) => reject(error);
+                    });
+                }
+
                 // Evento para o botão de deletar estoque
                 divEstoque.querySelector('.delete-estoque').addEventListener('click', async (event) => {
                     event.stopPropagation(); // Impede o clique do box ao deletar

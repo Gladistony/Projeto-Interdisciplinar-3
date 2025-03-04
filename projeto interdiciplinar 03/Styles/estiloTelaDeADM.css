@@ -131,10 +131,12 @@ tr:hover {
 }
 
 .detalhe-estoque img {
-    width: 100%;
+    width: 230px;
     height: 200px;
     border-radius: 5px;
     margin: 5px 0;
+    object-fit: cover;
+    object-position: center;
 }
 
 button {
