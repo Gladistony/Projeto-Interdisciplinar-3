@@ -1,5 +1,44 @@
 import { upload_img } from './API/apiConnection.js';
 
+// === FUNÇÃO PARA REDIMENSIONAR IMAGEM ===
+function resizeImage(file, maxWidth, maxHeight) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth || height > maxHeight) {
+                    if (width > height) {
+                        height *= maxWidth / width;
+                        width = maxWidth;
+                    } else {
+                        width *= maxHeight / height;
+                        height = maxHeight;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                resolve(canvas.toDataURL("image/jpeg", 0.7));
+            };
+        };
+
+        reader.onerror = (error) => reject(error);
+    });
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     let imageFile = null;
 
@@ -36,26 +75,22 @@ document.addEventListener("DOMContentLoaded", function () {
     // Botão "Enviar" - Faz o upload da imagem convertendo para Base64
     btnEnviar.addEventListener("click", async function () {
         if (imageFile) {
-            const reader = new FileReader();
-            reader.onload = async function (event) {
-                const base64String = event.target.result.split(",")[1]; // Remove o prefixo "data:image/..."
+            const resizedImage = await resizeImage(imageFile, 800, 600);
+            const base64String = resizedImage.split(",")[1]; // Remove o prefixo "data:image/..."
 
-                try {
-                    const uploadedImage = await upload_img(base64String, "perfil");
+            try {
+                const uploadedImage = await upload_img(base64String, "perfil");
 
-                    if (uploadedImage && uploadedImage.url) {
-                        fotoPerfil.src = uploadedImage.url;
-                        console.log("Imagem enviada com sucesso:", uploadedImage.url);
-                    } else {
-                        console.error("Erro: Resposta do upload sem URL.");
-                    }
-                } catch (error) {
-                    console.error("Erro ao enviar imagem:", error);
+                if (uploadedImage && uploadedImage.url) {
+                    fotoPerfil.src = uploadedImage.url;
+                    console.log("Imagem enviada com sucesso:", uploadedImage.url);
+                } else {
+                    console.error("Erro: Resposta do upload sem URL.");
                 }
-                closeModal();
-            };
-
-            reader.readAsDataURL(imageFile); // Converte a imagem para Base64
+            } catch (error) {
+                console.error("Erro ao enviar imagem:", error);
+            }
+            closeModal();
         } else {
             console.error("Nenhuma imagem foi selecionada.");
         }

@@ -385,6 +385,7 @@ async function set_user_data(id, usuario, senha) {
     }
 }
 
+// === FUNÇÃO PARA FAZER UPLOAD DA IMAGEM ===
 async function upload_imgeral(base64String, destino) {
     const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
 

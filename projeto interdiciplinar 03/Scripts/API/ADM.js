@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <h3>Nome do Estoque:</h3>
                     <p><strong>${estoque.nome}</strong></p>
                     <h3>Fotos do Estoque</h3>
-                    <img src="${estoque.url_foto}" alt="Foto do Estoque" class="estoque">
+                    <img src="${estoque.imagem}" alt="Foto do Estoque" class="estoque">
                     <h3>Descrição do Estoque</h3>
                     <p>${estoque.descricao}</p>
                     <h3>ID de Câmeras</h3>
