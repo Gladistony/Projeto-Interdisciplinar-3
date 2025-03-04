@@ -11,10 +11,10 @@
         android:label="fragment_frag_inicio"
         tools:layout="@layout/fragment_frag_inicio" />
     <fragment
-        android:id="@+id/fragProdutos"
-        android:name="com.teste.projeto_3.FragProdutos"
+        android:id="@+id/fragStock"
+        android:name="com.teste.projeto_3.FragStock"
         android:label="fragment_frag_produtos"
-        tools:layout="@layout/fragment_frag_produtos" />
+        tools:layout="@layout/fragment_frag_stock" />
     <fragment
         android:id="@+id/fragPerfil"
         android:name="com.teste.projeto_3.FragPerfil"

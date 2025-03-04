@@ -15,11 +15,11 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,43 +27,60 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.teste.projeto_3.http.EnviarRequisicao;
+import com.teste.projeto_3.model.Estoque;
+import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
 
-public class FragProdutos extends Fragment implements RecyclerViewInterface{
+public class FragStock extends Fragment implements RecyclerViewInterface{
 
     private ActivityResultLauncher<Intent> cameraLauncher;
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
-
     private AdaptadorEstoqueRecyclerView adaptadorItem;
+    public SharedViewModel viewModel;
+    public ArrayList<Estoque> estoque;
 
-    ArrayList<EstoqueItem> arrayEstoque = new ArrayList<>();
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Infla o layout do fragment
-        View rootView = inflater.inflate(R.layout.fragment_frag_produtos, container, false);
+        View view = inflater.inflate(R.layout.fragment_frag_stock, container, false);
 
         // Inicializa o layout principal
-        mainLayout = rootView.findViewById(R.id.main);
+        mainLayout = view.findViewById(R.id.main);
 
-        Button teste = rootView.findViewById(R.id.testee);
-        teste.setOnClickListener(v-> trocarFotos());
+        RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
+        viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
+            if (dados.getData() == null) { // Login por requisição de get_dados
+                estoque = new ArrayList<>(dados.getEstoque());
+            } else { // Login por requisição de login
+                estoque = new ArrayList<>(dados.getData().getEstoque());
+            }
 
-        RecyclerView recyclerView = rootView.findViewById(R.id.recyclerViewEstoque);
-        criarListaEstoque();
-        adaptadorItem = new AdaptadorEstoqueRecyclerView(requireContext(), arrayEstoque, this);
-        recyclerView.setAdapter(adaptadorItem);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+            if (!estoque.isEmpty()) {
+                TextView textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
+                textoEstoqueVazio.setVisibility(View.GONE);
+            }
+
+            adaptadorItem = new AdaptadorEstoqueRecyclerView(requireContext(), this, estoque);
+            recyclerView.setAdapter(adaptadorItem);
+            recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        });
 
         // Configura o botão para adicionar novos "boxes"
-        Button buttonAdd = rootView.findViewById(R.id.button_add);
+        Button buttonAdd = view.findViewById(R.id.button_add);
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +88,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
             }
         });
 
-        FloatingActionButton fabCamera = rootView.findViewById(R.id.botaoCamera);
+        FloatingActionButton fabCamera = view.findViewById(R.id.botaoCamera);
 
         // Inicializa o launcher da câmera
         cameraLauncher = registerForActivityResult(
@@ -92,7 +109,7 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
         );
         fabCamera.setOnClickListener(v -> abrirCamera());
 
-        return rootView;  // Retorna a view inflada
+        return view;  // Retorna a view inflada
     }
 
     private void abrirCamera() {
@@ -220,63 +237,22 @@ public class FragProdutos extends Fragment implements RecyclerViewInterface{
         boxCounter++;
     }
 
-    private void criarListaEstoque() {
-        String[] nomeEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
-        String[] descricaoEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
-        String[] quantidadeEstoque = new String[] {"a", "b", "c", "d", "e", "f", "g", "h"};
-        String[] imagemEstoque = new String[] {
-                "https://plus.unsplash.com/premium_photo-1711434824963-ca894373272e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8aW1hZ2VtJTIwZGUlMjBmdW5kbyUyMGJvbml0YXxlbnwwfHwwfHx8MA%3D%3D",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs5yf9d35OUjrxlQIpIhXop9rc9DN749axHenYIPlMk-aAzQrRDy94Ciins7zcfZfhE6o",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs5yf9d35OUjrxlQIpIhXop9rc9DN749axHenYIPlMk-aAzQrRDy94Ciins7zcfZfhE6o",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs5yf9d35OUjrxlQIpIhXop9rc9DN749axHenYIPlMk-aAzQrRDy94Ciins7zcfZfhE6o",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs5yf9d35OUjrxlQIpIhXop9rc9DN749axHenYIPlMk-aAzQrRDy94Ciins7zcfZfhE6o",
-                "https://s2-techtudo.glbimg.com/L9wb1xt7tjjL-Ocvos-Ju0tVmfc=/0x0:1200x800/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_08fbf48bc0524877943fe86e43087e7a/internal_photos/bs/2023/q/l/TIdfl2SA6J16XZAy56Mw/canvaai.png",
-                "https://d1muf25xaso8hp.cloudfront.net/https://img.criativodahora.com.br/2024/04/criativo-660da8df17c75img-2024-04-03660da8df17c7a.jpg?w=1000&h=&auto=compress&dpr=1&fit=max",
-                "https://thumbs.dreamstime.com/b/imagem-de-fundo-bonita-do-c%C3%A9u-da-natureza-64743176.jpg"
-        };
-
-        for (int i = 0; i < nomeEstoque.length; i++) {
-            arrayEstoque.add(new EstoqueItem(nomeEstoque[i], descricaoEstoque[i], quantidadeEstoque[i], imagemEstoque[i]));
-        }
-
-    }
-
-    public void trocarFotos(){
-        String[] novasFotos = new String[] {"https://static.vecteezy.com/ti/fotos-gratis/t2/9273280-conceito-de-solidao-e-decepcao-no-amor-homem-triste-sentado-elemento-da-imagem-e-decorado-pela-nasa-gratis-foto.jpg",
-        "https://img.cdndsgni.com/preview/10097610.jpg",
-        "https://alfredonegreirosadvocacia.adv.br/wp-content/uploads/2023/12/Direito-de-Imagem-do-Jogador-de-Futebol.jpg",
-        "https://s1.static.brasilescola.uol.com.br/be/conteudo/images/imagem-em-lente-convexa.jpg",
-        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNzygUVAv4t3nwtW8UGyp0jdOOwJU3Fl5elA&s",
-        "https://t.ctcdn.com.br/JlHwiRHyv0mTD7GfRkIlgO6eQX8=/640x360/smart/i257652.jpeg",
-        "https://tm.ibxk.com.br/2017/07/13/13160112901226.jpg",
-        "https://s2-techtudo.glbimg.com/SkyLTd6VJy8WiUMg5L6EeUwgyMw=/0x0:620x548/984x0/smart/filters:strip_icc()/i.s3.glbimg.com/v1/AUTH_08fbf48bc0524877943fe86e43087e7a/internal_photos/bs/2021/B/t/limPwzQmSeI4WJO7haZg/2012-08-15-mf1.jpg"};
-
-        String novaImagem = "https://tm.ibxk.com.br/2017/07/13/13160112901226.jpg";
-        String novaDescricao = "aqui";
-        String novoNome = "titulo";
-        String qtd = "ajdak";
-/*
-        for (int i = 0; i < novasFotos.length; i++) {
-            arrayEstoque.get(i).setImagemEstoque(novasFotos[i]);
-        }
-
- */
-        int posicao = arrayEstoque.size();
-        arrayEstoque.add(posicao, new EstoqueItem(novoNome, novaDescricao,qtd, novaImagem));
-        adaptadorItem.notifyItemInserted(posicao);
-
-    }
-
-
     @Override
     public void onItemClick(int position) {
         Intent intentProduto = new Intent(requireContext(), ProdutoItem.class);
-        startActivity(intentProduto);
+        viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
+            if (dados.getData() == null) { // Login por requisição de get_dados
+                intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getEstoque().get(position).getProdutos()));
+            } else { // Login por requisição de login
+                intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getData().getEstoque().get(position).getProdutos()));
+            }
+            startActivity(intentProduto);
+        });
     }
 
     @Override
     public void onItemLongClick(int position) {
-        arrayEstoque.remove(position);
+        estoque.remove(position);
         adaptadorItem.notifyItemRemoved(position);
     }
 }

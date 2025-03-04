@@ -6,25 +6,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.teste.projeto_3.model.Estoque;
 
 import java.util.ArrayList;
 
 public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorEstoqueRecyclerView.MyViewHolder> {
     Context context;
-    ArrayList<EstoqueItem> arrayEstoque;
     private final RecyclerViewInterface recyclerViewInterface;
+    ArrayList<Estoque> estoque;
 
-
-    public AdaptadorEstoqueRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque, RecyclerViewInterface recyclerViewInterface) {
+    public AdaptadorEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, ArrayList<Estoque> estoque) {
         this.context = context;
-        this.arrayEstoque = arrayEstoque;
         this.recyclerViewInterface = recyclerViewInterface;
+        this.estoque = estoque;
     }
 
     @NonNull
@@ -38,19 +36,21 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
 
     @Override
     public void onBindViewHolder(@NonNull AdaptadorEstoqueRecyclerView.MyViewHolder holder, int position) {
-        holder.nomeEstoque.setText(arrayEstoque.get(position).getNomeEstoque());
-        holder.descricaoEstoque.setText(arrayEstoque.get(position).getDescricaoEstoque());
-        holder.quantidadeProdutoEstoque.setText(arrayEstoque.get(position).getQuantidadeItemEstoque());
-        Glide.with(context)
-                .load(arrayEstoque.get(position).getImagemEstoque())
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // Mantém cache em disco e memória
-                .into(holder.imagemEstoque);
-        //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
+        holder.nomeEstoque.setText(estoque.get(position).getNome());
+        holder.descricaoEstoque.setText(estoque.get(position).getDescricao());
+        holder.quantidadeProdutoEstoque.setText(estoque.get(position).getDescricao());
+        if (!estoque.get(position).getImagem().isEmpty()) {
+            Glide.with(context)
+                    .load(estoque.get(position).getImagem())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.imagemEstoque);
+            //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
+        }
     }
 
     @Override
     public int getItemCount() {
-        return arrayEstoque.size();
+            return estoque.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

@@ -12,18 +12,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
 
 public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<AdaptadorProdutoRecyclerView.MyViewHolder> {
     Context context;
-    ArrayList<EstoqueItem> arrayEstoque;
+    ArrayList<Produto> produto;
     private final RecyclerViewInterface recyclerViewInterface;
 
 
-    public AdaptadorProdutoRecyclerView(Context context, ArrayList<EstoqueItem> arrayEstoque, RecyclerViewInterface recyclerViewInterface) {
+    public AdaptadorProdutoRecyclerView(Context context, ArrayList<Produto> produto, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
-        this.arrayEstoque = arrayEstoque;
+        this.produto = produto;
         this.recyclerViewInterface = recyclerViewInterface;
     }
 
@@ -38,19 +39,21 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
 
     @Override
     public void onBindViewHolder(@NonNull AdaptadorProdutoRecyclerView.MyViewHolder holder, int position) {
-        holder.nomeProduto.setText(arrayEstoque.get(position).getNomeEstoque());
-        holder.descricaoProduto.setText(arrayEstoque.get(position).getDescricaoEstoque());
-        holder.quantidadeProduto.setText(arrayEstoque.get(position).getQuantidadeItemEstoque());
-        Glide.with(context)
-                .load(arrayEstoque.get(position).getImagemEstoque())
-                .diskCacheStrategy(DiskCacheStrategy.ALL) // Mantém cache em disco e memória
-                .into(holder.imagemProduto);
-        //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
+        holder.nomeProduto.setText(produto.get(position).getNome());
+        holder.descricaoProduto.setText(produto.get(position).getDescricao());
+        holder.quantidadeProduto.setText(produto.get(position).getQuantidade());
+        if (!produto.get(position).getFoto().isEmpty()) {
+            Glide.with(context)
+                    .load(produto.get(position).getFoto())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Mantém cache em disco e memória
+                    .into(holder.imagemProduto);
+            //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
+        }
     }
 
     @Override
     public int getItemCount() {
-        return arrayEstoque.size();
+        return produto.size();
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

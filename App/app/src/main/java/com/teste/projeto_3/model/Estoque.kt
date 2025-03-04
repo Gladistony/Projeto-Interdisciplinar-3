@@ -10,7 +10,7 @@ class Estoque(
     var descricao: String = "",
     var imagem: String = "",
     var cameras: String = "",
-    var produtos: String = ""
+    var produtos: MutableList<Produto> = mutableListOf(),
 ) : Parcelable {
 
     override fun toString(): String {

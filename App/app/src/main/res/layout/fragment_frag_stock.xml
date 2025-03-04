@@ -95,4 +95,18 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
+    <TextView
+        android:id="@+id/textoEstoqueVazio"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/textoEstoqueVazio"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/recyclerViewEstoque" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
