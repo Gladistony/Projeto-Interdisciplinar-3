@@ -719,6 +719,27 @@ async function cadastrar_camera(nome, descricao, id_estoque) {
     }
 }
 
+async function logout() {
+    const id = localStorage.getItem('connectionId'); // Obtenha o ID de conexão armazenado
+
+    try {
+        const response = await fetch(`${API_URL}/logout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao fazer logout: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Erro ao fazer logout:', error);
+        throw error;
+    }
+}
 
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto, charge_estoque_url, cadastrar_camera };
+export { logout, getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto, charge_estoque_url, cadastrar_camera };

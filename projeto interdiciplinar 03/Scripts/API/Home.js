@@ -1,4 +1,4 @@
-import { getDadosUsuario } from './apiConnection.js';
+import { getDadosUsuario, logout } from './apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', async function () {
     try {
@@ -42,5 +42,12 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     // Adiciona o evento de clique ao botão de deslogar
-    document.getElementById('deslogar').addEventListener('click', deslogarUsuario);
+    document.getElementById('deslogar').addEventListener('click', async function () {
+        try {
+            await logout();
+            deslogarUsuario();
+        } catch (error) {
+            console.error('Erro ao deslogar:', error);
+        }
+    });    
 });
