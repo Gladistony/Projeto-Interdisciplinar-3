@@ -45,57 +45,6 @@ public class FragPerfil extends Fragment {
     private SharedViewModel viewModel;
 
     // Variáveis com métodos individuais da classe para câmera e galeria
-    public final ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    uriFotoPerfil = cg.getImagemUri();
-                    if (uriFotoPerfil != null) {
-                        try {
-                            //Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uriFotoPerfil);
-                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
-                            upload_img(imagemBase64);
-                            cg.deletarImagemUri(uriFotoPerfil);
-                        } catch (Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Erro ao processar a alteração da foto de perfil", Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                }
-            });
-    public final ActivityResultLauncher<Intent> galleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    uriFotoPerfil = result.getData().getData();
-                    if (uriFotoPerfil != null) {
-                        try {
-                            //Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imagemSelecionada);
-                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
-                            upload_img(imagemBase64);
-                        } catch (Exception e) {
-                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                }
-            });
-
-    public final ActivityResultLauncher<String> requestCameraPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    cg.abrirCamera();
-                } else {
-                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à câmera negado",
-                            "É necessário permissão para acessar a câmera ao executar esta ação. Vá para as configurações e permita manualmente."));
-                }
-            });
-    public final ActivityResultLauncher<String> requestPermissionGalleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    cg.abrirGaleria();
-                } else {
-                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
-                            "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
-                }
-            });
 
     public FragPerfil() {
         // Required empty public constructor
@@ -105,7 +54,7 @@ public class FragPerfil extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         er = new EnviarRequisicao(requireContext());
-        cg = new CameraGaleria(requireContext(), cameraLauncher, galleryLauncher, requestPermissionGalleryLauncher, requestCameraPermissionLauncher);
+        cg = new CameraGaleria(requireActivity(), requireActivity().getActivityResultRegistry(), requireActivity());
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
     }
 
@@ -249,7 +198,12 @@ public class FragPerfil extends Fragment {
             dialog.dismiss();
         });
         escolherCamera.setOnClickListener(v -> {
-            cg.pedirPermissaoCamera();
+            cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
+                @Override
+                public void onImageSelected(Uri uri) {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "IMAGEM UAU", Toast.LENGTH_SHORT).show());
+                }
+            });
             dialog.dismiss();
         });
         escolherUrl.setOnClickListener(v -> {

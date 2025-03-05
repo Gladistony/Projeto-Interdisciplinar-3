@@ -1,14 +1,12 @@
 package com.teste.projeto_3;
 
-import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.os.Build;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatButton;
@@ -18,36 +16,43 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.provider.MediaStore;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
-
+import com.teste.projeto_3.model.User;
 import java.util.ArrayList;
 
 public class FragStock extends Fragment implements RecyclerViewInterface{
-
-    private ActivityResultLauncher<Intent> cameraLauncher;
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
     private AdaptadorEstoqueRecyclerView adaptadorItem;
     public SharedViewModel viewModel;
     public ArrayList<Estoque> estoque;
+    private EnviarRequisicao er;
+    private CameraGaleria cg;
+    private final Gson gson = new Gson();
+
+    private Uri uriImagem;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        er = new EnviarRequisicao(requireContext());
+        cg = new CameraGaleria(requireActivity(), requireActivity().getActivityResultRegistry(), requireActivity());
     }
 
     @Override
@@ -55,6 +60,9 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                              Bundle savedInstanceState) {
         // Infla o layout do fragment
         View view = inflater.inflate(R.layout.fragment_frag_stock, container, false);
+
+        FloatingActionButton criarEstoque = view.findViewById(R.id.botaoCriarEstoque);
+        criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
 
         // Inicializa o layout principal
         mainLayout = view.findViewById(R.id.main);
@@ -87,80 +95,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
             }
         });
 
-        FloatingActionButton fabCamera = view.findViewById(R.id.botaoCamera);
-
-        // Inicializa o launcher da câmera
-        cameraLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            Bitmap imageBitmap = (Bitmap) data.getExtras().get("data");
-
-                            // Aqui você pode definir onde deseja exibir a imagem capturada
-                            requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Imagem capturada!", Toast.LENGTH_SHORT).show());
-                        }
-                    } else {
-                        requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Captura de imagem cancelada", Toast.LENGTH_SHORT).show());
-                    }
-                }
-        );
-        fabCamera.setOnClickListener(v -> abrirCamera());
-
         return view;  // Retorna a view inflada
     }
-
-    private void abrirCamera() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getContext().checkSelfPermission(android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                if (shouldShowRequestPermissionRationale(android.Manifest.permission.CAMERA)) {
-                    // Se o usuário já negou antes, mostra o diálogo para ativar manualmente a permissão
-                    mostrarDialogoPermissao();
-                } else {
-                    // Solicita a permissão
-                    requestPermissions(new String[]{android.Manifest.permission.CAMERA}, 100);
-                }
-                return; // Sai da função até que a permissão seja concedida
-            }
-        }
-
-        // Se já tem permissão, abre a câmera normalmente
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
-            cameraLauncher.launch(intent);
-        } else {
-            Toast.makeText(getContext(), "Câmera indisponível no dispositivo", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void mostrarDialogoPermissao() {
-        new android.app.AlertDialog.Builder(getContext())
-                .setTitle("Permissão necessária")
-                .setMessage("O aplicativo precisa da permissão para acessar a câmera. Por favor, ative-a nas configurações.")
-                .setPositiveButton("Ir para Configurações", (dialog, which) -> {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    intent.setData(android.net.Uri.parse("package:" + getContext().getPackageName()));
-                    getContext().startActivity(intent);
-                })
-                .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
-                .show();
-    }
-
-    // Captura a resposta da solicitação de permissão
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 100) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                abrirCamera();
-            } else {
-                Toast.makeText(getContext(), "Permissão para a câmera negada", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private void showPopup() {
         LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
         View popupView = inflater.inflate(R.layout.popup_input, null);
@@ -254,5 +190,101 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
     public void onItemLongClick(int position) {
         estoque.remove(position);
         adaptadorItem.notifyItemRemoved(position);
+    }
+
+    private void criarEstoque(String nome, String descricao, String urlImagem) {
+        if (er.possuiInternet(requireContext())) {
+                // Criando o objeto User
+                Estoque estoque = new Estoque();
+                estoque.setId(er.obterMemoriaInterna("idConexao"));
+                estoque.setNome(nome);
+                estoque.setDescricao(descricao);
+                estoque.setImagem(urlImagem);
+
+                // Converter o objeto User para JSON
+                String userJson = gson.toJson(estoque);
+
+                // Fazer a requisição
+                er.post("criar_estoque", userJson, response -> {
+                    if (response.startsWith("Erro")) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show());
+                    } else {
+                        try {
+                            // Processar resposta da requisição
+                            User responseEstoque = gson.fromJson(response, User.class);
+                            switch (responseEstoque.getCode()) {
+                                case 0:
+
+                            }
+                        } catch (Exception e) {
+                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        }
+                }
+            });
+        } else {
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void upload_img(String imagemBase64) {
+        if (er.possuiInternet(requireContext())) {
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setDestino("perfil");
+            user.setFile(imagemBase64);
+
+            // Converter o objeto User para JSON
+            String userJson = gson.toJson(user);
+
+            er.post("upload_img", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
+                    });
+                } else if (response.startsWith("<html>")) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show();
+                    });
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseUpload = gson.fromJson(response, User.class);
+                        if (responseUpload.getCode() == 0) {
+
+                                }
+                            } catch (Exception e) {
+                                requireActivity().runOnUiThread(() -> {
+                                    Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }
+            });
+        } else {
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    private void dialogCriarEstoque() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.layout_criar_estoque);
+
+        ImageView imageView = dialog.findViewById(R.id.selecionarImagemEstoque);
+        imageView.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
+            @Override
+            public void onImageSelected(Uri uri) {
+                uriImagem = uri;
+            }
+        }));
+
+
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        dialog.getWindow().setGravity(Gravity.CENTER);
     }
 }

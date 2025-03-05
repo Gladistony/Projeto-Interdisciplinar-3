@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 class Estoque(
-    var id: Int = -1,
+    var id: String = "",
     var nome: String = "",
     var descricao: String = "",
     var imagem: String = "",

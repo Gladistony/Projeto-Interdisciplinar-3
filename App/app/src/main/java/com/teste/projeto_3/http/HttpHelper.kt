@@ -18,7 +18,7 @@ class HttpHelper {
 
     fun post(method: String, json: String): String {
         // URL do servidor
-        val url = "http://44.203.201.20/$method/"
+        val url = "http://192.168.1.108:3000/$method/"
 
         // Tipo de mídia JSON
         val JSON = "application/json; charset=utf-8".toMediaType()
@@ -91,7 +91,7 @@ class HttpHelper {
 
     fun ativarConta(usuario: String, senha: String): String {
         // URL do servidor
-        val url = "http://44.203.201.20/ativar/$usuario/$senha"
+        val url = "http://192.168.1.108:3000/ativar/$usuario/$senha"
 
         // Cliente HTTP
         val client = OkHttpClient()
@@ -118,7 +118,7 @@ class HttpHelper {
     }
 
     fun get(method: String, json: String): String { // testar se funciona ainda
-        val url = "http://44.203.201.20/$method/"
+        val url = "http://192.168.1.108:3000/$method/"
 
         // Tipo de mídia JSON
         val JSON = "application/json; charset=utf-8".toMediaType()
