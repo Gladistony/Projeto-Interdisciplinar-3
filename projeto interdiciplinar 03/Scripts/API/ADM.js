@@ -73,32 +73,43 @@ document.addEventListener('DOMContentLoaded', async function () {
             const estoquesPagina = dadosUser.data.estoque.slice(inicio, fim);
 
             estoquesPagina.forEach(estoque => {
+
                 const divEstoque = document.createElement('div');
                 divEstoque.classList.add('detalhe-estoque');
                 divEstoque.innerHTML = `
-                    <h3>Nome do Estoque:</h3>
-                    <p><strong>${estoque.nome}</strong></p>
-                    <h3>Fotos do Estoque</h3>
-                    <img src="${estoque.imagem}" alt="Foto do Estoque" class="estoque">
-                    <h3>Descrição do Estoque</h3>
-                    <p>${estoque.descricao}</p>
-                    <h3>ID de Câmeras</h3>
-                    <p>${estoque.id_camera}</p>
-                    <h3>ID do Estoque</h3>
-                    <p>${estoque.id}</p>
-                    <h3>Produtos no Estoque</h3>
-                    ${estoque.produtos ? estoque.produtos.map(produto => `
-                        <div class="detalhe-produto">
-                            <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade} - Validade: ${produto.data_validade} </span></p>
-                            <img src="${produto.foto}" alt="Foto do produto" class="produto-img">
-                            <p class="descricao">${produto.descricao}</p>
-                            <button class="edit-produto" data-produto="${produto.id}">Editar</button>
-                            <button class="delete-produto" data-produto="${produto.id}">Apagar</button>
-                        </div>
-                    `).join('') : '<p>Sem produtos</p>'}
-                    <button class="edit-estoque">Editar Estoque</button>
-                    <button class="delete-estoque">Apagar Estoque</button>
-                `;
+                <h3>Nome do Estoque:</h3>
+                <p><strong>${estoque.nome}</strong></p>
+                <h3>Fotos do Estoque</h3>
+                <img src="${estoque.imagem}" alt="Foto do Estoque" class="estoque">
+                <h3>Descrição do Estoque</h3>
+                <p>${estoque.descricao}</p>
+                <h3>ID do Estoque</h3>
+                <p>${estoque.id}</p>
+                
+                <h3>Produtos no Estoque</h3>
+                ${estoque.produtos ? estoque.produtos.map(produto => `
+                    <div class="detalhe-produto">
+                        <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade} - Validade: ${produto.data_validade} </span></p>
+                        <img src="${produto.foto}" alt="Foto do produto" class="produto-img">
+                        <p class="descricao">${produto.descricao}</p>
+                        <button class="edit-produto" data-produto="${produto.id}">Editar</button>
+                        <button class="delete-produto" data-produto="${produto.id}">Apagar</button>
+                    </div>
+                `).join('') : '<p>Sem produtos</p>'}
+            
+                <h3>Câmeras no Estoque</h3>
+                ${estoque.cameras && estoque.cameras.length > 0 ? estoque.cameras.map(camera => `
+                    <div class="detalhe-camera">
+                        <p>Câmera: ${camera.nome} - Descrição: ${camera.descricao}</p>
+                        <p>Código: ${camera.codigo_camera}</p>
+                        <p>id: ${camera.id}</p>
+                    </div>
+                `).join('') : '<p>Sem câmeras</p>'}
+            
+                <button class="edit-estoque">Editar Estoque</button>
+                <button class="delete-estoque">Apagar Estoque</button>
+            `;
+            
                 container.appendChild(divEstoque);
 
                 divEstoque.querySelector('.edit-estoque').addEventListener('click', async () => {

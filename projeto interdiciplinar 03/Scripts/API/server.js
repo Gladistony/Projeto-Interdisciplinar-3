@@ -643,6 +643,42 @@ app.post('/charge_estoque_url', async (req, res) => {
     }
 });
 
+app.post('/cadastrar_camera', async (req, res) => {
+    const { id, nome, descricao, id_estoque } = req.body;
+
+    try {
+        console.log('Recebendo solicitação para /cadastrar_camera:', req.body);
+
+        const response = await fetch(`${baseUrl}/cadastrar_camera/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, nome, descricao, id_estoque }) // Enviando os dados corretamente
+        });
+
+        // Verificar o tipo da resposta antes de processar
+        const contentType = response.headers.get('content-type');
+        let responseBody;
+        
+        if (contentType && contentType.includes('application/json')) {
+            responseBody = await response.json();
+        } else {
+            responseBody = await response.text();
+        }
+
+        console.log('Resposta completa do servidor /cadastrar_camera:', response.status, responseBody);
+
+        if (!response.ok) {
+            console.error('Erro no cadastrar_camera:', response.status, response.statusText);
+            return res.status(response.status).json({ error: 'Erro ao criar camera' });
+        }
+
+        res.json(responseBody);
+    } catch (error) {
+        console.error('Erro no servidor ao criar camera:', error);
+        res.status(500).json({ error: 'Erro interno ao criar camera' });
+    }
+});
+
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
     console.log('Servidor rodando na porta 3000');

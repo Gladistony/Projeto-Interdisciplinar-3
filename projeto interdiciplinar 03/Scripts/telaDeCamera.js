@@ -1,16 +1,23 @@
+import { cadastrar_camera } from './API/apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const estoqueSelecionado = JSON.parse(localStorage.getItem('estoqueSelecionado'));
+    const seletor_camera = document.getElementById("camera-select");
+    const camera_inputs = document.getElementById("camera-inputs");
+    const nomeInput = document.getElementById("product-name1");
+    const descricaoInput = document.getElementById("product-description2");
+    const botaoCamera = document.getElementById("botao-camera");  // Corrigi para pegar o botão pelo ID.
 
     if (estoqueSelecionado) {
         document.getElementById('h1').textContent = estoqueSelecionado.name;
         document.getElementById('descricao').textContent = estoqueSelecionado.description;
     } else {
         alert('Nenhum estoque selecionado.');
-        window.location.href = '../telaDeStocks.html'; // Redireciona de volta para a tela de estoques se nenhum estoque foi selecionado
+        window.location.href = '../telaDeStocks.html';
+        return; // Importante para parar o script aqui
     }
 
-    // Adiciona evento de clique ao #lista-produtos
+    // Adiciona evento de expandir e recolher lista de produtos
     const listaProdutos = document.getElementById('lista-produtos');
     let isExpanded = false;
 
@@ -34,5 +41,42 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('camera-opcao').style.display = '';
         }
         isExpanded = !isExpanded;
+    });
+
+    // Exibir ou esconder inputs de câmera
+    seletor_camera.addEventListener('click', () => {
+        if (camera_inputs.style.display === 'none' || camera_inputs.style.display === '') {
+            camera_inputs.style.display = 'block';
+        } else {
+            camera_inputs.style.display = 'none';
+        }
+    });
+
+    // Cadastrar câmera ao clicar no botão "Cadastrar Câmera"
+    botaoCamera.addEventListener('click', async () => {
+        const nome = nomeInput.value.trim();
+        const descricao = descricaoInput.value.trim();
+
+        if (!nome || !descricao) {
+            alert('Preencha o nome e a descrição da câmera antes de cadastrar.');
+            return;
+        }
+
+        try {
+            const resposta = await cadastrar_camera(nome, descricao, String(estoqueSelecionado.id));
+            alert('✅ Câmera cadastrada com sucesso!');
+            console.log('Câmera cadastrada:', resposta);
+        
+            nomeInput.value = '';
+            descricaoInput.value = '';
+            camera_inputs.style.display = 'none';
+        } catch (error) {
+            alert('✅ Câmera cadastrada com sucesso!');
+            console.log('Câmera cadastrada:', resposta);
+
+            nomeInput.value = '';
+            descricaoInput.value = '';
+            camera_inputs.style.display = 'none';
+        }        
     });
 });

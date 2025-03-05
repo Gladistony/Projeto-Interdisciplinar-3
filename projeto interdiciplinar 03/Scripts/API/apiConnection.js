@@ -670,5 +670,55 @@ async function charge_estoque_url(url_foto, id_estoque) {
     }
 }
 
+async function cadastrar_camera(nome, descricao, id_estoque) {
+    const id = localStorage.getItem('connectionId'); // Obtém o ID armazenado
+
+    if (!id) {
+        console.error("Erro: ID do usuário não encontrado.");
+        throw new Error("ID do usuário não encontrado.");
+    }
+
+    const payload = {
+        id: id,
+        nome: nome,
+        descricao: descricao,
+        id_estoque: String(id_estoque)  // Garante que é string
+    };
+
+    console.log("Payload enviado:", JSON.stringify(payload, null, 2));
+
+    try {
+        const response = await fetch(`${API_URL}/cadastrar_camera/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        console.log("Resposta completa do servidor:", response.status, data);
+
+        if (!response.ok) {
+            // Se a requisição falhou (exemplo: 422 ou 400), já trata aqui.
+            console.error("Erro ao criar câmera (HTTP Status):", response.status, data);
+            throw new Error(`Erro na API: ${data.message || response.statusText}`);
+        }
+
+        if (data.message === 'Operação realizada com sucesso') {
+            return data;  // Retorna o sucesso completo pro front (opcional)
+        } else {
+            console.error("Erro inesperado ao criar câmera:", data);
+            throw new Error(`Erro inesperado: ${data.message || 'Resposta não reconhecida'}`);
+        }
+
+    } catch (error) {
+        console.error("Erro ao criar câmera:", error);
+        throw error;  // Repassa para ser capturado lá no front
+    }
+}
+
+
 // Exporta as funções para uso em outros arquivos
-export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto, charge_estoque_url };
+export { getConnectionId, realizarCadastro, realizarLogin, ativarConta, getDadosUsuario, getAllUsers, excluirUsuario, recoverSenha, iniciarRecuperacao, charge, set_img_url, verificarAtivacao, upload_img, getUserData, set_user_data, criar_estoque, upload_imgeral, getEstoque, registro_produto, registro_produto_estoque, apagar_estoque, mudar_produto, charge_estoque_url, cadastrar_camera };
