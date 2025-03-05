@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <h3>Produtos no Estoque</h3>
                 ${estoque.produtos ? estoque.produtos.map(produto => `
                     <div class="detalhe-produto">
-                        <p>Produto: ${produto.nome} - Quantidade: <span class="produto-quantidade">${produto.quantidade} - Validade: ${produto.data_validade} </span></p>
+                        <p><span class="title">Produto</span>: ${produto.nome} - <span class="title">Quantidade</span>: <span class="produto-quantidade">${produto.quantidade} - <span class="title">Validade</span>: ${produto.data_validade} </span></p>
                         <img src="${produto.foto}" alt="Foto do produto" class="produto-img">
                         <p class="descricao">${produto.descricao}</p>
                         <button class="edit-produto" data-produto="${produto.id}">Editar</button>
@@ -97,17 +97,17 @@ document.addEventListener('DOMContentLoaded', async function () {
                     </div>
                 `).join('') : '<p>Sem produtos</p>'}
             
+                <button class="edit-estoque">Editar Estoque</button>
+                <button class="delete-estoque">Apagar Estoque</button>
+
                 <h3>Câmeras no Estoque</h3>
                 ${estoque.cameras && estoque.cameras.length > 0 ? estoque.cameras.map(camera => `
                     <div class="detalhe-camera">
-                        <p>Câmera: ${camera.nome} - Descrição: ${camera.descricao}</p>
-                        <p>Código: ${camera.codigo_camera}</p>
-                        <p>id: ${camera.id}</p>
+                        <p><span class="title">Câmera</span>: ${camera.nome} - <span class="title">Descrição</span>: ${camera.descricao}</p>
+                        <p><span class="title">Código</span>: ${camera.codigo_camera}</p>
+                        <p><span class="title">id</span>:${camera.id}</p>
                     </div>
-                `).join('') : '<p>Sem câmeras</p>'}
-            
-                <button class="edit-estoque">Editar Estoque</button>
-                <button class="delete-estoque">Apagar Estoque</button>
+                `).join('') : '<p class="sem-cameras">Sem câmeras</p>'}
             `;
             
                 container.appendChild(divEstoque);
