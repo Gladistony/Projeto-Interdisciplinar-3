@@ -19,10 +19,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/selecionarImagemEstoque"
+        android:id="@+id/imagemCriarEstoque"
         android:layout_width="200dp"
         android:layout_height="200dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tituloCriarEstoque"
@@ -33,12 +33,12 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:layout_marginTop="20dp"
         android:hint="@string/hintNomeEstoque"
         android:inputType="text"
+        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagem" />
+        app:layout_constraintTop_toBottomOf="@+id/selecionarCamera" />
 
     <EditText
         android:id="@+id/inserirDescricaoEstoque"
@@ -53,19 +53,20 @@
         app:layout_constraintTop_toBottomOf="@+id/inserirNomeEstoque" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button3"
+        android:id="@+id/cancelarCriarEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/buttonCancelar"
         android:layout_marginStart="80dp"
         android:layout_marginTop="20dp"
         android:textAllCaps="false"
+        android:textSize="20sp"
         android:backgroundTint="@color/goldenLogo2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inserirDescricaoEstoque" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button4"
+        android:id="@+id/criarEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/buttonCriar"
@@ -73,6 +74,7 @@
         android:textAllCaps="false"
         android:layout_marginEnd="80dp"
         android:layout_marginTop="20dp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inserirDescricaoEstoque" />
 
@@ -88,5 +90,33 @@
         android:layout_marginEnd="30dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selecionarImagemEstoque" />
+        app:layout_constraintTop_toBottomOf="@+id/imagemCriarEstoque" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/selecionarCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/selecionarCamera"
+        android:drawableStart="@drawable/icon_camera"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="10dp"
+        android:drawablePadding="5dp"
+        android:textSize="20sp"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagem" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/selecionarGaleria"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/selecionarGaleria"
+        android:drawableStart="@drawable/icon_image"
+        android:textAllCaps="false"
+        android:layout_marginEnd="60dp"
+        android:layout_marginTop="10dp"
+        android:drawablePadding="5dp"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagem" />
 </androidx.constraintlayout.widget.ConstraintLayout>

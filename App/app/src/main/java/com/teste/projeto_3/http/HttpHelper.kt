@@ -12,9 +12,12 @@ import okhttp3.Response
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 
 class HttpHelper {
+
+    val timeout: Long = 20
 
     fun post(method: String, json: String): String {
         // URL do servidor
@@ -24,7 +27,11 @@ class HttpHelper {
         val JSON = "application/json; charset=utf-8".toMediaType()
 
         // Cliente HTTP
-        val client = OkHttpClient()
+        val client = OkHttpClient.Builder()
+            .connectTimeout(timeout, TimeUnit.SECONDS)  // Timeout para a conexão
+            .writeTimeout(timeout, TimeUnit.SECONDS)    // Timeout para escrita
+            .readTimeout(timeout, TimeUnit.SECONDS)     // Timeout para leitura
+            .build()
 
         // Corpo da requisição com o JSON
         val body = json.toRequestBody(JSON)

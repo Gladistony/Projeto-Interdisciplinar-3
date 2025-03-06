@@ -1,13 +1,13 @@
 package com.teste.projeto_3;
-
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -28,24 +28,37 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.User;
+
 import java.util.ArrayList;
 
 public class FragStock extends Fragment implements RecyclerViewInterface{
     private ConstraintLayout mainLayout;
     private int boxCounter = 0;
-    private AdaptadorEstoqueRecyclerView adaptadorItem;
+    private AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
     public SharedViewModel viewModel;
-    public ArrayList<Estoque> estoque;
+    public ArrayList<Estoque> arrayEstoque;
     private EnviarRequisicao er;
     private CameraGaleria cg;
     private final Gson gson = new Gson();
-
     private Uri uriImagem;
+    private String urlImagem;
+    private String imagemBase64 = "";
+
+    public interface CallbackImagem {
+        void onComplete(String urlImagem);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,18 +83,18 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
             if (dados.getData() == null) { // Login por requisição de get_dados
-                estoque = new ArrayList<>(dados.getEstoque());
+                arrayEstoque = new ArrayList<>(dados.getEstoque());
             } else { // Login por requisição de login
-                estoque = new ArrayList<>(dados.getData().getEstoque());
+                arrayEstoque = new ArrayList<>(dados.getData().getEstoque());
             }
 
-            if (!estoque.isEmpty()) {
+            if (!arrayEstoque.isEmpty()) {
                 TextView textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
                 textoEstoqueVazio.setVisibility(View.GONE);
             }
 
-            adaptadorItem = new AdaptadorEstoqueRecyclerView(requireContext(), this, estoque);
-            recyclerView.setAdapter(adaptadorItem);
+            adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, arrayEstoque);
+            recyclerView.setAdapter(adaptadorItemEstoque);
             recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         });
@@ -188,11 +201,32 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void onItemLongClick(int position) {
-        estoque.remove(position);
-        adaptadorItem.notifyItemRemoved(position);
+        arrayEstoque.remove(position);
+        adaptadorItemEstoque.notifyItemRemoved(position);
     }
 
-    private void criarEstoque(String nome, String descricao, String urlImagem) {
+    private void criarEstoque(String nome, String descricao) {
+        if (er.possuiInternet(requireContext())) {
+            if (imagemBase64.isEmpty()) {
+                enviarEstoque(nome, descricao, "");
+            } else {
+                upload_img(imagemBase64, new CallbackImagem() {
+                    @Override
+                    public void onComplete(String urlImagem) {
+                        if (urlImagem != null) {
+                            enviarEstoque(nome, descricao, urlImagem);
+                        } else {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show()
+                            );
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void enviarEstoque(String nome, String descricao, String urlImagem) {
         if (er.possuiInternet(requireContext())) {
                 // Criando o objeto User
                 Estoque estoque = new Estoque();
@@ -214,7 +248,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                             User responseEstoque = gson.fromJson(response, User.class);
                             switch (responseEstoque.getCode()) {
                                 case 0:
-
+                                    adaptadorItemEstoque.adicionarArrayEstoque(estoque); // Verificar se vai precisar atualizar isso
+                                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show());
                             }
                         } catch (Exception e) {
                             requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
@@ -226,11 +261,11 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         }
     }
 
-    private void upload_img(String imagemBase64) {
+    private void upload_img(String imagemBase64, CallbackImagem callback) {
         if (er.possuiInternet(requireContext())) {
             User user = new User();
             user.setId(er.obterMemoriaInterna("idConexao"));
-            user.setDestino("perfil");
+            user.setDestino("outro");
             user.setFile(imagemBase64);
 
             // Converter o objeto User para JSON
@@ -238,48 +273,94 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
 
             er.post("upload_img", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
-                    });
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
+                    );
+                    callback.onComplete(null); // Erro no upload
                 } else if (response.startsWith("<html>")) {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show();
-                    });
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show()
+                    );
+                    callback.onComplete(null); // Arquivo muito grande
                 } else {
                     try {
                         // Processar resposta da requisição
                         User responseUpload = gson.fromJson(response, User.class);
                         if (responseUpload.getCode() == 0) {
-
-                                }
-                            } catch (Exception e) {
-                                requireActivity().runOnUiThread(() -> {
-                                    Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show();
-                                });
-                            }
+                            callback.onComplete(responseUpload.getUrl()); // Sucesso
+                        } else {
+                            callback.onComplete(null);
                         }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Erro ao processar o upload da imagem", Toast.LENGTH_SHORT).show()
+                        );
+                        callback.onComplete(null);
+                    }
+                }
             });
         } else {
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
-            });
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show()
+            );
+            callback.onComplete(null);
         }
     }
+
 
     private void dialogCriarEstoque() {
         Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_criar_estoque);
 
-        ImageView imageView = dialog.findViewById(R.id.selecionarImagemEstoque);
-        imageView.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
+        ImageView imagemCriarEstoque = dialog.findViewById(R.id.imagemCriarEstoque);
+        Button selecionarCamera = dialog.findViewById(R.id.selecionarCamera);
+        Button selecionarGaleria = dialog.findViewById(R.id.selecionarGaleria);
+        Button cancelarCriarEstoque = dialog.findViewById(R.id.cancelarCriarEstoque);
+        Button criarEstoque = dialog.findViewById(R.id.criarEstoque);
+
+        selecionarCamera.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
                 uriImagem = uri;
+                imagemBase64 = cg.converterUriParaBase64(uri);
+                // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
+                Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                        return false;
+                    }
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        cg.deletarImagemUri(uri);
+                        return false;
+                    }
+                }).into(imagemCriarEstoque);
             }
         }));
 
+        selecionarGaleria.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
+            @Override
+            public void onImageSelected(Uri uri) {
+                uriImagem = uri;
+                imagemBase64 = cg.converterUriParaBase64(uri);
+                Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemCriarEstoque);
+            }
+        }));
 
+        cancelarCriarEstoque.setOnClickListener(v-> dialog.dismiss());
+
+        criarEstoque.setOnClickListener(v-> {
+            EditText nomeEstoque = dialog.findViewById(R.id.inserirNomeEstoque);
+            EditText descricaoEstoque = dialog.findViewById(R.id.inserirDescricaoEstoque);
+
+            if (nomeEstoque.getText().toString().isEmpty() || descricaoEstoque.getText().toString().isEmpty()) {
+                Toast.makeText(requireContext(), "Insira nome e descrição para o Stock.", Toast.LENGTH_SHORT).show();
+            } else {
+                criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
+            }
+                });
 
         dialog.show();
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);

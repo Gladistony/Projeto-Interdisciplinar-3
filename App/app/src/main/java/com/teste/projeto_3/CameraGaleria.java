@@ -27,6 +27,7 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.LifecycleOwner;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -68,10 +69,8 @@ public class CameraGaleria {
                         Uri uriFotoPerfil = result.getData().getData();
                         if (uriFotoPerfil != null) {
                             try {
-                                String imagemBase64 = converterUriParaBase64(uriFotoPerfil);
-                                if (callbackCameraGaleria != null) {
-                                    callbackCameraGaleria.onImageSelected(uriFotoPerfil);
-                                }
+                                setCallbackCameraGaleria(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
+                                callbackCameraGaleria.onImageSelected(uriFotoPerfil);
                             } catch (Exception e) {
                                 Log.e("Erro CameraGaleria", "Erro ao carregar imagem da galeria", e);
                                 activity.runOnUiThread(() -> Toast.makeText(activity.getApplicationContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
@@ -83,7 +82,7 @@ public class CameraGaleria {
         this.requestPermissionGalleryLauncher = registry.register("requestPermissionGalleryLauncher", lifecycleOwner,
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                        abrirGaleria();
+                        abrirGaleria(callbackCameraGaleria);
                     } else {
                         activity.runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
                                 "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
@@ -125,17 +124,17 @@ public class CameraGaleria {
         }
     }
 
-    public void pedirPermissaoGaleria() {
+    public void pedirPermissaoGaleria(CallbackCameraGaleria ccg) {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
                 if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                    abrirGaleria();
+                    abrirGaleria(ccg);
                 } else {
                     requestPermissionGalleryLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
                 }
             } else { // Android 12 ou inferior
                 if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    abrirGaleria();
+                    abrirGaleria(ccg);
                 } else {
                     requestPermissionGalleryLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
                 }
@@ -161,9 +160,11 @@ public class CameraGaleria {
         }
     }
 
-    public void abrirGaleria() {
+    public void abrirGaleria(CallbackCameraGaleria ccg) {
         try {
             Intent intentGaleria = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            ArmazenamentoUriCallback.getInstance().setUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(ccg);
             galleryLauncher.launch(intentGaleria);
         } catch (Exception e) {
             Log.e("Erro CameraGaleria", "Erro ao abrir a galeria", e);
@@ -175,14 +176,6 @@ public class CameraGaleria {
         String nomeArquivoImagem = "JPEG_" + timeStamp + "_";
         File diretorio = activity.getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return File.createTempFile(nomeArquivoImagem, ".jpg", diretorio);
-    }
-
-    public void setImagemUri(Uri imagemUri) {
-        this.imagemUri = imagemUri;
-    }
-
-    public Uri getImagemUri() {
-        return imagemUri;
     }
 
     public String converterUriParaBase64(Uri imageUri) {

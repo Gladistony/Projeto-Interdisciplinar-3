@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -80,7 +81,6 @@ public class FragPerfil extends Fragment {
         TextView nome = view.findViewById(R.id.textNomeUsuario);
         TextView email = view.findViewById(R.id.textEmailUsuario);
 
-        /*
         // Obter o ViewModel compartilhado
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
 
@@ -115,8 +115,6 @@ public class FragPerfil extends Fragment {
             }
         });
 
-         */
-
         return view;
     }
 
@@ -124,6 +122,7 @@ public class FragPerfil extends Fragment {
         if (er.possuiInternet(requireContext())) {
             User userLogin = new User();
             userLogin.setId(er.obterMemoriaInterna("idConexao"));
+            Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
 
             // Converter o objeto User para JSON
             String userJson = gson.toJson(userLogin);
@@ -194,7 +193,7 @@ public class FragPerfil extends Fragment {
         LinearLayout escolherUrl = dialog.findViewById(R.id.escolherUrl);
 
         escolherGaleria.setOnClickListener(v -> {
-            cg.pedirPermissaoGaleria();
+            //cg.pedirPermissaoGaleria();
             dialog.dismiss();
         });
         escolherCamera.setOnClickListener(v -> {

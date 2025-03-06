@@ -48,13 +48,17 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
                     .load(estoque.get(position).getImagem())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.imagemEstoque);
-            //holder.imagemEstoque.setImageResource(arrayEstoque.get(position.getImage()));
         }
     }
 
     @Override
     public int getItemCount() {
             return estoque.size();
+    }
+
+    public void adicionarArrayEstoque(Estoque novoEstoque) {
+        estoque.add(novoEstoque);
+        notifyItemInserted(estoque.size() - 1);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -82,6 +86,7 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
                 }
             });
 
+            /*
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -94,7 +99,7 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
                     return true;
                 }
             });
-
+            */
         }
     }
 }
