@@ -99,15 +99,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
 
         });
 
-        // Configura o botão para adicionar novos "boxes"
-        Button buttonAdd = view.findViewById(R.id.button_add);
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showPopup();
-            }
-        });
-
         return view;  // Retorna a view inflada
     }
     private void showPopup() {
@@ -195,6 +186,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getData().getEstoque().get(position).getProdutos()));
             }
             intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
+            intentProduto.putExtra("idEstoque", dados.getEstoque().get(position).getId());
             startActivity(intentProduto);
         });
     }
@@ -248,8 +240,11 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                             User responseEstoque = gson.fromJson(response, User.class);
                             switch (responseEstoque.getCode()) {
                                 case 0:
-                                    adaptadorItemEstoque.adicionarArrayEstoque(estoque); // Verificar se vai precisar atualizar isso
-                                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show());
+                                    requireActivity().runOnUiThread(() -> {
+                                        adaptadorItemEstoque.adicionarArrayEstoque(estoque);
+                                        Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
+                                    });
+                                    break;
                             }
                         } catch (Exception e) {
                             requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
@@ -312,12 +307,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_criar_estoque);
+        dialog.setCanceledOnTouchOutside(false);
 
-        ImageView imagemCriarEstoque = dialog.findViewById(R.id.imagemCriarEstoque);
-        Button selecionarCamera = dialog.findViewById(R.id.selecionarCamera);
-        Button selecionarGaleria = dialog.findViewById(R.id.selecionarGaleria);
-        Button cancelarCriarEstoque = dialog.findViewById(R.id.cancelarCriarEstoque);
-        Button criarEstoque = dialog.findViewById(R.id.criarEstoque);
+        ImageView imagemCriarEstoque = dialog.findViewById(R.id.imagemRegistrarProduto);
+        Button selecionarCamera = dialog.findViewById(R.id.selecionarCameraProduto);
+        Button selecionarGaleria = dialog.findViewById(R.id.selecionarGaleriaProduto);
+        Button cancelarCriarEstoque = dialog.findViewById(R.id.cancelarRegistroProduto);
+        Button criarEstoque = dialog.findViewById(R.id.registrarProduto);
 
         selecionarCamera.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
@@ -352,13 +348,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         cancelarCriarEstoque.setOnClickListener(v-> dialog.dismiss());
 
         criarEstoque.setOnClickListener(v-> {
-            EditText nomeEstoque = dialog.findViewById(R.id.inserirNomeEstoque);
-            EditText descricaoEstoque = dialog.findViewById(R.id.inserirDescricaoEstoque);
+            EditText nomeEstoque = dialog.findViewById(R.id.inserirNomeProduto);
+            EditText descricaoEstoque = dialog.findViewById(R.id.inserirDescricaoProduto);
 
             if (nomeEstoque.getText().toString().isEmpty() || descricaoEstoque.getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Insira nome e descrição para o Stock.", Toast.LENGTH_SHORT).show();
             } else {
                 criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
+                dialog.dismiss();
             }
                 });
 

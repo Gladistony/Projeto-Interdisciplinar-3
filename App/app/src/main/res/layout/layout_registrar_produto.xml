@@ -11,7 +11,7 @@
         android:id="@+id/tituloCriarEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/tituloCriarNovoEstoque"
+        android:text="@string/tituloRegistrarProduto"
         android:textStyle="bold"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,7 +33,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/hintNomeEstoque"
+        android:hint="@string/hintNomeProduto"
         android:inputType="text"
         android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,7 +47,7 @@
         android:ems="10"
         android:inputType="text"
         android:layout_marginTop="10dp"
-        android:hint="@string/hintDescricaoEstoque"
+        android:hint="@string/hintDescricaoProduto"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inserirNomeProduto" />
@@ -66,7 +66,7 @@
         app:layout_constraintTop_toBottomOf="@+id/inserirDescricaoProduto" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/registrarProduto"
+        android:id="@+id/registrarProdutoEmEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/buttonCriar"
@@ -82,7 +82,7 @@
         android:id="@+id/textoSelecionarImagemProduto"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/textoSelecionarImagemEstoque"
+        android:text="@string/textoSelecionarImagemProduto"
         android:gravity="center"
         android:textStyle="italic"
         android:layout_marginTop="10dp"
@@ -119,4 +119,41 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagemProduto" />
+
+    <EditText
+        android:id="@+id/editTextPrecoProduto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:text="0,00"
+        android:inputType="number"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cancelarRegistroProduto" />
+
+    <EditText
+        android:id="@+id/dataValidadeProduto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="data"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPrecoProduto" />
+
+    <EditText
+        android:id="@+id/quantidadeProdutoRegistro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:hint="quantidade"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dataValidadeProduto" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

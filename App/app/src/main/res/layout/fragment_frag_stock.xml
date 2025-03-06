@@ -17,33 +17,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button_add"
-        style="@style/ButtonArrow"
-        android:layout_width="70dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="20dp"
-        android:drawableLeft="@drawable/ic_add"
-        android:contentDescription="@string/add"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="@+id/containerTop"
-        app:layout_constraintLeft_toLeftOf="@+id/containerTop"
-        />
-
     <TextView
         android:id="@+id/tituloEstoque"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Stock"
+        android:layout_marginTop="10dp"
+        android:text="@string/tituloStock"
         android:textColor="@color/black"
         android:textSize="30sp"
         android:textStyle="bold"
-        android:layout_marginTop="10dp"
-        app:layout_constraintTop_toTopOf="@+id/containerTop"
-        app:layout_constraintRight_toRightOf="@+id/containerTop"
         app:layout_constraintLeft_toLeftOf="@+id/containerTop"
-        />
+        app:layout_constraintRight_toRightOf="@+id/containerTop"
+        app:layout_constraintTop_toTopOf="@+id/containerTop" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/botaoCriarEstoque"

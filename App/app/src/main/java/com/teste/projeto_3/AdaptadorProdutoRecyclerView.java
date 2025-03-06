@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
@@ -68,6 +69,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         return produto.size();
     }
 
+    public void adicionarArrayProduto(Produto novoProduto) {
+        produto.add(novoProduto);
+        notifyItemInserted(produto.size() - 1);
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemProduto;
         public TextView nomeProduto;
@@ -98,6 +104,7 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
                 }
             });
 
+            /*
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -110,6 +117,8 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
                     return true;
                 }
             });
+
+             */
 
         }
     }
