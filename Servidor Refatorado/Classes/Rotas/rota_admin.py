@@ -47,3 +47,14 @@ def delete_user(item: GetUserData):
         return generate_response(15)
     usuario = conect.usuario
     return database.delete_user(item.usuario, usuario)
+
+@router.post("/get_user_estoque/")
+def get_user_estoque(item: GetUserData):
+    conect = manage_conect.get_conect(item.id)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    usuario = item.usuario
+    admin = conect.usuario
+    return database.get_user_estoque(usuario, admin)

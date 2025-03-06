@@ -197,7 +197,108 @@ class BancoDeDados:
         else:
             return generate_response(10)
     
+    def otimizar_estoque(self, id_estoque):
+        #apagar todas as entradas de produtos com quantidade 0
+        query = """DELETE FROM registro_produto_estoque WHERE quantidade = 0 AND id_estoque = :id_estoque"""
+        self.operacaoSql(query, {"id_estoque": id_estoque})
+        return generate_response(0)
+
+    def receber_produtos(self, id_estoque):
+        produtos = []
+        self.otimizar_estoque(id_estoque)
+        query = """SELECT * FROM registro_produto_estoque WHERE id_estoque = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params)
+        if result:
+            estoque_temp = {}
+            for row in result:
+                id_produto = row.id_produto
+                quantidade = row.quantidade
+                data_validade = row.data_validade
+                preco = row.preco
+                if id_produto not in estoque_temp:
+                    query = """SELECT * FROM produto WHERE id = :id_produto"""
+                    params = {"id_produto": id_produto}
+                    result = self.consultaSql(query, params).fetchone()
+                    if result:
+                        estoque_temp[id_produto] = {"nome": result.nome, "descricao": result.descricao, "foto": result.foto, "quantidade": [quantidade], "data_validade": [data_validade], "preco": [preco]}
+                else:
+                    estoque_temp[id_produto]["quantidade"].append(quantidade)
+                    estoque_temp[id_produto]["data_validade"].append(data_validade)
+                    estoque_temp[id_produto]["preco"].append(preco)
+            for key in estoque_temp:
+                quantidade_total = sum(estoque_temp[key]["quantidade"])
+                data_validade = estoque_temp[key]["data_validade"]
+                preco_medio = sum(estoque_temp[key]["preco"]) / len(estoque_temp[key]["preco"])
+                produtos.append({"id": key, "nome": estoque_temp[key]["nome"], "descricao": estoque_temp[key]["descricao"], "foto": estoque_temp[key]["foto"], "quantidade": quantidade_total, "data_validade": data_validade, "preco_medio": preco_medio, "lista_precos": estoque_temp[key]["preco"], "lista_quantidades": estoque_temp[key]["quantidade"]})
+        return produtos
+    
+    def mudar_produto(self, id_produto, quantidade, id_estoque, usuario):
+        #verificar se o usuario é dono do estoque
+        conta = self.selecionar_conta(usuario)
+        if not conta:
+            return generate_response(4)
+        query = """SELECT * FROM estoque WHERE id = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(26)
+        if result.id_conta != conta.id and conta.tipo_conta != "admin":
+            return generate_response(27)
+        return self.mudar_quantiade_produto(id_produto, id_estoque, quantidade)
+
+    def mudar_quantiade_produto(self, id_produto, id_estoque, quantidade):
+        #Pegar todos os produtos com o id_produto no estoque
+        query = """SELECT * FROM registro_produto_estoque WHERE id_produto = :id_produto AND id_estoque = :id_estoque"""
+        params = {"id_produto": id_produto, "id_estoque": id_estoque}
+        result = self.consultaSql(query, params)
+        result = result.fetchall()
+        if len(result) == 0:
+                return generate_response(24)
+        if result:
+            if quantidade > 0:
+                #Adicionar quantidade ao ultimo produto
+                query = """UPDATE registro_produto_estoque SET quantidade = quantidade + :quantidade WHERE id = :id_produto"""
+                params = {"quantidade": quantidade, "id_produto": result[-1].id}
+                self.operacaoSql(query, params)
+                return generate_response(0)
+            elif quantidade < 0:
+                #Iniciar loop de remoção de produtos
+                quantidade = abs(quantidade)
+                for row in result:
+                    if row.quantidade >= quantidade:
+                        query = """UPDATE registro_produto_estoque SET quantidade = quantidade - :quantidade WHERE id = :id_produto"""
+                        params = {"quantidade": quantidade, "id_produto": row.id}
+                        self.operacaoSql(query, params)
+                        return generate_response(0)
+                    else:
+                        query = """UPDATE registro_produto_estoque SET quantidade = 0 WHERE id = :id_produto"""
+                        self.operacaoSql(query, {"id_produto": row.id})
+                        quantidade -= row.quantidade
+                return generate_response(28, faltaram=quantidade)
+        else:
+            return generate_response(23)
+    
     def data_conta_organizada(self, conta):
+        #Verificar se existem estoques para a conta
+        query = """SELECT * FROM estoque WHERE id_conta = :id_conta"""
+        params = {"id_conta": conta.id}
+        result = self.consultaSql(query, params)
+        estoque = []
+        if result:
+            for row in result:
+                #Buscar Listagens das cameras
+                query = """SELECT * FROM cameras WHERE id_conta = :id_estoque"""
+                params = {"id_estoque": row.id}
+                result = self.consultaSql(query, params)
+                cameras = []
+                if result:
+                    for rowcamera in result:
+                        cameras.append({"id": rowcamera.id, "nome": rowcamera.nome, "descricao": rowcamera.descricao, "codigo_camera": rowcamera.codigo_camera})
+                #Buscar Listagens dos produtos
+                produtos = self.receber_produtos(row.id)
+                estoque.append({"id": row.id, "nome": row.nome, "descricao": row.descricao, "imagem": row.imagem, "cameras": cameras, "produtos": produtos})
+
         return {
             "usuario": conta.nome_usuario,
             "email": conta.email,
@@ -205,7 +306,8 @@ class BancoDeDados:
             "criacao": conta.data_criacao,
             "ultimo_login": conta.data_ultimo_login,
             "url_foto": conta.url_foto,
-            "tipo_conta": conta.tipo_conta
+            "tipo_conta": conta.tipo_conta,
+            "estoque": estoque
         }
 
     def give_data(self, nome_usuario):
@@ -306,15 +408,35 @@ class BancoDeDados:
         for row in result:
             data_estoque = {"id": row.id, "nome": row.nome, "descricao": row.descricao, "imagem": row.imagem}
             #Buscar Listagens das cameras
-            query = """SELECT * FROM cameras WHERE id_estoque = :id_estoque"""
+            query = """SELECT * FROM cameras WHERE id_conta = :id_estoque"""
             params = {"id_estoque": row.id}
             result = self.consultaSql(query, params)
             cameras = []
-            for rowcamera in result:
-                cameras.append({"id": rowcamera.id, "nome": rowcamera.nome, "descricao": rowcamera.descricao, "codigo_camera": rowcamera.codigo_camera})
+            if result:
+                for rowcamera in result:
+                    cameras.append({"id": rowcamera.id, "nome": rowcamera.nome, "descricao": rowcamera.descricao, "codigo_camera": rowcamera.codigo_camera})
             data_estoque["cameras"] = cameras
+            #Buscar Listagens dos produtos
+            produtos = self.receber_produtos(row.id)
+            data_estoque["produtos"] = produtos
             estoque.append(data_estoque)
         return generate_response(0, estoque=estoque)
+    
+    def charge_estoque_image(self, usuario, id_estoque, imagem):
+        #Verificar propriedade do estoque
+        conta = self.selecionar_conta(usuario)
+        if not conta:
+            return generate_response(4)
+        query = """SELECT * FROM estoque WHERE id = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(26)
+        if result.id_conta != conta.id and conta.tipo_conta != "admin":
+            return generate_response(27)
+        query = """UPDATE estoque SET imagem = :imagem WHERE id = :id_estoque"""
+        self.operacaoSql(query, {"imagem": imagem, "id_estoque": id_estoque})
+        return generate_response(0)
     
     def get_produto(self, admin, id_produto):
         conta = self.selecionar_conta(admin)
@@ -334,7 +456,8 @@ class BancoDeDados:
         query = """INSERT INTO produto (nome, descricao, foto) VALUES (:nome, :descricao, :imagem)"""
         params = {"nome": nome, "descricao": descricao, "imagem": imagem}
         self.operacaoSql(query, params)
-        return generate_response(0)
+        id_produto = self.consultaSql("SELECT last_insert_rowid()").fetchone()[0]
+        return generate_response(0, id_produto=id_produto)
     
     def registro_produto_estoque(self, admin, id_estoque, id_produto, quantidade, data_validade, preco):
         conta = self.selecionar_conta(admin)
@@ -352,14 +475,23 @@ class BancoDeDados:
         query = """INSERT INTO estoque (id_conta, nome, descricao, imagem) VALUES (:id_conta, :nome, :descricao, :imagem)"""
         params = {"id_conta": conta.id, "nome": nome, "descricao": descricao, "imagem": imagem}
         self.operacaoSql(query, params)
-        return generate_response(0)
+        id_estoque = self.consultaSql("SELECT last_insert_rowid()").fetchone()[0]
+        return generate_response(0, id_estoque=id_estoque)
     
-    def cadastrar_camera(self, admin, nome, descricao, codigo_camera):
+    def cadastrar_camera(self, admin, nome, descricao, codigo_camera, id_estoque):
         conta = self.selecionar_conta(admin)
         if not conta:
             return generate_response(4)
-        query = """INSERT INTO cameras (id_estoque, nome, descricao, codigo_camera) VALUES (:id_estoque, :nome, :descricao, :codigo_camera)"""
-        params = {"id_estoque": conta.id, "nome": nome, "descricao": descricao, "codigo_camera": codigo_camera}
+        #Verificar se o estoque pertence ao dono
+        query = """SELECT * FROM estoque WHERE id = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(26)
+        if result.id_conta != conta.id and conta.tipo_conta != "admin":
+            return generate_response(27)
+        query = """INSERT INTO cameras (id_conta, nome, descricao, codigo_camera) VALUES (:id_estoque, :nome, :descricao, :codigo_camera)"""
+        params = {"id_estoque": id_estoque, "nome": nome, "descricao": descricao, "codigo_camera": codigo_camera}
         self.operacaoSql(query, params)
         return generate_response(0, id_camera=codigo_camera)
     
@@ -373,5 +505,30 @@ class BancoDeDados:
         self.operacaoSql(query, {"usuario": usuario})
         return generate_response(0)
     
+    def get_user_estoque(self, usuario, admin):
+        conta = self.selecionar_conta(admin)
+        if not conta:
+            return generate_response(4)
+        if conta.tipo_conta != "admin":
+            return generate_response(22)
+        return self.get_estoque(usuario)
+
+    def deletar_estoque(self, id_estoque, dono):
+        conta = self.selecionar_conta(dono)
+        if not conta:
+            return generate_response(4)
+        #Verificar se o estoque pertence ao dono
+        query = """SELECT * FROM estoque WHERE id = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(26)
+        if result.id_conta != conta.id and conta.tipo_conta != "admin":
+            return generate_response(27)
+        query = """DELETE FROM estoque WHERE id = :id_estoque"""
+        self.operacaoSql(query, params)
+        return generate_response(0)
+        
+
 
         

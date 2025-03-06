@@ -142,6 +142,17 @@ def criar_estoque(item: CriarEstoque):
         return generate_response(15)
     return database.criar_estoque(conect.usuario, item.nome, item.descricao, item.imagem)
 
+@router.post("/charge_estoque_url/")
+def charge_estoque_url(item: ChargeEstoqueUrl):
+    conect = manage_conect.get_conect(item.id)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    estoque_id = item.id_estoque
+    url_foto = item.url_foto
+    return database.charge_estoque_image(conect.usuario, estoque_id, url_foto)
+
 @router.post("/cadastrar_camera/")
 def cadastrar_camera(item: CadastrarCamera):
     conect = manage_conect.get_conect(item.id)
@@ -149,6 +160,29 @@ def cadastrar_camera(item: CadastrarCamera):
         return generate_response(12)
     if not conect.ja_logado:
         return generate_response(15)
-    codigo_camera = uuid.uuid4()
-    return database.cadastrar_camera(conect.usuario, item.nome, item.descricao, codigo_camera)
+    codigo_camera = f"{uuid.uuid4()}"
+    id_estoque = item.id_estoque
+    return database.cadastrar_camera(conect.usuario, item.nome, item.descricao, codigo_camera, id_estoque)
 
+@router.post("/apagar_estoque/")
+def apagar_estoque(item: DelEstoque):
+    conect = manage_conect.get_conect(item.id)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    id_estoque = item.id_estoque
+    return database.deletar_estoque(id_estoque, conect.usuario)
+
+@router.post("/mudar_produto/")
+def mudar_produto(item: MudarProdutoQt):
+    conect = manage_conect.get_conect(item.id)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    id_produto = item.id_produto
+    quantidade = item.quantidade
+    id_estoque = item.id_estoque
+    return database.mudar_produto(id_produto, quantidade, id_estoque, conect.usuario)
+    

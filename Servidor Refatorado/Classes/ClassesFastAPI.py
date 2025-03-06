@@ -87,9 +87,25 @@ class CriarEstoque(BaseModel):
     id: str
     nome: str
     descricao: str
-    imagem: str
+    imagem: str #Optional
 
 class CadastrarCamera(BaseModel):
     id: str
     nome: str
     descricao: str
+    id_estoque: str
+
+class ChargeEstoqueUrl(BaseModel): 
+    id: str
+    url_foto: str
+    id_estoque: str
+
+class MudarProdutoQt(BaseModel):
+    id: str
+    id_produto: str
+    id_estoque: str
+    quantidade: int
+
+class DelEstoque(BaseModel):
+    id: str
+    id_estoque: str
