@@ -60,7 +60,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     }
 
     private AdaptadorProdutoRecyclerView adaptadorItemProduto;
-
     SharedViewModel viewModel;
     public ArrayList<Produto> produto;
     DecimalFormat decimalFormat;
@@ -330,6 +329,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     produtoInfo.getLista_quantidades().add(quantidade);
 
                                     adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
+                                    FragStock.adaptadorItemEstoque.notificarNovoProdutoEstoque(produtoInfo, getIntent().getIntExtra("position", -1));
                                     Toast.makeText(TelaProduto.this, "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
                                 });
                         }

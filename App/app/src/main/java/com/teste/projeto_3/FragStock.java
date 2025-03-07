@@ -44,7 +44,7 @@ import com.teste.projeto_3.model.User;
 import java.util.ArrayList;
 
 public class FragStock extends Fragment implements RecyclerViewInterface{
-    public AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
+    public static AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
     public SharedViewModel viewModel;
     public ArrayList<Estoque> arrayEstoque;
     private EnviarRequisicao er;
@@ -102,8 +102,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
             if (dados.getData() == null) { // Login por requisição de get_dados
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getEstoque().get(position).getProdutos()));
+                intentProduto.putParcelableArrayListExtra("estoque", new ArrayList<>(dados.getEstoque()));
             } else { // Login por requisição de login
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getData().getEstoque().get(position).getProdutos()));
+                intentProduto.putParcelableArrayListExtra("estoque", new ArrayList<>(dados.getData().getEstoque()));
             }
             intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
             intentProduto.putExtra("idEstoque", dados.getEstoque().get(position).getId());
