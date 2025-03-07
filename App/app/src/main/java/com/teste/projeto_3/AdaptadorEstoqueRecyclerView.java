@@ -14,6 +14,7 @@ import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorEstoqueRecyclerView.MyViewHolder> {
     Context context;

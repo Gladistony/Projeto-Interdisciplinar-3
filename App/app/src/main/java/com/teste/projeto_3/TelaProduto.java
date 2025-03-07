@@ -99,6 +99,9 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             dialogRegistrarProduto();
         });
 
+        Button botaoFecharTelaProduto = findViewById(R.id.botaoVoltarTelaProduto);
+        botaoFecharTelaProduto.setOnClickListener(v -> finish());
+
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewProduto);
         adaptadorItemProduto = new AdaptadorProdutoRecyclerView(this, produto, this);
@@ -134,7 +137,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         textoData.setOnClickListener(v -> dialogCalendarioValidade(textoData));
 
         EditText editTextTextoProduto = dialog.findViewById(R.id.editTextPrecoProduto);
-        editTextTextoProduto.setOnClickListener(v -> formatarPreco(editTextTextoProduto));
+        formatarPreco(editTextTextoProduto);
 
         Button cameraProduto = dialog.findViewById(R.id.selecionarCameraProduto);
         Button galeriaProduto = dialog.findViewById(R.id.selecionarGaleriaProduto);
@@ -190,6 +193,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             }else if (idEstoque != -1){
                 adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), Double.parseDouble(stringPrecoProduto), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto);
             }
+            dialog.dismiss();
         });
 
 
@@ -219,13 +223,19 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                 ano, mes, dia);
         datePickerDialog.show();
     }
-
     private void formatarPreco(EditText preco) {
-        preco.setSelection(preco.getText().length());
+        preco.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                String texto = preco.getText().toString();
+                if (texto.isEmpty()) {
+                    preco.setText("0,00");
+                    preco.setSelection(preco.getText().length());
+                }
+            }
+        });
 
         preco.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
-            private final DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
 
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -240,17 +250,24 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                 // Remove tudo que não for número
                 String str = s.toString().replaceAll("[^\\d]", "");
 
-                // Se o valor digitado for vazio, define como "0,00"
+                // Se o valor for vazio, define como "0,00"
                 if (str.isEmpty()) {
                     preco.setText("0,00");
                 } else {
-                    double valor = Double.parseDouble(str) / 100.0;
-                    String formatado = decimalFormat.format(valor);
-                    preco.setText(formatado);
-                }
+                    try {
+                        double valor = Double.parseDouble(str) / 100.0;
+                        String formatado = decimalFormat.format(valor);
 
-                // Move o cursor para o final
-                preco.setSelection(preco.getText().length());
+                        // Atualiza o campo de texto sem perder a posição do cursor
+                        preco.removeTextChangedListener(this);
+                        preco.setText(formatado);
+                        preco.setSelection(preco.getText().length());
+                        preco.addTextChangedListener(this);
+                    } catch (NumberFormatException e) {
+                        preco.setText("0,00");
+                        preco.setSelection(preco.getText().length());
+                    }
+                }
 
                 isUpdating = false;
             }

@@ -6,12 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-
 import androidx.annotation.Nullable;
-import androidx.appcompat.view.ContextThemeWrapper;
-import androidx.appcompat.widget.AppCompatButton;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -24,8 +19,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +43,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
     private EnviarRequisicao er;
     private CameraGaleria cg;
     private final Gson gson = new Gson();
-    private Uri uriImagem;
     private String imagemBase64 = "";
 
     public interface CallbackImagem {
@@ -161,13 +153,15 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                         try {
                             // Processar resposta da requisição
                             User responseEstoque = gson.fromJson(response, User.class);
-                            switch (responseEstoque.getCode()) {
-                                case 0:
+                            if (responseEstoque.getCode() == 0) {
                                     requireActivity().runOnUiThread(() -> {
                                         adaptadorItemEstoque.adicionarArrayEstoque(estoque);
                                         Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
                                     });
-                                    break;
+                            } else {
+                                requireActivity().runOnUiThread(() -> {
+                                    Toast.makeText(requireContext(), "Falha em adicionar o produto ao Stock", Toast.LENGTH_LONG).show();
+                                });
                             }
                         } catch (Exception e) {
                             requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
@@ -241,7 +235,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         selecionarCamera.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                uriImagem = uri;
                 imagemBase64 = cg.converterUriParaBase64(uri);
                 // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
                 Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
@@ -262,7 +255,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         selecionarGaleria.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                uriImagem = uri;
                 imagemBase64 = cg.converterUriParaBase64(uri);
                 Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemCriarEstoque);
             }
