@@ -44,16 +44,13 @@ import com.teste.projeto_3.model.User;
 import java.util.ArrayList;
 
 public class FragStock extends Fragment implements RecyclerViewInterface{
-    private ConstraintLayout mainLayout;
-    private int boxCounter = 0;
-    private AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
+    public AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
     public SharedViewModel viewModel;
     public ArrayList<Estoque> arrayEstoque;
     private EnviarRequisicao er;
     private CameraGaleria cg;
     private final Gson gson = new Gson();
     private Uri uriImagem;
-    private String urlImagem;
     private String imagemBase64 = "";
 
     public interface CallbackImagem {
@@ -77,9 +74,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         FloatingActionButton criarEstoque = view.findViewById(R.id.botaoCriarEstoque);
         criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
 
-        // Inicializa o layout principal
-        mainLayout = view.findViewById(R.id.main);
-
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
             if (dados.getData() == null) { // Login por requisição de get_dados
@@ -101,80 +95,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
 
         return view;  // Retorna a view inflada
     }
-    private void showPopup() {
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
-        View popupView = inflater.inflate(R.layout.popup_input, null);
-
-        final PopupWindow popupWindow = new PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true);
-
-        EditText editTextName = popupView.findViewById(R.id.editTextName);
-        Button buttonSubmit = popupView.findViewById(R.id.buttonSubmit);
-
-        editTextName.setTextColor(getResources().getColor(android.R.color.black));
-        editTextName.setHintTextColor(getResources().getColor(android.R.color.darker_gray));
-
-        buttonSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String name = editTextName.getText().toString();
-                if (!name.isEmpty()) {
-                    addBox(name);
-                    popupWindow.dismiss();
-                }
-            }
-        });
-
-        popupWindow.showAtLocation(mainLayout, android.view.Gravity.CENTER, 0, 0);
-    }
-
-    private void addBox(String name) {
-        // Criação do botão com o estilo definido
-        AppCompatButton buttonBox = new AppCompatButton(new ContextThemeWrapper(getContext(), R.style.ContainerBox));
-        buttonBox.setId(View.generateViewId());
-        buttonBox.setText(name);
-        buttonBox.setBackgroundResource(R.drawable.container_box);
-        buttonBox.setTextColor(getResources().getColor(android.R.color.black));
-
-        // Define o layoutParams diretamente
-        ConstraintLayout.LayoutParams params = new ConstraintLayout.LayoutParams(
-                getResources().getDimensionPixelSize(R.dimen.box_width),
-                getResources().getDimensionPixelSize(R.dimen.box_height)
-        );
-        params.setMargins(
-                getResources().getDimensionPixelSize(R.dimen.box_margin_horizontal),
-                getResources().getDimensionPixelSize(R.dimen.box_margin_vertical),
-                getResources().getDimensionPixelSize(R.dimen.box_margin_horizontal),
-                0
-        );
-        buttonBox.setLayoutParams(params);
-
-        // Adiciona o botão ao layout
-        mainLayout.addView(buttonBox);
-
-        // Configura as restrições
-        ConstraintSet constraintSet = new ConstraintSet();
-        constraintSet.clone(mainLayout);
-
-        int row = boxCounter / 2;
-        int column = boxCounter % 2;
-
-        // Conecta o botão com as restrições do layout
-        if (column == 0) {
-            constraintSet.connect(buttonBox.getId(), ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START, 10);
-        } else {
-            constraintSet.connect(buttonBox.getId(), ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END, 10);
-        }
-
-        if (row == 0) {
-            constraintSet.connect(buttonBox.getId(), ConstraintSet.TOP, R.id.containerTop, ConstraintSet.BOTTOM, 30);
-        } else {
-            View previousBox = mainLayout.getChildAt(mainLayout.getChildCount() - 3);
-            constraintSet.connect(buttonBox.getId(), ConstraintSet.TOP, previousBox.getId(), ConstraintSet.BOTTOM, 30);
-        }
-
-        constraintSet.applyTo(mainLayout);
-        boxCounter++;
-    }
 
     @Override
     public void onItemClick(int position) {
@@ -187,6 +107,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
             }
             intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
             intentProduto.putExtra("idEstoque", dados.getEstoque().get(position).getId());
+            intentProduto.putExtra("position", position);
             startActivity(intentProduto);
         });
     }

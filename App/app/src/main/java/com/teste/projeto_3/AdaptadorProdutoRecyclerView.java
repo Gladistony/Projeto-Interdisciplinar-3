@@ -23,6 +23,7 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
     private final RecyclerViewInterface recyclerViewInterface;
 
 
+
     public AdaptadorProdutoRecyclerView(Context context, ArrayList<Produto> produto, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.produto = produto;

@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -43,24 +44,30 @@ import com.teste.projeto_3.model.Produto;
 import com.teste.projeto_3.model.User;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
 public class TelaProduto extends AppCompatActivity implements RecyclerViewInterface {
 
-    public interface CallbackImagem {
+    private interface CallbackResponseUpload {
         void onCompleteUploadImg(String urlImagem);
+    }
+
+    private interface CallbackResponseProduto{
         void onCompleteRegistroProduto(Produto produto);
     }
 
     private AdaptadorProdutoRecyclerView adaptadorItemProduto;
+
+    SharedViewModel viewModel;
     public ArrayList<Produto> produto;
     DecimalFormat decimalFormat;
     EnviarRequisicao er;
     CameraGaleria cg;
     Uri uriImagem;
-    String imagemBase64;
+    String imagemBase64 = "";
     private final Gson gson = new Gson();
 
     @Override
@@ -75,7 +82,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         });
         er = new EnviarRequisicao(this);
         cg = new CameraGaleria(this, getActivityResultRegistry(),this);
-        decimalFormat = new DecimalFormat("###,###,##0.00");
+        viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        decimalFormat = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
 
         produto = getIntent().getParcelableArrayListExtra("produto");
 
@@ -214,16 +222,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     }
 
     private void formatarPreco(EditText preco) {
-        preco.setFocusable(true);
-        preco.setFocusableInTouchMode(true);
-
-        // Define o valor inicial como "0,00" quando o EditText ganha foco
-        preco.setOnFocusChangeListener((v, hasFocus) -> {
-            if (hasFocus && preco.getText().toString().isEmpty()) {
-                preco.setText("0,00");
-                preco.setSelection(preco.getText().length()); // Move o cursor para o final
-            }
-        });
+        preco.setSelection(preco.getText().length());
 
         preco.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
@@ -246,7 +245,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                 if (str.isEmpty()) {
                     preco.setText("0,00");
                 } else {
-                    // Converte para centavos e formata
                     double valor = Double.parseDouble(str) / 100.0;
                     String formatado = decimalFormat.format(valor);
                     preco.setText(formatado);
@@ -265,35 +263,39 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
     private void adicionarProdutoEmEstoque(int idEstoque, int quantidade, Double preco, String dataValidade, String nomeProduto, String descricaoProduto) {
         if (er.possuiInternet(this)) {
-            if (imagemBase64.isEmpty()) {
-
-            } else {
-                upload_img(imagemBase64, new TelaProduto.CallbackImagem() {
+            if (imagemBase64.isEmpty()) { // Enviar produto sem imagem
+                registroProduto(nomeProduto, descricaoProduto, imagemBase64, new CallbackResponseProduto() {
+                    @Override
+                    public void onCompleteRegistroProduto(Produto produtoRegistrado) {
+                        if (produtoRegistrado != null) {
+                            registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, produtoRegistrado, nomeProduto, descricaoProduto, imagemBase64);
+                        }
+                    }
+                });
+            } else { //Enviar imagem e registrar produto com imagem
+                upload_img(imagemBase64, new CallbackResponseUpload() {
                     @Override
                     public void onCompleteUploadImg(String urlImagem) {
                         if (urlImagem != null) {
-                            registroProduto(nomeProduto, descricaoProduto, urlImagem, new CallbackImagem() {
-                                @Override
-                                public void onCompleteUploadImg(String urlImagem) {}
+                            imagemBase64 = "";
+                            registroProduto(nomeProduto, descricaoProduto, urlImagem, new CallbackResponseProduto() {
                                 @Override
                                 public void onCompleteRegistroProduto(Produto produtoRegistrado) {
-                                    registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, produtoRegistrado);
+                                    registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, produtoRegistrado, nomeProduto, descricaoProduto, urlImagem);
                                 }
                             });
                         } else {
                             runOnUiThread(() ->
-                                    Toast.makeText(TelaProduto.this, "Falha no upload da imagem", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(TelaProduto.this, "Falha no upload de imagem", Toast.LENGTH_SHORT).show()
                             );
                         }
                     }
-                    @Override
-                    public void onCompleteRegistroProduto(Produto produtoRegistrado){}
                 });
             }
         }
     }
 
-    private void registroProdutoEmEstoque(int idEstoque, int idProduto, int quantidade, String dataValidade, Double preco, Produto produtoRegistrado) {
+    private void registroProdutoEmEstoque(int idEstoque, int idProduto, int quantidade, String dataValidade, Double preco, Produto produtoRegistrado, String nomeProduto, String descricaoProduto, String urlImagem) {
         if (er.possuiInternet(this)) {
 
             Estoque estoque = new Estoque();
@@ -315,15 +317,24 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     try {
                         // Processar resposta da requisição
                         Estoque responseEstoque = gson.fromJson(response, Estoque.class);
-                        switch (responseEstoque.getCode()) {
-                            case 0:
+                        if (responseEstoque.getCode() == 0) {
                                 runOnUiThread(() -> {
-                                    adaptadorItemProduto.adicionarArrayProduto(produtoRegistrado);
+                                    Produto produtoInfo = new Produto();
+                                    produtoInfo.setId(idProduto);
+                                    produtoInfo.setQuantidade(Integer.toString(quantidade));
+                                    produtoInfo.setNome(nomeProduto);
+                                    produtoInfo.setDescricao(descricaoProduto);
+                                    produtoInfo.setFoto(urlImagem);
+                                    produtoInfo.setPreco_medio(preco);
+                                    produtoInfo.getLista_precos().add(preco);
+                                    produtoInfo.getLista_quantidades().add(quantidade);
+
+                                    adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
                                     Toast.makeText(TelaProduto.this, "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
                                 });
                         }
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao registrar o produto no Stock", Toast.LENGTH_SHORT).show());
                     }
                 }
             });
@@ -332,7 +343,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         }
     }
 
-    private void registroProduto(String nome, String descricao, String urlImagem, CallbackImagem callback) {
+    private void registroProduto(String nome, String descricao, String urlImagem, CallbackResponseProduto callback) {
         if (er.possuiInternet(this)) {
 
             Estoque estoque = new Estoque();
@@ -348,25 +359,29 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             er.post("registro_produto", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                    callback.onCompleteRegistroProduto(null);
                 } else {
                     try {
                         // Processar resposta da requisição
                         Produto responseEstoque = gson.fromJson(response, Produto.class);
-                        switch (responseEstoque.getCode()) {
-                            case 0:
+                        if (responseEstoque.getCode() == 0) {
                                callback.onCompleteRegistroProduto(responseEstoque);
+                        } else {
+                            callback.onCompleteRegistroProduto(null);
                         }
                     } catch (Exception e) {
                         runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        callback.onCompleteRegistroProduto(null);
                     }
                 }
             });
         } else {
             runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            callback.onCompleteRegistroProduto(null);
         }
     }
 
-    private void upload_img(String imagemBase64, CallbackImagem callback) {
+    private void upload_img(String imagemBase64, CallbackResponseUpload callback) {
         if (er.possuiInternet(this)) {
             User user = new User();
             user.setId(er.obterMemoriaInterna("idConexao"));
