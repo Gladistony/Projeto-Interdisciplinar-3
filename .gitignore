@@ -1,0 +1,9 @@
+*.avi
+MobileNetSSD_deploy.caffemodel
+MobileNetSSD_deploy.prototxt
+yolov8x.pt
+yolov8n.pt
+/Servidor Refatorado/Classes/__pycache__
+/Servidor Refatorado/__pycache__
+/Servidor Refatorado/Classes/Rotas/__pycache__
+/Servidor Refatorado/imagens
