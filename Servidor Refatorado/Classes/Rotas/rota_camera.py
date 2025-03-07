@@ -84,23 +84,43 @@ async def receive_stream(camera_id: str, request: Request):
     
     return Response(status_code=200)
 
-@router.get("/videos/{camera_id}")
-def list_videos(camera_id: str):
+def autenticar_camera(id_conexao, camera_id):
+    conect = manage_conect.get_conect(id_conexao)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    response = database.verificar_posse(conect.usuario, camera_id)
+    if response["code"] != 0:
+        return response
+    return None
+
+@router.get("/videos/{camera_id}/{id_conexao}")
+def list_videos(camera_id: str, id_conexao: str):
+    response = autenticar_camera(id_conexao, camera_id)
+    if response is not None:
+        return response
     camera_folder = os.path.join(VIDEO_ROOT_FOLDER, camera_id)
     if not os.path.exists(camera_folder):
         return JSONResponse(content={"videos": []})
     files = os.listdir(camera_folder)
     return JSONResponse(content={"videos": files})
 
-@router.get("/video/{camera_id}/{filename}")
-def get_video(camera_id: str, filename: str):
+@router.get("/video/{camera_id}/{filename}/{id_conexao}")
+def get_video(camera_id: str, filename: str, id_conexao: str):
+    response = autenticar_camera(id_conexao, camera_id)
+    if response is not None:
+        return response
     file_path = os.path.join(VIDEO_ROOT_FOLDER, camera_id, filename)
     if os.path.exists(file_path):
         return Response(content=open(file_path, "rb").read(), media_type="video/x-msvideo")
     return Response(status_code=404, content="File not found")
 
-@router.get("/list_all_videos/{camera_id}")
-def list_all_videos(camera_id: str):
+@router.get("/list_all_videos/{camera_id}/{id_conexao}")
+def list_all_videos(camera_id: str, id_conexao: str):
+    response = autenticar_camera(id_conexao, camera_id)
+    if response is not None:
+        return response
     camera_folder = os.path.join(VIDEO_ROOT_FOLDER, camera_id)
     if not os.path.exists(camera_folder):
         return JSONResponse(content={"videos": []})
@@ -147,9 +167,12 @@ def generate_frames_classe(idcamera):
         yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + fra.tobytes() + b"\r\n")
    
 
-@router.get("/ver_camera/{camera_id}")
-async def ver_camera(camera_id: str):
+@router.get("/ver_camera/{camera_id}/{id_conexao}")
+async def ver_camera(camera_id: str, id_conexao: str):
     """Verifica o estado da câmera e transmite os frames ou retorna offline"""
+    auth = autenticar_camera(id_conexao, camera_id)
+    if auth is not None:
+        return auth
     if camera_id not in camera_status:
         return JSONResponse(content={"message": "Câmera não encontrada"}, status_code=404)
 
@@ -159,9 +182,12 @@ async def ver_camera(camera_id: str):
         # Se a câmera não estiver online, retorna o status offline
         return JSONResponse(content={"message": "Câmera offline"}, status_code=404)
     
-@router.get("/ver_camera_classe/{camera_id}")
-async def ver_camera_classe(camera_id: str):
+@router.get("/ver_camera_classe/{camera_id}/{id_conexao}")
+async def ver_camera_classe(camera_id: str, id_conexao: str):
     """Verifica o estado da câmera e transmite os frames ou retorna offline"""
+    auth = autenticar_camera(id_conexao, camera_id)
+    if auth is not None:
+        return auth
     if camera_id not in camera_status:
         return JSONResponse(content={"message": "Câmera não encontrada"}, status_code=404)
 

@@ -542,8 +542,28 @@ class BancoDeDados:
             params = {"id_produto": id_produto}
             result = self.consultaSql(query, params).fetchone()
             if not result:
-                return generate_response(23)
+                return generate_response(24)
             return generate_response(0, produto={"id": result.id, "nome": result.nome, "descricao": result.descricao, "foto": result.foto})
+    
+    def verificar_posse(self, usuario, id_camera):
+        conta = self.selecionar_conta(usuario)
+        if not conta:
+            return generate_response(4)
+        query = """SELECT * FROM cameras WHERE codigo_camera = :id_camera"""
+        params = {"id_camera": id_camera}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(29)
+        id_estoque = result.id_conta
+        query = """SELECT * FROM estoque WHERE id = :id_estoque"""
+        params = {"id_estoque": id_estoque}
+        result = self.consultaSql(query, params).fetchone()
+        if not result:
+            return generate_response(26)
+        if result.id_conta != conta.id and conta.tipo_conta != "admin":
+            return generate_response(27)
+        return generate_response(0)
+        
         
 
 
