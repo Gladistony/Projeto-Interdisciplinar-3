@@ -69,16 +69,6 @@ def criar_tabelas(engime):
         Column('anotacoes', Text),
         Column('numero_telefone', String(20))
     )
-    
-    # Tabela cameras
-    cameras = Table(
-        'cameras', meta,
-        Column('id', Integer, primary_key=True, autoincrement=True),
-        Column('nome', String, nullable=False),
-        Column('descricao', String),
-        Column('id_conta', Integer, ForeignKey('contas.id'), nullable=False),
-        Column('codigo_camera', String, nullable=False)
-    )
 
     # Tabela estoque
     estoque = Table(
@@ -88,6 +78,16 @@ def criar_tabelas(engime):
         Column('nome', String, nullable=False),
         Column('descricao', String),
         Column('imagem', String)
+    )
+
+    # Tabela cameras
+    cameras = Table(
+        'cameras', meta,
+        Column('id', Integer, primary_key=True, autoincrement=True),
+        Column('nome', String, nullable=False),
+        Column('descricao', String),
+        Column('id_conta', Integer, ForeignKey('estoque.id'), nullable=False),
+        Column('codigo_camera', String, nullable=False)
     )
 
     # Tabela produto

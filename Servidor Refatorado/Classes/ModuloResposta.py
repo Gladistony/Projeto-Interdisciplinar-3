@@ -28,7 +28,8 @@ def generate_response(code, **kwargs):
             25: ("erro", "Link da imagem inválido"),
             26: ("erro", "Estoque não encontrado"),
             27: ("erro", "O estoque não pertence ao usuário"),
-            28: ("erro", "Quantidade de produtos insuficiente")
+            28: ("erro", "Quantidade de produtos insuficiente"),
+            29: ("erro", "Camera não encontrada")
         }
         status, message = messages.get(code, ("erro", "Código desconhecido"))
         response = {"status": status, "code": code, "message": message}
