@@ -528,6 +528,22 @@ class BancoDeDados:
         query = """DELETE FROM estoque WHERE id = :id_estoque"""
         self.operacaoSql(query, params)
         return generate_response(0)
+    
+    def lista_produtos(self, id_produto):
+        if id_produto == "all":
+            query = """SELECT * FROM produto"""
+            result = self.consultaSql(query)
+            produtos = []
+            for row in result:
+                produtos.append({"id": row.id, "nome": row.nome, "descricao": row.descricao, "foto": row.foto})
+            return generate_response(0, produtos=produtos)
+        else:
+            query = """SELECT * FROM produto WHERE id = :id_produto"""
+            params = {"id_produto": id_produto}
+            result = self.consultaSql(query, params).fetchone()
+            if not result:
+                return generate_response(23)
+            return generate_response(0, produto={"id": result.id, "nome": result.nome, "descricao": result.descricao, "foto": result.foto})
         
 
 

@@ -88,12 +88,9 @@ async def upload_image(item: UploadImg):
         url_foto = f"http://{linkhost}/get_img_url/perfil/{gerar_nome_foto}.jpg"
         #Atualizar foto de perfil
         database.set_img_url(conect.usuario, url_foto)
-    
     #Salvar o arquivo
     with open(destino, "wb") as file:
         file.write(file_content)
-
-
     #Pegar url
     return generate_response(0, url=url_foto)
 
@@ -185,4 +182,14 @@ def mudar_produto(item: MudarProdutoQt):
     quantidade = item.quantidade
     id_estoque = item.id_estoque
     return database.mudar_produto(id_produto, quantidade, id_estoque, conect.usuario)
+
+@router.post("/lista_produtos/")
+def lista_produtos(item: GetProduto):
+    conect = manage_conect.get_conect(item.id)
+    if conect is None:
+        return generate_response(12)
+    if not conect.ja_logado:
+        return generate_response(15)
+    id_produto = item.id_produto
+    return database.lista_produtos(id_produto)
     
