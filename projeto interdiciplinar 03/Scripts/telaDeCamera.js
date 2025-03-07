@@ -52,6 +52,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+// Adiciona um evento 'change' ao seletor de câmeras
+document.getElementById("camera-tipo").addEventListener('change', async () => {
+    const cameraTipo = document.getElementById("camera-tipo").value;
+    const iframe = document.getElementById("camera");
+    let url;
+
+    if (cameraTipo === "padrao") {
+        url = "http://127.0.0.1:8000/ver_camera/123456789";
+    } else if (cameraTipo === "ia") {
+        url = "http://127.0.0.1:8000/ver_camera_classe/123456789";
+    }
+
+    try {
+        const response = await fetch(url, { method: 'GET' });
+
+        if (response.ok) { 
+            iframe.src = url;
+        } else {
+            throw new Error('URL inacessível');
+        }
+    } catch (error) {
+        console.error('Erro ao acessar a URL:', error);
+        iframe.src = '../Paginas/erro.html';
+    }
+});
+
+
     // Cadastrar câmera ao clicar no botão "Cadastrar Câmera"
     botaoCamera.addEventListener('click', async () => {
         const nome = nomeInput.value.trim();
