@@ -60,9 +60,9 @@ document.getElementById("camera-tipo").addEventListener('change', async () => {
     let url;
 
     if (cameraTipo === "padrao") {
-        url = `http://127.0.0.1:8000/ver_camera/123456789/${connectionId}`;
+        url = `http://127.0.0.1:3000/ver_camera/123456789/${connectionId}`;
     } else if (cameraTipo === "ia") {
-        url = `http://127.0.0.1:8000/ver_camera_classe/123456789/${connectionId}`;
+        url = `http://127.0.0.1:3000/ver_camera_classe/123456789/${connectionId}`;
     }
 
     try {
