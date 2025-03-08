@@ -1,6 +1,5 @@
 package com.teste.projeto_3;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Color;
@@ -27,7 +26,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -69,7 +67,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     DecimalFormat decimalFormat;
     EnviarRequisicao er;
     CameraGaleria cg;
-    Uri uriImagem;
     String imagemBase64 = "";
     private final Gson gson = new Gson();
     NumberFormat formatadorPontoVirgula = NumberFormat.getInstance(new Locale("pt", "BR"));
@@ -151,46 +148,49 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         cameraProduto.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                uriImagem = uri;
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
                     String base64 = cg.converterUriParaBase64(uri);
                     runOnUiThread(() -> {
-                        imagemBase64 = base64;
+                        if (!isDestroyed() || !isFinishing()) {
+                            imagemBase64 = base64;
+
+                            // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
+                            Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    cg.deletarImagemUri(uri);
+                                    return false;
+                                }
+                            }).into(imagemProduto);
+                        }
                     });
                 });
                 executor.shutdown();
                 //imagemBase64 = cg.converterUriParaBase64(uri);
-                // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
-                    Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
-                        @Override
-                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                            Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                            cg.deletarImagemUri(uri);
-                            return false;
-                        }
-                    }).into(imagemProduto);
             }
         }));
 
         galeriaProduto.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                uriImagem = uri;
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
                     String base64 = cg.converterUriParaBase64(uri);
                     runOnUiThread(() -> {
-                        imagemBase64 = base64;
+                        if (!isDestroyed() || !isFinishing()) {
+                            imagemBase64 = base64;
+                            Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemProduto);
+                        }
                     });
                 });
                 executor.shutdown();
-                Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemProduto);
             }
         }));
 
@@ -202,7 +202,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             String stringDescricaoProduto = descricaoProduto.getText().toString();
             String stringQuantidadeProduto = quantidadeProduto.getText().toString();
             String stringPrecoProduto = editTextTextoProduto.getText().toString();
-            stringPrecoProduto = stringPrecoProduto.replace(",", ".");
             String stringDataValidadeProduto = textoData.getText().toString();
             int idEstoque = Integer.parseInt(getIntent().getStringExtra("idEstoque"));
 

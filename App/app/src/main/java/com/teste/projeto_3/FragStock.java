@@ -35,6 +35,8 @@ import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.User;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FragStock extends Fragment implements RecyclerViewInterface{
     public static AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
@@ -237,30 +239,51 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         selecionarCamera.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                imagemBase64 = cg.converterUriParaBase64(uri);
-                // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
-                Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
-                        return false;
-                    }
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        cg.deletarImagemUri(uri);
-                        return false;
-                    }
-                }).into(imagemCriarEstoque);
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                            imagemBase64 = base64;
+
+                            // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
+                            Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    cg.deletarImagemUri(uri);
+                                    return false;
+                                }
+                            }).into(imagemCriarEstoque);
+                        }
+                    });
+                });
+                executor.shutdown();
             }
         }));
 
         selecionarGaleria.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
-                imagemBase64 = cg.converterUriParaBase64(uri);
-                Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemCriarEstoque);
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                            imagemBase64 = base64;
+                            Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemCriarEstoque);
+                        }
+                    });
+                });
+                executor.shutdown();
             }
         }));
+
 
         cancelarCriarEstoque.setOnClickListener(v-> dialog.dismiss());
 
