@@ -165,7 +165,7 @@ main {
 }
 
 /* Estilo para o select */
-#camera-tipo {
+#camera-tipo, #cameras-estoque {
     cursor: pointer;
     width: 200px;
     padding: 10px;
@@ -182,7 +182,7 @@ main {
     background-size: 20px 20px;
 }
 
-#camera-tipo:focus {
+#camera-tipo:focus, #cameras-estoque:focus {
     outline: none;
     border-color: #000000;
 }

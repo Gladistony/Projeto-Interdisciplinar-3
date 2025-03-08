@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import numpy as np
 
-CAMERA_ID = "b3e0c165-cdde-4f28-a4b4-88687b64f9bd"
+CAMERA_ID = "6e48a36d-8e28-4560-a524-d5fdb89e2f68"
 
 def listar_webcams():
     index = 0

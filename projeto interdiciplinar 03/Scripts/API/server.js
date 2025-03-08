@@ -4,7 +4,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const path = require('path'); 
 
-const baseUrl = 'http://44.203.201.20';
+const baseUrl = 'http://127.0.0.1:3000';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));

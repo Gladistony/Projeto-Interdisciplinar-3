@@ -1,86 +1,69 @@
-import { cadastrar_camera } from './API/apiConnection.js';
+import { cadastrar_camera, getEstoque } from './API/apiConnection.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const estoqueSelecionado = JSON.parse(localStorage.getItem('estoqueSelecionado'));
     let connectionId = localStorage.getItem('connectionId');
     const seletor_camera = document.getElementById("camera-select");
     const camera_inputs = document.getElementById("camera-inputs");
     const nomeInput = document.getElementById("product-name1");
     const descricaoInput = document.getElementById("product-description2");
-    const botaoCamera = document.getElementById("botao-camera");  // Corrigi para pegar o botão pelo ID.
+    const botaoCamera = document.getElementById("botao-camera");
 
-    if (estoqueSelecionado) {
-        document.getElementById('h1').textContent = estoqueSelecionado.name;
-        document.getElementById('descricao').textContent = estoqueSelecionado.description;
-    } else {
+    if (!estoqueSelecionado) {
         alert('Nenhum estoque selecionado.');
         window.location.href = '../telaDeStocks.html';
-        return; // Importante para parar o script aqui
+        return;
     }
 
-    // Adiciona evento de expandir e recolher lista de produtos
-    const listaProdutos = document.getElementById('lista-produtos');
-    let isExpanded = false;
+    document.getElementById('h1').textContent = estoqueSelecionado.name;
+    document.getElementById('descricao').textContent = estoqueSelecionado.description;
 
-    listaProdutos.addEventListener('click', () => {
-        if (!isExpanded) {
-            listaProdutos.style.width = '150%';
-            listaProdutos.style.marginLeft = '180px';
-            listaProdutos.style.marginTop = '-80px';
-            listaProdutos.style.height = '105%';
-            listaProdutos.style.maxHeight = '110%';
-
-            document.getElementById('camera-opcao').style.display = 'none';
-            document.getElementById('product-form').style.display = 'none';
-        } else {
-            listaProdutos.style.width = '';
-            listaProdutos.style.marginLeft = '';
-            listaProdutos.style.marginTop = '';
-            listaProdutos.style.height = '40%';
-
-            document.getElementById('product-form').style.display = '';
-            document.getElementById('camera-opcao').style.display = '';
-        }
-        isExpanded = !isExpanded;
-    });
-
-    // Exibir ou esconder inputs de câmera
-    seletor_camera.addEventListener('click', () => {
-        if (camera_inputs.style.display === 'none' || camera_inputs.style.display === '') {
-            camera_inputs.style.display = 'block';
-        } else {
-            camera_inputs.style.display = 'none';
-        }
-    });
-
-// Adiciona um evento 'change' ao seletor de câmeras
-document.getElementById("camera-tipo").addEventListener('change', async () => {
-    const cameraTipo = document.getElementById("camera-tipo").value;
-    const iframe = document.getElementById("camera");
-    let url;
-
-    if (cameraTipo === "padrao") {
-        url = `http://127.0.0.1:3000/ver_camera/123456789/${connectionId}`;
-    } else if (cameraTipo === "ia") {
-        url = `http://127.0.0.1:3000/ver_camera_classe/123456789/${connectionId}`;
-    }
+    const selectBox = document.getElementById("cameras-estoque");
+    selectBox.addEventListener("change", atualizarCamera);
 
     try {
-        const response = await fetch(url, { method: 'GET' });
+        const resposta = await getEstoque();
+        const estoques = resposta.estoque;
+        const estoqueAtual = estoques.find(e => e.id === estoqueSelecionado.id);
+    
+        if (!estoqueAtual || !estoqueAtual.cameras) {
+            console.error('Erro: Estoque não encontrado ou sem câmeras.');
+            return;
+        }
+    
+        selectBox.innerHTML = '<option value="">Selecione câmera</option>';
+    
+        estoqueAtual.cameras.forEach(camera => {
+            const option = document.createElement('option');
+            option.value = camera.codigo_camera;
+            option.textContent = camera.nome;
+            selectBox.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao obter estoque:', error);
+    }
 
-        if (response.ok) { 
+    async function atualizarCamera() {
+        const codigoCamera = selectBox.value;
+        if (!codigoCamera) {
+            console.error("Nenhuma câmera selecionada.");
+            return;
+        }
+    
+        const cameraTipo = document.getElementById("camera-tipo")?.value || "padrao";
+        let url = cameraTipo === "ia" 
+            ? `http://127.0.0.1:3000/ver_camera_classe/${codigoCamera}/${connectionId}`
+            : `http://127.0.0.1:3000/ver_camera/${codigoCamera}/${connectionId}`;
+    
+        const iframe = document.getElementById("camera");
+    
+        if (iframe) {
             iframe.src = url;
         } else {
-            throw new Error('URL inacessível');
+            console.error("Erro: O iframe não foi encontrado no DOM.");
         }
-    } catch (error) {
-        console.error('Erro ao acessar a URL:', error);
-        iframe.src = '../Paginas/erro.html';
     }
-});
-
-
-    // Cadastrar câmera ao clicar no botão "Cadastrar Câmera"
+    
     botaoCamera.addEventListener('click', async () => {
         const nome = nomeInput.value.trim();
         const descricao = descricaoInput.value.trim();
@@ -91,20 +74,14 @@ document.getElementById("camera-tipo").addEventListener('change', async () => {
         }
 
         try {
-            const resposta = await cadastrar_camera(nome, descricao, String(estoqueSelecionado.id));
+            await cadastrar_camera(nome, descricao, String(estoqueSelecionado.id));
             alert('✅ Câmera cadastrada com sucesso!');
-            console.log('Câmera cadastrada:', resposta);
-        
             nomeInput.value = '';
             descricaoInput.value = '';
             camera_inputs.style.display = 'none';
         } catch (error) {
-            alert('✅ Câmera cadastrada com sucesso!');
-            console.log('Câmera cadastrada:', resposta);
-
-            nomeInput.value = '';
-            descricaoInput.value = '';
-            camera_inputs.style.display = 'none';
-        }        
+            alert('❌ Erro ao cadastrar a câmera. Verifique os dados e tente novamente.');
+            console.error('Erro ao cadastrar câmera:', error);
+        }
     });
 });
