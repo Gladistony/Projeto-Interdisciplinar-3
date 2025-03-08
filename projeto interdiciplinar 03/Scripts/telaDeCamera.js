@@ -2,6 +2,7 @@ import { cadastrar_camera } from './API/apiConnection.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const estoqueSelecionado = JSON.parse(localStorage.getItem('estoqueSelecionado'));
+    let connectionId = localStorage.getItem('connectionId');
     const seletor_camera = document.getElementById("camera-select");
     const camera_inputs = document.getElementById("camera-inputs");
     const nomeInput = document.getElementById("product-name1");
@@ -59,9 +60,9 @@ document.getElementById("camera-tipo").addEventListener('change', async () => {
     let url;
 
     if (cameraTipo === "padrao") {
-        url = "http://127.0.0.1:8000/ver_camera/123456789";
+        url = `http://127.0.0.1:8000/ver_camera/123456789/${connectionId}`;
     } else if (cameraTipo === "ia") {
-        url = "http://127.0.0.1:8000/ver_camera_classe/123456789";
+        url = `http://127.0.0.1:8000/ver_camera_classe/123456789/${connectionId}`;
     }
 
     try {
