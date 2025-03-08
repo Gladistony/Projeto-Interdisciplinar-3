@@ -22,7 +22,7 @@ class User(
     var destino: String = "",
     var data: Data? = null,
     var estoque: MutableList<Estoque> = mutableListOf(),
-    var ip: String = "",
+    var ip: String? = "",
     var url: String = "" // URL após envio de imagem
 ) : Parcelable {
 

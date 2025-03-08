@@ -1,5 +1,6 @@
 package com.teste.projeto_3;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.graphics.Color;
@@ -45,9 +46,13 @@ import com.teste.projeto_3.model.User;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TelaProduto extends AppCompatActivity implements RecyclerViewInterface {
 
@@ -60,7 +65,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     }
 
     private AdaptadorProdutoRecyclerView adaptadorItemProduto;
-    SharedViewModel viewModel;
     public ArrayList<Produto> produto;
     DecimalFormat decimalFormat;
     EnviarRequisicao er;
@@ -68,6 +72,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     Uri uriImagem;
     String imagemBase64 = "";
     private final Gson gson = new Gson();
+    NumberFormat formatadorPontoVirgula = NumberFormat.getInstance(new Locale("pt", "BR"));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +86,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         });
         er = new EnviarRequisicao(this);
         cg = new CameraGaleria(this, getActivityResultRegistry(),this);
-        viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         decimalFormat = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
 
         produto = getIntent().getParcelableArrayListExtra("produto");
@@ -148,7 +152,15 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             @Override
             public void onImageSelected(Uri uri) {
                 uriImagem = uri;
-                imagemBase64 = cg.converterUriParaBase64(uri);
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    runOnUiThread(() -> {
+                        imagemBase64 = base64;
+                    });
+                });
+                executor.shutdown();
+                //imagemBase64 = cg.converterUriParaBase64(uri);
                 // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
                     Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
                         @Override
@@ -170,7 +182,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             @Override
             public void onImageSelected(Uri uri) {
                 uriImagem = uri;
-                imagemBase64 = cg.converterUriParaBase64(uri);
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    runOnUiThread(() -> {
+                        imagemBase64 = base64;
+                    });
+                });
+                executor.shutdown();
                 Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemProduto);
             }
         }));
@@ -189,11 +208,15 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
             if (stringNomeProduto.isEmpty() || stringDescricaoProduto.isEmpty() ||
             stringQuantidadeProduto.isEmpty() || stringPrecoProduto.isEmpty() || stringDataValidadeProduto.isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(TelaProduto.this, "Preencha todas as informações do produto", Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> Toast.makeText(TelaProduto.this, "Preencha todas as informações do produto", Toast.LENGTH_SHORT).show());
             }else if (idEstoque != -1){
-                adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), Double.parseDouble(stringPrecoProduto), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto);
+                try {
+                    adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), formatadorPontoVirgula.parse(stringPrecoProduto).doubleValue(), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto);
+                    dialog.dismiss();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
             }
-            dialog.dismiss();
         });
 
 
@@ -246,19 +269,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     return;
                 }
                 isUpdating = true;
-
-                // Remove tudo que não for número
                 String str = s.toString().replaceAll("[^\\d]", "");
 
-                // Se o valor for vazio, define como "0,00"
                 if (str.isEmpty()) {
                     preco.setText("0,00");
                 } else {
                     try {
                         double valor = Double.parseDouble(str) / 100.0;
                         String formatado = decimalFormat.format(valor);
-
-                        // Atualiza o campo de texto sem perder a posição do cursor
                         preco.removeTextChangedListener(this);
                         preco.setText(formatado);
                         preco.setSelection(preco.getText().length());
@@ -442,5 +460,9 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             );
             callback.onCompleteUploadImg(null);
         }
+    }
+
+    private void editarQuantidadeProduto(){
+
     }
 }

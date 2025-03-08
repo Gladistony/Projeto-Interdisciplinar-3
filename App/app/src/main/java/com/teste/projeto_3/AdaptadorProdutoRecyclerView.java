@@ -6,23 +6,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.Produto;
-
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+
 
 public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<AdaptadorProdutoRecyclerView.MyViewHolder> {
     Context context;
     ArrayList<Produto> produto;
     private final RecyclerViewInterface recyclerViewInterface;
-
-
+    DecimalFormat formatadorDouble = new DecimalFormat("#,##0.00");
 
     public AdaptadorProdutoRecyclerView(Context context, ArrayList<Produto> produto, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
@@ -42,27 +39,30 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
     @Override
     public void onBindViewHolder(@NonNull AdaptadorProdutoRecyclerView.MyViewHolder holder, int position) {
         if (!produto.get(position).getFoto().isEmpty()) {
-            Glide.with(context)
-                    .load(produto.get(position).getFoto())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.imagemProduto);
+            try {
+                Glide.with(context)
+                        .load(produto.get(position).getFoto())
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imagemProduto);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
         holder.nomeProduto.setText(produto.get(position).getNome());
         holder.descricaoProduto.setText(produto.get(position).getDescricao());
-        holder.quantidadeProduto.setText("Quantidade: " + produto.get(position).getQuantidade());
-        holder.precoMedioProduto.setText("Preço médio do produto: " + Double.toString(produto.get(position).getPreco_medio()));
-        if (!produto.get(position).getLista_precos().isEmpty()) {
-            ArrayList<Double> precos = new ArrayList<>(produto.get(position).getLista_precos());
-            int precosLista = produto.get(position).getLista_precos().size();
-            Double totalPrecos = 0.0;
-            for (int i = 0; i < precosLista; i++) {
-                totalPrecos += precos.get(i);
-            }
-            holder.precoProduto.setText("Preço: " + totalPrecos);
+        holder.precoMedioProduto.setText("Preço médio do produto: R$" + formatadorDouble.format(produto.get(position).getPreco_medio()));
+
+        int quantidadeTotal = 0;
+        for (int i = 0; i < produto.get(position).getLista_quantidades().size(); i++) {
+            quantidadeTotal += produto.get(position).getLista_quantidades().get(i);
         }
-        else {
-            holder.precoProduto.setText("Preço: ainda não fornecido");
+        holder.quantidadeProduto.setText("Quantidade: " + Integer.toString(quantidadeTotal));
+
+        Double precoTotal = 0.0;
+        for (int i = 0; i < produto.get(position).getLista_precos().size(); i++) {
+            precoTotal += produto.get(position).getLista_precos().get(i);
         }
+        holder.precoProduto.setText("Preço: R$" + formatadorDouble.format(precoTotal));
     }
 
     @Override
@@ -82,6 +82,7 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         public TextView quantidadeProduto;
         public TextView precoProduto;
         public TextView precoMedioProduto;
+        public ImageView editarQuantidadeProduto;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
@@ -89,6 +90,7 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             nomeProduto = itemView.findViewById(R.id.nomeProduto);
             descricaoProduto = itemView.findViewById(R.id.descricaoProduto);
             quantidadeProduto = itemView.findViewById(R.id.quantidadeProduto);
+            editarQuantidadeProduto = itemView.findViewById(R.id.editarQuantidadeProduto);
             precoProduto = itemView.findViewById(R.id.precoProduto);
             precoMedioProduto = itemView.findViewById(R.id.precoMedioProduto);
 
@@ -96,6 +98,18 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view){
+                    if (recyclerViewInterface != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            recyclerViewInterface.onItemClick(position);
+                        }
+                    }
+                }
+            });
+
+            editarQuantidadeProduto.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
                     if (recyclerViewInterface != null) {
                         int position = getAdapterPosition();
                         if (position != RecyclerView.NO_POSITION) {

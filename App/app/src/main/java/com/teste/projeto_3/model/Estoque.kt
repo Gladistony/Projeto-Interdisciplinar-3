@@ -10,7 +10,7 @@ class Estoque(
     var nome: String = "",
     var descricao: String = "",
     var imagem: String = "",
-    var cameras: MutableList<Produto> = mutableListOf(),
+    var cameras: MutableList<Camera> = mutableListOf(),
     var produtos: MutableList<Produto> = mutableListOf(),
 
     var id_estoque: String = "",

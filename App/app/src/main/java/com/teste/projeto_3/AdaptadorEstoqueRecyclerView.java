@@ -14,7 +14,6 @@ import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.Produto;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorEstoqueRecyclerView.MyViewHolder> {
     Context context;
@@ -39,16 +38,15 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
     public void onBindViewHolder(@NonNull AdaptadorEstoqueRecyclerView.MyViewHolder holder, int position) {
         holder.nomeEstoque.setText(estoque.get(position).getNome());
         holder.descricaoEstoque.setText(estoque.get(position).getDescricao());
-        if (!estoque.get(position).getProdutos().isEmpty()) {
-            holder.quantidadeProdutosCadastradosEstoque.setText("Quantidade de produtos cadastrados: " + estoque.get(position).getProdutos().size());
-        } else {
-            holder.quantidadeProdutosCadastradosEstoque.setText("Nenhum produto cadastrado neste Stock");
-        }
         if (!estoque.get(position).getImagem().isEmpty()) {
-            Glide.with(context)
-                    .load(estoque.get(position).getImagem())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.imagemEstoque);
+            try {
+                Glide.with(context)
+                        .load(estoque.get(position).getImagem())
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.imagemEstoque);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -71,14 +69,12 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
         public ImageView imagemEstoque;
         public TextView nomeEstoque;
         public TextView descricaoEstoque;
-        public TextView quantidadeProdutosCadastradosEstoque;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             imagemEstoque = itemView.findViewById(R.id.imagemEstoque);
             nomeEstoque = itemView.findViewById(R.id.nomeEstoque);
             descricaoEstoque = itemView.findViewById(R.id.descricaoEstoque);
-            quantidadeProdutosCadastradosEstoque = itemView.findViewById(R.id.quantidadeProdutoEstoque);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

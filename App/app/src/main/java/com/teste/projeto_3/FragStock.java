@@ -67,25 +67,21 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
 
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
-        viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
-            if (dados.getData() == null) { // Login por requisição de get_dados
-                arrayEstoque = new ArrayList<>(dados.getEstoque());
-            } else { // Login por requisição de login
-                arrayEstoque = new ArrayList<>(dados.getData().getEstoque());
-            }
+        if (viewModel.getUser().getValue().getData() == null) { // Login por requisição de get_dados
+            arrayEstoque = new ArrayList<>(viewModel.getUser().getValue().getEstoque());
+        } else { // Login por requisição de login
+            arrayEstoque = new ArrayList<>(viewModel.getUser().getValue().getData().getEstoque());
+        }
+        adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, arrayEstoque);
+        recyclerView.setAdapter(adaptadorItemEstoque);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-            if (!arrayEstoque.isEmpty()) {
-                TextView textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
-                textoEstoqueVazio.setVisibility(View.GONE);
-            }
+        if (!arrayEstoque.isEmpty()) {
+            TextView textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
+            textoEstoqueVazio.setVisibility(View.GONE);
+        }
 
-            adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, arrayEstoque);
-            recyclerView.setAdapter(adaptadorItemEstoque);
-            recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        });
-
-        return view;  // Retorna a view inflada
+        return view;
     }
 
     @Override
@@ -94,13 +90,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
         viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
             if (dados.getData() == null) { // Login por requisição de get_dados
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getEstoque().get(position).getProdutos()));
-                intentProduto.putParcelableArrayListExtra("estoque", new ArrayList<>(dados.getEstoque()));
+                intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
+                intentProduto.putExtra("idEstoque", dados.getEstoque().get(position).getId());
             } else { // Login por requisição de login
                 intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(dados.getData().getEstoque().get(position).getProdutos()));
-                intentProduto.putParcelableArrayListExtra("estoque", new ArrayList<>(dados.getData().getEstoque()));
+                intentProduto.putExtra("tituloEstoque", dados.getData().getEstoque().get(position).getNome());
+                intentProduto.putExtra("idEstoque", dados.getData().getEstoque().get(position).getId());
             }
-            intentProduto.putExtra("tituloEstoque", dados.getEstoque().get(position).getNome());
-            intentProduto.putExtra("idEstoque", dados.getEstoque().get(position).getId());
             intentProduto.putExtra("position", position);
             startActivity(intentProduto);
         });
@@ -155,6 +151,12 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
                             User responseEstoque = gson.fromJson(response, User.class);
                             if (responseEstoque.getCode() == 0) {
                                     requireActivity().runOnUiThread(() -> {
+                                        // Atualizando o objeto principal User com o novo estoque
+                                        if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
+                                            viewModel.getUser().getValue().getEstoque().add(estoque);
+                                        } else {// Login por login
+                                            viewModel.getUser().getValue().getData().getEstoque().add(estoque);
+                                        }
                                         adaptadorItemEstoque.adicionarArrayEstoque(estoque);
                                         Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
                                     });
@@ -267,7 +269,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface{
             EditText descricaoEstoque = dialog.findViewById(R.id.inserirDescricaoProduto);
 
             if (nomeEstoque.getText().toString().isEmpty() || descricaoEstoque.getText().toString().isEmpty()) {
-                Toast.makeText(requireContext(), "Insira nome e descrição para o Stock.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Insira o nome e a descrição para o Stock", Toast.LENGTH_SHORT).show();
             } else {
                 criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
                 dialog.dismiss();
