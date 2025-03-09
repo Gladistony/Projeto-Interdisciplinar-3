@@ -1,0 +1,8 @@
+{
+    "PORT_LOCAL": 5000,
+    "PRODUCT_MODE": false,
+    "HOST_URL": "127.0.0.1",
+    "START_QUESTION_CAMERA_ID": true,
+    "START_QUESTION_CAMERA": true,
+    "DEFAULT_CAMERA": 0
+}

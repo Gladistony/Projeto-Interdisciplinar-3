@@ -8,7 +8,7 @@ from Classes.Rotas.rota_inicial import router as rota_inicial
 from Classes.Rotas.rota_usuario import router as rota_usuario
 from Classes.Rotas.rota_admin import router as rota_admin
 from Classes.Rotas.rota_camera import router as rota_camera
-from Classes.GLOBAIS import linkhost, BANCO_DE_DADOS
+from Classes.GLOBAIS import linkhost, BANCO_DE_DADOS, PORT_LOCAL, PRODUCT_MODE
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -47,4 +47,6 @@ app.include_router(rota_camera)
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=3000)
+    if PRODUCT_MODE:
+        print("API em modo de produção, envio de email desativado")
+    uvicorn.run(app, host="0.0.0.0", port=PORT_LOCAL)

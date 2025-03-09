@@ -3,16 +3,27 @@ from email.message import EmailMessage
 import smtplib
 from datetime import datetime
 import threading
+from Classes.GLOBAIS import PRODUCT_MODE
 
 #Carregar credenciais do arquivo login_gmail.txt
 caminho_arquivo = "C:/login_gmail.txt"
-with open(caminho_arquivo) as arquivo:
-    LOGIN = arquivo.readline().strip()
-    SENHA = arquivo.readline().strip()
-    print(f"Email de envio: {LOGIN}")
+if not PRODUCT_MODE:
+    with open(caminho_arquivo) as arquivo:
+        LOGIN = arquivo.readline().strip()
+        SENHA = arquivo.readline().strip()
+        print(f"Email de envio: {LOGIN}")
+else:
+    LOGIN = ""
+    SENHA = ""
 
 
 def enviarEmail(msg,assunto, destino):
+    if PRODUCT_MODE:
+        mensagem = f"\nEnvio de email para {destino} às {datetime.now()}"
+        mensagem += f"\nAssunto: {assunto}"
+        mensagem += f"\nConteudo: {msg}\n"
+        print(mensagem)
+        return
     email = EmailMessage()
     email["From"] = LOGIN
     email["To"] = destino

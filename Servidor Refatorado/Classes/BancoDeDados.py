@@ -527,6 +527,9 @@ class BancoDeDados:
             return generate_response(27)
         query = """DELETE FROM estoque WHERE id = :id_estoque"""
         self.operacaoSql(query, params)
+        #Apagar todos os produtos do estoque
+        query = """DELETE FROM registro_produto_estoque WHERE id_estoque = :id_estoque"""
+        self.operacaoSql(query, params)
         return generate_response(0)
     
     def lista_produtos(self, id_produto):
