@@ -82,7 +82,7 @@ public class CameraGaleria {
         this.requestPermissionGalleryLauncher = registry.register("requestPermissionGalleryLauncher", lifecycleOwner,
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                        abrirGaleria(callbackCameraGaleria);
+                        abrirGaleria(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
                     } else {
                         activity.runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
                                 "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
@@ -92,12 +92,14 @@ public class CameraGaleria {
         this.requestPermissionCameraLauncher = registry.register("requestPermissionCameraLauncher", lifecycleOwner,
                 new ActivityResultContracts.RequestPermission(), isGranted -> {
                     if (isGranted) {
-                            abrirCamera(callbackCameraGaleria);
+                        abrirCamera(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
                     } else {
                         activity.runOnUiThread(() -> popupPermissao("Acesso à câmera negado",
                                 "É necessário permissão para acessar a câmera ao executar esta ação. Vá para as configurações e permita manualmente."));
                     }
                 });
+
+        ArmazenamentoUriCallback.getInstance();
     }
 
     public interface CallbackCameraGaleria {
@@ -110,6 +112,7 @@ public class CameraGaleria {
 
     public void pedirPermissaoCamera(CallbackCameraGaleria callbackCameraGaleria) {
         try {
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(callbackCameraGaleria);
             if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 requestPermissionCameraLauncher.launch(Manifest.permission.CAMERA);
             } else {
@@ -122,6 +125,7 @@ public class CameraGaleria {
 
     public void pedirPermissaoGaleria(CallbackCameraGaleria ccg) {
         try {
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(ccg);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
                 if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
                     abrirGaleria(ccg);

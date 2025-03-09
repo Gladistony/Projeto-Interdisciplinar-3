@@ -298,8 +298,20 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                     requireActivity().runOnUiThread(() -> {
                         if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
                             imagemBase64 = base64;
-                            Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemCriarEstoque);
-                            imagemCarregandoCriarEstoque.setVisibility(View.GONE);
+                            Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                    imagemCarregandoCriarEstoque.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    imagemCarregandoCriarEstoque.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            }).into(imagemCriarEstoque);
                         }
                     });
                 });

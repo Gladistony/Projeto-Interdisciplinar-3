@@ -195,8 +195,22 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     runOnUiThread(() -> {
                         if (!isDestroyed() || !isFinishing()) {
                             imagemBase64 = base64;
-                            Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemProduto);
-                            imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
+
+                            // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
+                            Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                @Override
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                    Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                    imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
+                                    return false;
+                                }
+
+                                @Override
+                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
+                                    return false;
+                                }
+                            }).into(imagemProduto);
                         }
                     });
                 });
