@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +40,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
+import com.teste.projeto_3.model.EstoqueDataValidadeString;
 import com.teste.projeto_3.model.Produto;
 import com.teste.projeto_3.model.User;
 
@@ -47,6 +49,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -71,6 +74,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     private final Gson gson = new Gson();
     NumberFormat formatadorPontoVirgula = NumberFormat.getInstance(new Locale("pt", "BR"));
 
+    TextView textoProdutoVazio;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +92,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
         produto = getIntent().getParcelableArrayListExtra("produto");
 
+        textoProdutoVazio = findViewById(R.id.textoProdutoVazio);
         if (!produto.isEmpty()) {
-            TextView textoProdutoVazio = findViewById(R.id.textoProdutoVazio);
             textoProdutoVazio.setVisibility(View.GONE);
         }
 
@@ -129,12 +134,13 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.setCanceledOnTouchOutside(false);
 
         ImageView imagemProduto = dialog.findViewById(R.id.imagemRegistrarProduto);
+        ProgressBar imagemCarregandoRegistrarProduto = dialog.findViewById(R.id.imagemCarregandoRegistrarProduto);
 
         EditText nomeProduto = dialog.findViewById(R.id.inserirNomeProduto);
         EditText descricaoProduto = dialog.findViewById(R.id.inserirDescricaoProduto);
         EditText quantidadeProduto = dialog.findViewById(R.id.quantidadeProdutoRegistro);
 
-        EditText textoData = dialog.findViewById(R.id.dataValidadeProduto);
+        EditText textoData = dialog.findViewById(R.id.inserirDataValidadeProduto);
         textoData.setOnClickListener(v -> dialogCalendarioValidade(textoData));
 
         EditText editTextTextoProduto = dialog.findViewById(R.id.editTextPrecoProduto);
@@ -148,6 +154,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         cameraProduto.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
+                imagemCarregandoRegistrarProduto.setVisibility(View.VISIBLE);
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
                     String base64 = cg.converterUriParaBase64(uri);
@@ -160,11 +167,13 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                 @Override
                                 public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                                     Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                    imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     return false;
                                 }
 
                                 @Override
                                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                    imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     cg.deletarImagemUri(uri);
                                     return false;
                                 }
@@ -173,13 +182,13 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     });
                 });
                 executor.shutdown();
-                //imagemBase64 = cg.converterUriParaBase64(uri);
             }
         }));
 
         galeriaProduto.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
             @Override
             public void onImageSelected(Uri uri) {
+                imagemCarregandoRegistrarProduto.setVisibility(View.VISIBLE);
                 ExecutorService executor = Executors.newSingleThreadExecutor();
                 executor.execute(() -> {
                     String base64 = cg.converterUriParaBase64(uri);
@@ -187,6 +196,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         if (!isDestroyed() || !isFinishing()) {
                             imagemBase64 = base64;
                             Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).into(imagemProduto);
+                            imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                         }
                     });
                 });
@@ -218,8 +228,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             }
         });
 
-
-
         dialog.show();
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -246,15 +254,17 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         datePickerDialog.show();
     }
     private void formatarPreco(EditText preco) {
+        String precoZerado = "0,00";
         preco.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                String texto = preco.getText().toString();
-                if (texto.isEmpty()) {
-                    preco.setText("0,00");
-                    preco.setSelection(preco.getText().length());
+                if (preco.getText().toString().isEmpty()) {
+                    preco.setText(precoZerado);
                 }
+                preco.setSelection(preco.getText().length());
             }
         });
+
+        preco.setOnClickListener(v -> preco.setSelection(preco.getText().length()));
 
         preco.addTextChangedListener(new TextWatcher() {
             private boolean isUpdating = false;
@@ -271,7 +281,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                 String str = s.toString().replaceAll("[^\\d]", "");
 
                 if (str.isEmpty()) {
-                    preco.setText("0,00");
+                    preco.setText(precoZerado);
                 } else {
                     try {
                         double valor = Double.parseDouble(str) / 100.0;
@@ -281,7 +291,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         preco.setSelection(preco.getText().length());
                         preco.addTextChangedListener(this);
                     } catch (NumberFormatException e) {
-                        preco.setText("0,00");
+                        preco.setText(precoZerado);
                         preco.setSelection(preco.getText().length());
                     }
                 }
@@ -325,13 +335,15 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     }
                 });
             }
+        }  else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
     }
 
     private void registroProdutoEmEstoque(int idEstoque, int idProduto, int quantidade, String dataValidade, Double preco, Produto produtoRegistrado, String nomeProduto, String descricaoProduto, String urlImagem) {
         if (er.possuiInternet(this)) {
 
-            Estoque estoque = new Estoque();
+            EstoqueDataValidadeString estoque = new EstoqueDataValidadeString();
             estoque.setId(er.obterMemoriaInterna("idConexao"));
             estoque.setId_estoque(Integer.toString(idEstoque));
             estoque.setId_produto(Integer.toString(idProduto));
@@ -361,10 +373,11 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     produtoInfo.setPreco_medio(preco);
                                     produtoInfo.getLista_precos().add(preco);
                                     produtoInfo.getLista_quantidades().add(quantidade);
+                                    produtoInfo.getData_validade().add(dataValidade);
 
                                     adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
                                     FragStock.adaptadorItemEstoque.notificarNovoProdutoEstoque(produtoInfo, getIntent().getIntExtra("position", -1));
-                                    Toast.makeText(TelaProduto.this, "Novo Stock adicionado com sucesso", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(TelaProduto.this, "Novo produto adicionado com sucesso", Toast.LENGTH_SHORT).show();
                                 });
                         }
                     } catch (Exception e) {

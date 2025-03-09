@@ -13,8 +13,8 @@
         android:layout_height="wrap_content"
         android:text="@string/tituloCriarNovoEstoque"
         android:textColor="@color/black"
-        android:textStyle="bold"
         android:textSize="25sp"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -125,4 +125,15 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagemProduto" />
+
+    <ProgressBar
+        android:id="@+id/imagemCarregandoCriarEstoque"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="30dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tituloCriarEstoque" />
 </androidx.constraintlayout.widget.ConstraintLayout>

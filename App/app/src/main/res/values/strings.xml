@@ -30,6 +30,9 @@
     <string name="textoEstoqueVazio"> Você ainda não possui Stocks cadastrados. Clique no botão + para adicionar.</string>
     <string name="textoProdutoVazio"> Você ainda não possui produtos cadastrados. Clique no botão + para adicionar.</string>
     <string name="tituloCriarNovoEstoque">Criar novo estoque</string>
+    <string name="tituloEditarInfoEstoque">Editar Stock</string>
+    <string name="textoEditarImagemEstoque">Alterar imagem</string>
+    <string name="textoApagarEstoque">Excluir estoque</string>
     <string name="tituloRegistrarProduto">Registrar produto</string>
     <string name="textoSelecionarImagemEstoque">Selecione uma imagem para o Stock. Não é obrigatório definir uma imagem.</string>
     <string name="textoSelecionarImagemProduto">Selecione uma imagem para o produto. Não é obrigatório definir uma imagem.</string>

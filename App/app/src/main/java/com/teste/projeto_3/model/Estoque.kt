@@ -16,7 +16,7 @@ class Estoque(
     var id_estoque: String = "",
     var id_produto: String = "",
     var quantidade: Int = -1,
-    var data_validade: String = "",
+    var data_validade: MutableList<String> = mutableListOf(),
     var preco: Double = -1.0
 ) : Parcelable {
 

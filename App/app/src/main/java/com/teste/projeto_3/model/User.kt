@@ -24,6 +24,8 @@ class User(
     var estoque: MutableList<Estoque> = mutableListOf(),
     var ip: String? = "",
     var url: String = "" // URL após envio de imagem
+
+    // Extras para contornar
 ) : Parcelable {
 
     override fun toString(): String {

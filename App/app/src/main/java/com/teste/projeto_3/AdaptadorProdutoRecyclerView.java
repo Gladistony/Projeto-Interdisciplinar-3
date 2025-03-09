@@ -50,13 +50,14 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         }
         holder.nomeProduto.setText(produto.get(position).getNome());
         holder.descricaoProduto.setText(produto.get(position).getDescricao());
-        holder.precoMedioProduto.setText("Preço médio do produto: R$" + formatadorDouble.format(produto.get(position).getPreco_medio()));
+        holder.precoMedioProduto.setText("Preço médio: R$" + formatadorDouble.format(produto.get(position).getPreco_medio()));
 
         int quantidadeTotal = 0;
         for (int i = 0; i < produto.get(position).getLista_quantidades().size(); i++) {
             quantidadeTotal += produto.get(position).getLista_quantidades().get(i);
         }
         holder.quantidadeProduto.setText("Quantidade: " + Integer.toString(quantidadeTotal));
+        holder.dataValidadeProduto.setText("Validade: " + produto.get(position).getData_validade().get(produto.get(position).getData_validade().size() - 1));
 
         Double precoTotal = 0.0;
         for (int i = 0; i < produto.get(position).getLista_precos().size(); i++) {
@@ -84,6 +85,8 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         public TextView precoMedioProduto;
         public ImageView editarQuantidadeProduto;
 
+        public TextView dataValidadeProduto;
+
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             imagemProduto = itemView.findViewById(R.id.imagemProduto);
@@ -93,6 +96,7 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             editarQuantidadeProduto = itemView.findViewById(R.id.editarQuantidadeProduto);
             precoProduto = itemView.findViewById(R.id.precoProduto);
             precoMedioProduto = itemView.findViewById(R.id.precoMedioProduto);
+            dataValidadeProduto = itemView.findViewById(R.id.dataValidadeProduto);
 
 
             itemView.setOnClickListener(new View.OnClickListener() {

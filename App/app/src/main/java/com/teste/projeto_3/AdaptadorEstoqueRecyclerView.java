@@ -55,6 +55,11 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
             return estoque.size();
     }
 
+    public void removerEstoque(int position) {
+        estoque.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public void adicionarArrayEstoque(Estoque novoEstoque) {
         estoque.add(novoEstoque);
         notifyItemInserted(estoque.size() - 1);
@@ -88,7 +93,6 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
                 }
             });
 
-            /*
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -101,7 +105,6 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
                     return true;
                 }
             });
-            */
         }
     }
 }

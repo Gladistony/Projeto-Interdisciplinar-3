@@ -100,4 +100,9 @@
         <item name="android:windowExitAnimation">@anim/slide_out_animation</item>
     </style>
 
+    <style name="FadeInOutMiddle">
+        <item name="android:windowEnterAnimation">@anim/fade_in_middle_animation</item>
+        <item name="android:windowExitAnimation">@anim/fade_out_middle_animation</item>
+    </style>
+
 </resources>
