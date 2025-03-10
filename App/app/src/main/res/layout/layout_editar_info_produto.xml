@@ -39,7 +39,7 @@
         android:layout_marginTop="5dp"
         android:ems="10"
         android:hint="@string/hintEditarQuantidade"
-        android:inputType="number"
+        android:inputType="numberSigned"
         android:textColorHint="@color/gray3"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/textoAdicionarRemoverProduto"

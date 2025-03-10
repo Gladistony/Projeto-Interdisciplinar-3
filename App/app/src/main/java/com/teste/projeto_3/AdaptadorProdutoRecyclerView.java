@@ -76,6 +76,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemInserted(produto.size() - 1);
     }
 
+    public void removerProduto(int position) {
+        produto.remove(position);
+        notifyItemRemoved(position);
+    }
+
     public void editarQuantidadeProduto(int novaQuantidade, int position){
         produto.get(position).setQuantidade(produto.get(position).getQuantidade() + novaQuantidade);
         notifyItemChanged(position);

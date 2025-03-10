@@ -1,12 +1,15 @@
 package com.teste.projeto_3;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -24,6 +27,7 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -129,6 +133,16 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_editar_info_produto);
 
+        int posicaoEstoque = getIntent().getIntExtra("position",-1);
+        int quantidadeAtual;
+        if (FragStock.viewModel.getUser().getValue().getData() == null) {
+            quantidadeAtual = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
+                    .getProdutos().get(position).getQuantidade();
+        } else {
+            quantidadeAtual = FragStock.viewModel.getUser().getValue().getData()
+                    .getEstoque().get(posicaoEstoque).getProdutos().get(position).getQuantidade();
+        }
+
         Button botaoEditarQuantidadeProduto = dialog.findViewById(R.id.botaoEditarQuantidadeProduto);
         botaoEditarQuantidadeProduto.setOnClickListener(v-> {
             EditText editarTextoNovaQuantidade = dialog.findViewById(R.id.editTextNovaQuantidade);
@@ -146,7 +160,12 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         int novaQuantidade = Integer.parseInt(editarTextoNovaQuantidade.getText().toString());
                         String idProduto = Integer.toString(produto.get(position).getId());
                         String idEstoque = getIntent().getStringExtra("idEstoque");
-                        mudar_produto(idProduto, idEstoque, novaQuantidade, position);
+                        int subtracao = quantidadeAtual + novaQuantidade;
+                        if (subtracao <= 0) {
+                            popupConfirmarQuantidadeProduto(subtracao, quantidadeAtual, idProduto, idEstoque, novaQuantidade, position);
+                        } else {
+                            mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                        }
                         dialog.dismiss();
                     }
                 });
@@ -164,7 +183,34 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.getWindow().setGravity(Gravity.CENTER);
     }
 
-    public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position){
+    public void popupConfirmarQuantidadeProduto(int subtracao, int quantidadeAtual, String idProduto, String idEstoque, int novaQuantidade, int position) {
+        String faltou = ". ";
+        if (subtracao == -1) {
+            faltou = ", devendo apenas 1 produto para ser removido. ";
+        } else if (subtracao < 0) {
+            faltou = ", devendo " + Math.abs(subtracao) + " produtos para serem removidos. ";
+        }
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Aviso")
+                .setMessage("A quantidade " + Integer.toString(-quantidadeAtual) +  " irá remover o produto do estoque" + faltou + "Tem certeza que deseja continuar?")
+                .setPositiveButton("Sim", (dialogConfirmar, which) -> {
+                    mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                })
+                .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
+                .create();
+
+        // Altera a cor do botão exibido
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.modern_red));
+            negativeButton.setTextColor(ContextCompat.getColor(this, R.color.green2));
+        });
+
+        dialog.show();
+    }
+
+    public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position, int subtracao){
         if (er.possuiInternet(this)) {
 
             Estoque produtoNovaQuantidade = new Estoque();
@@ -184,10 +230,32 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     try {
                         // Processar resposta da requisição
                         Estoque responseEstoque = gson.fromJson(response, Estoque.class);
-                        if (responseEstoque.getCode() == 0) {
+                        if (responseEstoque.getCode() == 0 || responseEstoque.getCode() == 28) {
                             runOnUiThread(() -> {
-                                adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
-                                atualizarQuantidadeProdutoEmEstoque(novaQuantidade, position);
+                                if (subtracao <= 0) { // Produto é removido do estoque
+                                    adaptadorItemProduto.removerProduto(position);
+
+                                    int posicaoEstoque = getIntent().getIntExtra("position",-1);
+                                    if (FragStock.viewModel.getUser().getValue().getData() == null) {
+                                        FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().remove(position);
+                                    } else {
+                                        FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().remove(position);
+                                    }
+                                    textoProdutoVazio.post(() -> {
+                                        if (FragStock.viewModel.getUser().getValue().getData() == null) {
+                                            if (FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().isEmpty()) {
+                                                textoProdutoVazio.setVisibility(View.VISIBLE);
+                                            }
+                                        } else {
+                                            if (FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().isEmpty()) {
+                                                textoProdutoVazio.setVisibility(View.VISIBLE);
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
+                                    atualizarQuantidadeProdutoEmEstoque(novaQuantidade, position);
+                                }
                             });
                         }
                     } catch (Exception e) {
@@ -480,7 +548,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
                                     adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
                                     FragStock.adaptadorItemEstoque.notificarNovoProdutoEstoque(produtoInfo, getIntent().getIntExtra("position", -1));
-                                    Toast.makeText(TelaProduto.this, "Novo produto adicionado com sucesso", Toast.LENGTH_SHORT).show();
+                                    textoProdutoVazio.setVisibility(View.GONE);
                                 });
                         }
                     } catch (Exception e) {
