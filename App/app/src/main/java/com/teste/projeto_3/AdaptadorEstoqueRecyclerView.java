@@ -70,6 +70,11 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemChanged(position);
     }
 
+    public void notificarQuantidadeProdutoAlterado(int novaQuantidade, int position) {
+        estoque.get(position).getProdutos().get(position).setQuantidade(novaQuantidade);
+        notifyItemChanged(position);
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemEstoque;
         public TextView nomeEstoque;

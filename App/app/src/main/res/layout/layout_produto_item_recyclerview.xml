@@ -67,68 +67,43 @@
                 android:id="@+id/quantidadeProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/text_default"
-                app:layout_constraintBottom_toBottomOf="@+id/editarQuantidadeProduto"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                android:textColor="@color/black"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
-                app:layout_constraintStart_toEndOf="@+id/editarQuantidadeProduto"
-                app:layout_constraintTop_toTopOf="@+id/editarQuantidadeProduto" />
+                android:layout_marginTop="20dp"
+                android:text="@string/text_default"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/descricaoProduto" />
 
             <TextView
                 android:id="@+id/precoProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/text_default"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                android:textColor="@color/black"
-                android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp"
                 android:layout_marginTop="15dp"
-                app:layout_constraintStart_toEndOf="@+id/editarQuantidadeProduto"
+                android:text="@string/text_default"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="@+id/quantidadeProduto"
                 app:layout_constraintTop_toBottomOf="@+id/quantidadeProduto" />
 
             <TextView
                 android:id="@+id/precoMedioProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
                 android:layout_marginTop="15dp"
-                android:layout_marginEnd="20dp"
                 android:text="@string/text_default"
                 android:textColor="@color/black"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintStart_toEndOf="@+id/editarQuantidadeProduto"
+                app:layout_constraintStart_toStartOf="@+id/quantidadeProduto"
                 app:layout_constraintTop_toBottomOf="@+id/precoProduto" />
-
-            <ImageView
-                android:id="@+id/editarQuantidadeProduto"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/descricaoProduto"
-                app:srcCompat="@drawable/icon_edit_list_information" />
 
             <TextView
                 android:id="@+id/dataValidadeProduto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
                 android:layout_marginTop="15dp"
-                android:layout_marginEnd="20dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/text_default"
                 android:textColor="@color/black"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/editarQuantidadeProduto"
+                app:layout_constraintStart_toStartOf="@+id/quantidadeProduto"
                 app:layout_constraintTop_toBottomOf="@+id/precoMedioProduto" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

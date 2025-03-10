@@ -49,7 +49,6 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -113,18 +112,108 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         adaptadorItemProduto = new AdaptadorProdutoRecyclerView(this, produto, this);
         recyclerView.setAdapter(adaptadorItemProduto);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-    }
 
+    }
 
     @Override
     public void onItemClick(int position) {
     }
 
-
     @Override
     public void onItemLongClick(int position) {
-        produto.remove(position);
-        adaptadorItemProduto.notifyItemRemoved(position);
+        dialogEditarProduto(position);
+    }
+
+    private void dialogEditarProduto(int position) {
+        Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.layout_editar_info_produto);
+
+        Button botaoEditarQuantidadeProduto = dialog.findViewById(R.id.botaoEditarQuantidadeProduto);
+        botaoEditarQuantidadeProduto.setOnClickListener(v-> {
+            EditText editarTextoNovaQuantidade = dialog.findViewById(R.id.editTextNovaQuantidade);
+            Button botaoEnviarNovaQuantidade = dialog.findViewById(R.id.botaoEnviarNovaQuantidade);
+            TextView textoAdicionarRemoverProduto = dialog.findViewById(R.id.textoAdicionarRemoverProduto);
+            if (editarTextoNovaQuantidade.getVisibility() == View.GONE) {
+                editarTextoNovaQuantidade.setVisibility(View.VISIBLE);
+                botaoEnviarNovaQuantidade.setVisibility(View.VISIBLE);
+                textoAdicionarRemoverProduto.setVisibility(View.VISIBLE);
+
+                botaoEnviarNovaQuantidade.setOnClickListener(w->{
+                    if (editarTextoNovaQuantidade.getText().toString().isEmpty()) {
+                        Toast.makeText(TelaProduto.this, "Insira a nova quantidade", Toast.LENGTH_LONG).show();
+                    } else {
+                        int novaQuantidade = Integer.parseInt(editarTextoNovaQuantidade.getText().toString());
+                        String idProduto = Integer.toString(produto.get(position).getId());
+                        String idEstoque = getIntent().getStringExtra("idEstoque");
+                        mudar_produto(idProduto, idEstoque, novaQuantidade, position);
+                        dialog.dismiss();
+                    }
+                });
+            } else {
+                editarTextoNovaQuantidade.setVisibility(View.GONE);
+                botaoEnviarNovaQuantidade.setVisibility(View.GONE);
+                textoAdicionarRemoverProduto.setVisibility(View.GONE);
+            }
+        });
+
+        dialog.show();
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.FadeInOutMiddle;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+    }
+
+    public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position){
+        if (er.possuiInternet(this)) {
+
+            Estoque produtoNovaQuantidade = new Estoque();
+            produtoNovaQuantidade.setId(er.obterMemoriaInterna("idConexao"));
+            produtoNovaQuantidade.setId_estoque(idEstoque);
+            produtoNovaQuantidade.setId_produto(idProduto);
+            produtoNovaQuantidade.setQuantidade(novaQuantidade);
+
+            // Converter o objeto User para JSON
+            String userJson = gson.toJson(produtoNovaQuantidade);
+
+            // Fazer a requisição
+            er.post("mudar_produto", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        Estoque responseEstoque = gson.fromJson(response, Estoque.class);
+                        if (responseEstoque.getCode() == 0) {
+                            runOnUiThread(() -> {
+                                adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
+                                atualizarQuantidadeProdutoEmEstoque(novaQuantidade, position);
+                            });
+                        }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao registrar o produto no Stock", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } else {
+            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void atualizarQuantidadeProdutoEmEstoque(int novaQuantidade, int posicaoProduto){
+        int posicaoEstoque = getIntent().getIntExtra("position",-1);
+        int quantidadeAtual;
+        if (FragStock.viewModel.getUser().getValue().getData() == null) {
+            quantidadeAtual = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
+                    .getProdutos().get(posicaoProduto).getQuantidade();
+            FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
+                    .getProdutos().get(posicaoProduto).setQuantidade(quantidadeAtual + novaQuantidade);
+        } else {
+            quantidadeAtual = FragStock.viewModel.getUser().getValue().getData()
+                    .getEstoque().get(posicaoEstoque).getProdutos().get(posicaoProduto).getQuantidade();
+            FragStock.viewModel.getUser().getValue().getData()
+                    .getEstoque().get(posicaoEstoque).getProdutos().get(posicaoProduto).setQuantidade(quantidadeAtual + novaQuantidade);
+        }
     }
 
     private void dialogRegistrarProduto() {
@@ -230,7 +319,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             int idEstoque = Integer.parseInt(getIntent().getStringExtra("idEstoque"));
 
             if (stringNomeProduto.isEmpty() || stringDescricaoProduto.isEmpty() ||
-            stringQuantidadeProduto.isEmpty() || stringPrecoProduto.isEmpty() || stringDataValidadeProduto.isEmpty()) {
+                    stringQuantidadeProduto.isEmpty() || stringPrecoProduto.isEmpty() || stringDataValidadeProduto.isEmpty()) {
                 runOnUiThread(() -> Toast.makeText(TelaProduto.this, "Preencha todas as informações do produto", Toast.LENGTH_SHORT).show());
             }else if (idEstoque != -1){
                 try {
@@ -380,7 +469,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                 runOnUiThread(() -> {
                                     Produto produtoInfo = new Produto();
                                     produtoInfo.setId(idProduto);
-                                    produtoInfo.setQuantidade(Integer.toString(quantidade));
+                                    produtoInfo.setQuantidade(quantidade);
                                     produtoInfo.setNome(nomeProduto);
                                     produtoInfo.setDescricao(descricaoProduto);
                                     produtoInfo.setFoto(urlImagem);
@@ -486,9 +575,5 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             );
             callback.onCompleteUploadImg(null);
         }
-    }
-
-    private void editarQuantidadeProduto(){
-
     }
 }

@@ -44,7 +44,7 @@ import java.util.concurrent.Executors;
 
 public class FragStock extends Fragment implements RecyclerViewInterface {
     public static AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
-    public SharedViewModel viewModel;
+    public static SharedViewModel viewModel;
     public ArrayList<Estoque> arrayEstoque;
     private EnviarRequisicao er;
     private CameraGaleria cg;

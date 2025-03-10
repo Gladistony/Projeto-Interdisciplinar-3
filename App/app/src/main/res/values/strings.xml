@@ -47,5 +47,10 @@
     <string name="buttonCancelar">Cancelar</string>
     <string name="selecionarCamera">Câmera</string>
     <string name="selecionarGaleria">Galeria</string>
+    <string name="tituloEditarProduto">Editar produto</string>
+    <string name="textoEditarQuantidadeProduto">Adicionar/remover quantidade</string>
+    <string name="hintEditarQuantidade">Nova quantidade</string>
+    <string name="botaoAlterarQuantidadeProduto">Alterar</string>
+    <string name="textoAdicionarRemoverProduto">Insira um valor negativo para remover quantidades</string>
 
 </resources>

@@ -52,11 +52,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         holder.descricaoProduto.setText(produto.get(position).getDescricao());
         holder.precoMedioProduto.setText("Preço médio: R$" + formatadorDouble.format(produto.get(position).getPreco_medio()));
 
-        int quantidadeTotal = 0;
-        for (int i = 0; i < produto.get(position).getLista_quantidades().size(); i++) {
-            quantidadeTotal += produto.get(position).getLista_quantidades().get(i);
+        if (produto.get(position).getLista_quantidades().size() == 0) {
+
         }
-        holder.quantidadeProduto.setText("Quantidade: " + Integer.toString(quantidadeTotal));
+        holder.quantidadeProduto.setText("Quantidade: " + Integer.toString(produto.get(position).getQuantidade()));
+
         holder.dataValidadeProduto.setText("Validade: " + produto.get(position).getData_validade().get(produto.get(position).getData_validade().size() - 1));
 
         Double precoTotal = 0.0;
@@ -76,6 +76,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemInserted(produto.size() - 1);
     }
 
+    public void editarQuantidadeProduto(int novaQuantidade, int position){
+        produto.get(position).setQuantidade(produto.get(position).getQuantidade() + novaQuantidade);
+        notifyItemChanged(position);
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemProduto;
         public TextView nomeProduto;
@@ -83,8 +88,6 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         public TextView quantidadeProduto;
         public TextView precoProduto;
         public TextView precoMedioProduto;
-        public ImageView editarQuantidadeProduto;
-
         public TextView dataValidadeProduto;
 
         public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
@@ -93,12 +96,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             nomeProduto = itemView.findViewById(R.id.nomeProduto);
             descricaoProduto = itemView.findViewById(R.id.descricaoProduto);
             quantidadeProduto = itemView.findViewById(R.id.quantidadeProduto);
-            editarQuantidadeProduto = itemView.findViewById(R.id.editarQuantidadeProduto);
             precoProduto = itemView.findViewById(R.id.precoProduto);
             precoMedioProduto = itemView.findViewById(R.id.precoMedioProduto);
             dataValidadeProduto = itemView.findViewById(R.id.dataValidadeProduto);
 
-
+            /*
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view){
@@ -110,20 +112,9 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
                     }
                 }
             });
+            */
 
-            editarQuantidadeProduto.setOnClickListener(new View.OnClickListener(){
-                @Override
-                public void onClick(View view) {
-                    if (recyclerViewInterface != null) {
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            recyclerViewInterface.onItemClick(position);
-                        }
-                    }
-                }
-            });
 
-            /*
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -136,8 +127,6 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
                     return true;
                 }
             });
-
-             */
 
         }
     }

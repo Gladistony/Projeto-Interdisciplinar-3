@@ -11,7 +11,7 @@ class Produto(
     var nome: String = "",
     var descricao: String = "",
     var foto: String = "",
-    var quantidade: String = "",
+    var quantidade: Int = -1,
     var data_validade: MutableList<String> = mutableListOf(),
     var preco_medio: Double = -1.00,
     var lista_quantidades: MutableList<Int> = mutableListOf(),
