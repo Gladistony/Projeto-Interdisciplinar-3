@@ -186,11 +186,9 @@ public class CameraGaleria {
                 return null;
             }
 
-            /*
             // Verifica o tamanho da imagem
             int tamanhoImagem = inputStream.available();
 
-             */
 
             // Carrega a imagem como Bitmap
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getApplicationContext().getContentResolver(), imageUri);
@@ -198,13 +196,10 @@ public class CameraGaleria {
             // Corrige a orientação da imagem
             bitmap = rotacionarImagemCheck(activity.getApplicationContext(), bitmap, imageUri);
 
-            /*
             // Se a imagem for maior que 1 MB, redimensiona
             if (tamanhoImagem > 1048576) { // 1 MB = 1048576 bytes
                 bitmap = resizeBitmap(bitmap, 1048576);
             }
-
-             */
 
             // Converte o Bitmap para Base64
             return bitmapParaBase64(bitmap);

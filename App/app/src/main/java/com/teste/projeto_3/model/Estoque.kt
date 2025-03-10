@@ -13,6 +13,7 @@ class Estoque(
     var cameras: MutableList<Camera> = mutableListOf(),
     var produtos: MutableList<Produto> = mutableListOf(),
 
+    var url_foto: String = "", // Para requisição de trocar a imagem do estoque
     var id_estoque: String = "",
     var id_produto: String = "",
     var quantidade: Int = -1,
@@ -21,6 +22,6 @@ class Estoque(
 ) : Parcelable {
 
     override fun toString(): String {
-        return "Estoque(id='$id', nome='$nome', descricao='$descricao', imagem='$imagem', cameras='$cameras', produtos='$produtos',id_estoque='$id_estoque', id_produto='$id_produto', quantidade='$quantidade',preco='$preco', data_validade='$data_validade')"
+        return "Estoque(id='$id', nome='$nome', descricao='$descricao', imagem='$imagem', cameras='$cameras', produtos='$produtos', url_foto='$url_foto', id_estoque='$id_estoque', id_produto='$id_produto', quantidade='$quantidade',preco='$preco', data_validade='$data_validade')"
     }
 }

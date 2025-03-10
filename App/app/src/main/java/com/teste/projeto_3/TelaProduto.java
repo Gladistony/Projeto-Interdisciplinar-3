@@ -3,13 +3,11 @@ package com.teste.projeto_3;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -388,13 +386,17 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
             if (stringNomeProduto.isEmpty() || stringDescricaoProduto.isEmpty() ||
                     stringQuantidadeProduto.isEmpty() || stringPrecoProduto.isEmpty() || stringDataValidadeProduto.isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(TelaProduto.this, "Preencha todas as informações do produto", Toast.LENGTH_SHORT).show());
-            }else if (idEstoque != -1){
-                try {
-                    adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), formatadorPontoVirgula.parse(stringPrecoProduto).doubleValue(), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto);
-                    dialog.dismiss();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                runOnUiThread(() -> Toast.makeText(this, "Preencha todas as informações do produto", Toast.LENGTH_SHORT).show());
+            } else {
+                if (imagemCarregandoRegistrarProduto.getVisibility() == View.VISIBLE) {
+                    runOnUiThread(()->Toast.makeText(this, "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), formatadorPontoVirgula.parse(stringPrecoProduto).doubleValue(), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto);
+                        dialog.dismiss();
+                    } catch (ParseException pe) {
+                        runOnUiThread(()->Toast.makeText(this, "Erro interno.", Toast.LENGTH_LONG).show());
+                    }
                 }
             }
         });

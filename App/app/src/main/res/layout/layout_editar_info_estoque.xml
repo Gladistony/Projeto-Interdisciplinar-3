@@ -7,6 +7,20 @@
     android:background="@drawable/dialog_background_all_borders_rounded"
     android:orientation="vertical">
 
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/botaoEditarInfoEstoqueCamera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/icon_choose_camera"
+        android:drawablePadding="10dp"
+        android:text="@string/selecionarCamera"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/botaoEditarImagemEstoque"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewImagemEditarEstoque"
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/tituloEditarEstoque"
         android:layout_width="wrap_content"
@@ -34,18 +48,71 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoApagarEstoque"
-        android:layout_marginTop="20dp"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="@string/textoApagarEstoque"
-        android:textColor="@color/white"
-        android:drawableTint="@color/white"
-        android:drawableStart="@drawable/icon_trash"
-        android:textSize="20sp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="@color/modern_red"
+        android:drawableStart="@drawable/icon_trash"
+        android:drawableTint="@color/white"
+        android:text="@string/textoApagarEstoque"
         android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/botaoEditarInfoEstoqueEnviarImagem" />
+
+    <ImageView
+        android:id="@+id/imageViewImagemEditarEstoque"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/botaoEditarImagemEstoque" />
+        app:layout_constraintTop_toBottomOf="@+id/botaoEditarImagemEstoque"
+        app:srcCompat="@drawable/icon_image"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/botaoEditarInfoEstoqueEnviarImagem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/botaoEditarInfoEstoqueEnviarImagem"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/botaoEditarInfoEstoqueCamera"
+        tools:visibility="visible" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/botaoEditarInfoEstoqueGaleria"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/icon_choose_gallery"
+        android:drawablePadding="10dp"
+        android:text="@string/selecionarGaleria"
+        android:textAllCaps="false"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/botaoEditarInfoEstoqueCamera"
+        app:layout_constraintEnd_toEndOf="@+id/botaoEditarImagemEstoque"
+        app:layout_constraintTop_toTopOf="@+id/botaoEditarInfoEstoqueCamera"
+        app:layout_constraintVertical_bias="0.0"
+        tools:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/progressBarImagemEditarInfoEstoque"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/imageViewImagemEditarEstoque"
+        app:layout_constraintEnd_toEndOf="@+id/imageViewImagemEditarEstoque"
+        app:layout_constraintStart_toStartOf="@+id/imageViewImagemEditarEstoque"
+        app:layout_constraintTop_toTopOf="@+id/imageViewImagemEditarEstoque"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

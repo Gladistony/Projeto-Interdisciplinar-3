@@ -60,6 +60,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         void onConfirmacao(boolean confirmou);
     }
 
+    private interface CallbackResponseUpload {
+        void onCompleteUploadImg(String urlImagem);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -166,12 +170,12 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                                 // Atualizando o objeto principal User com o novo estoque
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     viewModel.getUser().getValue().getEstoque().add(estoque);
-                                    if (viewModel.getUser().getValue().getEstoque().size() > 0) {
+                                    if (viewModel.getUser().getValue().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 } else {// Login por login
                                     viewModel.getUser().getValue().getData().getEstoque().add(estoque);
-                                    if (viewModel.getUser().getValue().getData().getEstoque().size() > 0) {
+                                    if (viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 }
@@ -329,8 +333,12 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             if (nomeEstoque.getText().toString().isEmpty() || descricaoEstoque.getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Insira o nome e a descrição para o Stock", Toast.LENGTH_SHORT).show();
             } else {
-                criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
-                dialog.dismiss();
+                if (imagemCarregandoCriarEstoque.getVisibility() == View.VISIBLE) {
+                    requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
+                } else {
+                    criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
+                    dialog.dismiss();
+                }
             }
         });
 
@@ -349,10 +357,98 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         Button botaoEditarImagemEstoque = dialog.findViewById(R.id.botaoEditarImagemEstoque);
         Button botaoApagarEstoque = dialog.findViewById(R.id.botaoApagarEstoque);
 
+        ImageView imagemEditarEstoque = dialog.findViewById(R.id.imageViewImagemEditarEstoque);
+        Button botaoSelecionarCamera = dialog.findViewById(R.id.botaoEditarInfoEstoqueCamera);
+        Button botaoSelecionarGaleria = dialog.findViewById(R.id.botaoEditarInfoEstoqueGaleria);
+        Button botaoEnviarImagem = dialog.findViewById(R.id.botaoEditarInfoEstoqueEnviarImagem);
+        ProgressBar progressBarImagemEditarEstoque = dialog.findViewById(R.id.progressBarImagemEditarInfoEstoque);
+
         botaoEditarImagemEstoque.setOnClickListener(v -> {
-            requireActivity().runOnUiThread(() -> {
-                Toast.makeText(requireContext(), "Alterar a imagem", Toast.LENGTH_LONG).show();
-            });
+            if (imagemEditarEstoque.getVisibility() == View.GONE) {
+                imagemEditarEstoque.setVisibility(View.VISIBLE);
+                botaoSelecionarCamera.setVisibility(View.VISIBLE);
+                botaoSelecionarGaleria.setVisibility(View.VISIBLE);
+                botaoEnviarImagem.setVisibility(View.VISIBLE);
+
+                botaoSelecionarCamera.setOnClickListener(w -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
+                    @Override
+                    public void onImageSelected(Uri uri) {
+                        progressBarImagemEditarEstoque.setVisibility(View.VISIBLE);
+                        ExecutorService executor = Executors.newSingleThreadExecutor();
+                        executor.execute(() -> {
+                            String base64 = cg.converterUriParaBase64(uri);
+                            requireActivity().runOnUiThread(() -> {
+                                if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                                    imagemBase64 = base64;
+
+                                    // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
+                                    Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                            requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show());
+                                            progressBarImagemEditarEstoque.setVisibility(View.GONE);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                            progressBarImagemEditarEstoque.setVisibility(View.GONE);
+                                            cg.deletarImagemUri(uri);
+                                            return false;
+                                        }
+                                    }).into(imagemEditarEstoque);
+                                }
+                            });
+                        });
+                        executor.shutdown();
+                    }
+                }));
+
+                botaoSelecionarGaleria.setOnClickListener(w -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
+                    @Override
+                    public void onImageSelected(Uri uri) {
+                        progressBarImagemEditarEstoque.setVisibility(View.VISIBLE);
+                        ExecutorService executor = Executors.newSingleThreadExecutor();
+                        executor.execute(() -> {
+                            String base64 = cg.converterUriParaBase64(uri);
+                            requireActivity().runOnUiThread(() -> {
+                                if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                                    imagemBase64 = base64;
+                                    Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                            requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show());
+                                            progressBarImagemEditarEstoque.setVisibility(View.GONE);
+                                            return false;
+                                        }
+
+                                        @Override
+                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                            progressBarImagemEditarEstoque.setVisibility(View.GONE);
+                                            return false;
+                                        }
+                                    }).into(imagemEditarEstoque);
+                                }
+                            });
+                        });
+                        executor.shutdown();
+                    }
+                }));
+
+                botaoEnviarImagem.setOnClickListener(x -> {
+                    if (progressBarImagemEditarEstoque.getVisibility() == View.VISIBLE) {
+                        requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
+                    } else {
+                        uploadImgChargeEstoque(idEstoque, position);
+                        dialog.dismiss();
+                    }
+                });
+            } else {
+                imagemEditarEstoque.setVisibility(View.GONE);
+                botaoSelecionarCamera.setVisibility(View.GONE);
+                botaoSelecionarGaleria.setVisibility(View.GONE);
+                botaoEnviarImagem.setVisibility(View.GONE);
+            }
         });
 
         botaoApagarEstoque.setOnClickListener(v -> {
@@ -420,12 +516,12 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             requireActivity().runOnUiThread(()-> {
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     viewModel.getUser().getValue().getEstoque().remove(position);
-                                    if (viewModel.getUser().getValue().getEstoque().size() == 0) {
+                                    if (viewModel.getUser().getValue().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.VISIBLE);
                                     }
                                 } else { // Login por login
                                     viewModel.getUser().getValue().getData().getEstoque().remove(position);
-                                    if (viewModel.getUser().getValue().getData().getEstoque().size() == 0) {
+                                    if (viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.VISIBLE);
                                     }
                                 }
@@ -443,6 +539,116 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             requireActivity().runOnUiThread(() ->
                     Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show()
             );
+        }
+    }
+
+    private void uploadImgChargeEstoque(String idEstoque, int position) {
+        if (er.possuiInternet(requireContext())) {
+            if (imagemBase64.isEmpty()) {
+                charge_estoque_url(idEstoque, imagemBase64, position);
+            } else {
+                upload_img(imagemBase64, new CallbackResponseUpload() {
+                    @Override
+                    public void onCompleteUploadImg(String urlImagem) {
+                        if (urlImagem != null) {
+                            imagemBase64 = "";
+                            charge_estoque_url(idEstoque, urlImagem, position);
+                        } else {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(requireContext(), "Falha no upload de imagem", Toast.LENGTH_SHORT).show()
+                            );
+                        }
+                    }
+                });
+            }
+        } else {
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void charge_estoque_url(String idEstoque, String urlImagem, int position) {
+        if (er.possuiInternet(requireContext())) {
+
+            Estoque estoque = new Estoque();
+            estoque.setId(er.obterMemoriaInterna("idConexao"));
+            estoque.setId_estoque(idEstoque);
+            estoque.setUrl_foto(urlImagem);
+
+            // Converter o objeto User para JSON
+            String editarImagemEstoque = gson.toJson(estoque);
+
+            // Fazer a requisição
+            er.post("charge_estoque_url", editarImagemEstoque, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show());
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        Estoque responseEstoque = gson.fromJson(response, Estoque.class);
+                        if (responseEstoque.getCode() == 0) {
+                            requireActivity().runOnUiThread(() -> {
+                                if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
+                                    viewModel.getUser().getValue().getEstoque().get(position).setImagem(urlImagem);
+                                } else { // Login por login
+                                    viewModel.getUser().getValue().getData().getEstoque().get(position).setImagem(urlImagem);
+                                }
+                                adaptadorItemEstoque.alterarImagemEstoque(position, urlImagem);
+
+                            });
+                        }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao alterar a imagem do Stock", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } else {
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private void upload_img(String imagemBase64, CallbackResponseUpload callback) {
+        if (er.possuiInternet(requireContext())) {
+            User user = new User();
+            user.setId(er.obterMemoriaInterna("idConexao"));
+            user.setDestino("outro");
+            user.setFile(imagemBase64);
+
+            // Converter o objeto User para JSON
+            String userJson = gson.toJson(user);
+
+            er.post("upload_img", userJson, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
+                    );
+                    callback.onCompleteUploadImg(null); // Erro no upload
+                } else if (response.startsWith("<html>")) {
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show()
+                    );
+                    callback.onCompleteUploadImg(null); // Arquivo muito grande
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseUpload = gson.fromJson(response, User.class);
+                        if (responseUpload.getCode() == 0) {
+                            callback.onCompleteUploadImg(responseUpload.getUrl()); // Sucesso
+                        } else {
+                            callback.onCompleteUploadImg(null);
+                        }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(requireContext(), "Erro ao processar o upload da imagem", Toast.LENGTH_SHORT).show()
+                        );
+                        callback.onCompleteUploadImg(null);
+                    }
+                }
+            });
+        } else {
+            requireActivity().runOnUiThread(() ->
+                    Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show()
+            );
+            callback.onCompleteUploadImg(null);
         }
     }
 }

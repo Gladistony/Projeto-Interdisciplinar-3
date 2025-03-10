@@ -32,6 +32,7 @@
     <string name="tituloCriarNovoEstoque">Criar novo estoque</string>
     <string name="tituloEditarInfoEstoque">Editar Stock</string>
     <string name="textoEditarImagemEstoque">Alterar imagem</string>
+    <string name="botaoEditarInfoEstoqueEnviarImagem">Enviar imagem</string>
     <string name="textoApagarEstoque">Excluir estoque</string>
     <string name="tituloRegistrarProduto">Registrar produto</string>
     <string name="textoSelecionarImagemEstoque">Selecione uma imagem para o Stock. Não é obrigatório definir uma imagem.</string>

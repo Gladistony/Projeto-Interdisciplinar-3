@@ -60,6 +60,11 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemRemoved(position);
     }
 
+    public void alterarImagemEstoque(int position, String urlImagem) {
+        estoque.get(position).setImagem(urlImagem);
+        notifyItemChanged(position);
+    }
+
     public void adicionarArrayEstoque(Estoque novoEstoque) {
         estoque.add(novoEstoque);
         notifyItemInserted(estoque.size() - 1);
@@ -67,11 +72,6 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
 
     public void notificarNovoProdutoEstoque(Produto novoProduto, int position) {
         estoque.get(position).getProdutos().add(novoProduto);
-        notifyItemChanged(position);
-    }
-
-    public void notificarQuantidadeProdutoAlterado(int novaQuantidade, int position) {
-        estoque.get(position).getProdutos().get(position).setQuantidade(novaQuantidade);
         notifyItemChanged(position);
     }
 
