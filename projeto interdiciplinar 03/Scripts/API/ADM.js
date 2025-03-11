@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             estoquesPagina.forEach(estoque => {
 
+                let connectionId = localStorage.getItem('connectionId');
                 const divEstoque = document.createElement('div');
                 divEstoque.classList.add('detalhe-estoque');
                 divEstoque.innerHTML = `
@@ -101,13 +102,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                 <button class="delete-estoque">Apagar Estoque</button>
 
                 <h3>Câmeras no Estoque</h3>
+                <div class="cameras-container">
                 ${estoque.cameras && estoque.cameras.length > 0 ? estoque.cameras.map(camera => `
                     <div class="detalhe-camera">
+                        <p><span class="title">id</span>:${camera.id}</p>
                         <p><span class="title">Câmera</span>: ${camera.nome} - <span class="title">Descrição</span>: ${camera.descricao}</p>
                         <p><span class="title">Código</span>: ${camera.codigo_camera}</p>
-                        <p><span class="title">id</span>:${camera.id}</p>
+                        <span class="title">IA</span>
+                        <iframe src="http://127.0.0.1:3000/ver_camera_classe/${camera.codigo_camera}/${connectionId}" frameborder="0" id="camera"></iframe>
+                        <span class="title">Padrão</span>
+                        <iframe src="http://127.0.0.1:3000/ver_camera/${camera.codigo_camera}/${connectionId}" frameborder="0" id="camera"></iframe>
                     </div>
                 `).join('') : '<p class="sem-cameras">Sem câmeras</p>'}
+                </div>
             `;
             
                 container.appendChild(divEstoque);
