@@ -10,7 +10,7 @@ if os.path.exists('c:/config.json'):
     PRODUCT_MODE = config['PRODUCT_MODE']
     HOST_URL = config['HOST_URL']
 else:
-    PORT_LOCAL = 8000
+    PORT_LOCAL = 3000
     PRODUCT_MODE = True
     HOST_URL = '127.0.0.1' #'44.203.201.20'
 
