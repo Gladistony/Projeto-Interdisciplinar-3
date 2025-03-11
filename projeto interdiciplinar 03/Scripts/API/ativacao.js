@@ -18,7 +18,7 @@ document.getElementById('ativacaoForm').addEventListener('submit', async functio
             alert('Conta ativada com sucesso!');
 
             // Redirecionar para a tela de home
-            window.location.href = '../Paginas/telaDeHomel.html';
+            window.location.href = '../Paginas/index.html';
         } else {
             throw new Error('Erro na ativação da conta.');
         }
