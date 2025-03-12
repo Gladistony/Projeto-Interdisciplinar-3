@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             document.getElementById('camera-opcao').style.display = 'none';
             document.getElementById('product-form').style.display = 'none';
+            document.getElementById('codigo-camera').style.display = 'none';
         } else {
             listaProdutos.style.width = '';
             listaProdutos.style.marginLeft = '';
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             document.getElementById('product-form').style.display = '';
             document.getElementById('camera-opcao').style.display = '';
+            document.getElementById('codigo-camera').style.display = '';
         }
         isExpanded = !isExpanded;
     });
@@ -96,6 +98,9 @@ async function atualizarCamera() {
         console.error("Nenhuma câmera selecionada.");
         return;
     }
+
+    const codigoP = document.getElementById("codigo-camera")
+    codigoP.textContent = `Codigo da câmera: ${codigoCamera}`;
 
     // Construir a URL com base no tipo de câmera selecionado
     let url = cameraTipo === "ia" 
@@ -209,5 +214,5 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
     // Evento para fechar a lista
     closeList.addEventListener("click", () => {
         videoListContainer.style.display = "none"; // Esconde a lista
-    });     
+    });
 });
