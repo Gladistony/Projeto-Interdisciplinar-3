@@ -23,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -153,18 +154,22 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
                 botaoEnviarNovaQuantidade.setOnClickListener(w->{
                     if (editarTextoNovaQuantidade.getText().toString().isEmpty()) {
-                        Toast.makeText(TelaProduto.this, "Insira a nova quantidade", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, "Insira uma quantidade antes de alterar", Toast.LENGTH_LONG).show();
                     } else {
                         int novaQuantidade = Integer.parseInt(editarTextoNovaQuantidade.getText().toString());
-                        String idProduto = Integer.toString(produto.get(position).getId());
-                        String idEstoque = getIntent().getStringExtra("idEstoque");
-                        int subtracao = quantidadeAtual + novaQuantidade;
-                        if (subtracao <= 0) {
-                            popupConfirmarQuantidadeProduto(subtracao, quantidadeAtual, idProduto, idEstoque, novaQuantidade, position);
+                        if (Math.abs(novaQuantidade) == 0) {
+                            Toast.makeText(this, "Adicione ou remova uma quantidade válida", Toast.LENGTH_LONG).show();
                         } else {
-                            mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                            String idProduto = Integer.toString(produto.get(position).getId());
+                            String idEstoque = getIntent().getStringExtra("idEstoque");
+                            int subtracao = quantidadeAtual + novaQuantidade;
+                            if (subtracao <= 0) {
+                                popupConfirmarQuantidadeProduto(subtracao, quantidadeAtual, idProduto, idEstoque, novaQuantidade, position);
+                            } else {
+                                mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                            }
+                            dialog.dismiss();
                         }
-                        dialog.dismiss();
                     }
                 });
             } else {
@@ -190,7 +195,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         }
             AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Aviso")
-                .setMessage("A quantidade " + Integer.toString(-quantidadeAtual) +  " irá remover o produto do estoque" + faltou + "Tem certeza que deseja continuar?")
+                .setMessage("A quantidade " + novaQuantidade +  " irá remover o produto do estoque" + faltou + "Tem certeza que deseja continuar?")
                 .setPositiveButton("Sim", (dialogConfirmar, which) -> {
                     mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
                 })
@@ -320,14 +325,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                             // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
                             Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
                                 @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                     Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
                                     imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     return false;
                                 }
 
                                 @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                     imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     cg.deletarImagemUri(uri);
                                     return false;
@@ -354,14 +359,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                             // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
                             Glide.with(TelaProduto.this).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
                                 @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                     Toast.makeText(TelaProduto.this, "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
                                     imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     return false;
                                 }
 
                                 @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                     imagemCarregandoRegistrarProduto.setVisibility(View.GONE);
                                     return false;
                                 }
@@ -484,7 +489,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     @Override
                     public void onCompleteRegistroProduto(Produto produtoRegistrado) {
                         if (produtoRegistrado != null) {
-                            registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, produtoRegistrado, nomeProduto, descricaoProduto, imagemBase64);
+                            registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64);
                         }
                     }
                 });
@@ -497,7 +502,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                             registroProduto(nomeProduto, descricaoProduto, urlImagem, new CallbackResponseProduto() {
                                 @Override
                                 public void onCompleteRegistroProduto(Produto produtoRegistrado) {
-                                    registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, produtoRegistrado, nomeProduto, descricaoProduto, urlImagem);
+                                    registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, urlImagem);
                                 }
                             });
                         } else {
@@ -513,7 +518,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         }
     }
 
-    private void registroProdutoEmEstoque(int idEstoque, int idProduto, int quantidade, String dataValidade, Double preco, Produto produtoRegistrado, String nomeProduto, String descricaoProduto, String urlImagem) {
+    private void registroProdutoEmEstoque(int idEstoque, int idProduto, int quantidade, String dataValidade, Double preco, String nomeProduto, String descricaoProduto, String urlImagem) {
         if (er.possuiInternet(this)) {
 
             EstoqueDataValidadeString estoque = new EstoqueDataValidadeString();

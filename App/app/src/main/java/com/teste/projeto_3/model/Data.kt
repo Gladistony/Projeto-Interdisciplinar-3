@@ -9,7 +9,7 @@ class Data(
     var email: String = "",
     var nome_completo: String = "",
     var criacao: String = "",
-    var ultimo_login: String = "",
+    var ultimo_login: String? = null,
     var url_foto: String? = null,
     var tipo_conta: String = "",
     var estoque: MutableList<Estoque> = mutableListOf(),

@@ -27,11 +27,12 @@
     <string name="linear_layout_camera"> Abrir câmera</string>
     <string name="linear_layout_galeria"> Selecionar da galeria</string>
     <string name="linear_layout_url"> Inserir URL de imagem</string>
-    <string name="textoEstoqueVazio"> Você não possui Stocks cadastrados. Clique no botão + para adicionar.</string>
-    <string name="textoProdutoVazio"> Você não possui produtos cadastrados. Clique no botão + para adicionar.</string>
+    <string name="textoEstoqueVazio">Você não possui Stocks cadastrados. Clique no botão + para adicionar.</string>
+    <string name="textoProdutoVazio">Este Stock não possui produtos cadastrados. Clique no botão + para adicionar.</string>
     <string name="tituloCriarNovoEstoque">Criar novo estoque</string>
     <string name="tituloEditarInfoEstoque">Editar Stock</string>
     <string name="textoEditarImagemEstoque">Alterar imagem</string>
+    <string name="textoRemoverImagemEstoque">Para remover a imagem atual do estoque, não selecione nenhuma imagem e pressione o botão \"Enviar imagem\".</string>
     <string name="botaoEditarInfoEstoqueEnviarImagem">Enviar imagem</string>
     <string name="textoApagarEstoque">Excluir estoque</string>
     <string name="tituloRegistrarProduto">Registrar produto</string>

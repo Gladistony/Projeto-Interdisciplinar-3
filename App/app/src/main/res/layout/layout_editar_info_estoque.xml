@@ -9,16 +9,21 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoEditarInfoEstoqueCamera"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/gray"
         android:drawableStart="@drawable/icon_choose_camera"
         android:drawablePadding="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="100dp"
         android:text="@string/selecionarCamera"
+        android:textColor="@color/black"
+        android:textSize="20sp"
         android:textAllCaps="false"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/botaoEditarImagemEstoque"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewImagemEditarEstoque"
+        app:layout_constraintTop_toBottomOf="@+id/textoRemoverImagemEstoque"
         tools:visibility="visible" />
 
     <TextView
@@ -37,11 +42,16 @@
         android:id="@+id/botaoEditarImagemEstoque"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:drawableStart="@drawable/icon_image"
         android:text="@string/textoEditarImagemEstoque"
         android:textSize="20sp"
         android:textAllCaps="false"
+        android:backgroundTint="@color/green"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:textColor="@color/white"
+        android:drawableTint="@color/white"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tituloEditarEstoque" />
@@ -51,6 +61,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:backgroundTint="@color/modern_red"
         android:drawableStart="@drawable/icon_trash"
         android:drawableTint="@color/white"
@@ -58,6 +69,7 @@
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="20sp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,12 +89,16 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoEditarInfoEstoqueEnviarImagem"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="@string/botaoEditarInfoEstoqueEnviarImagem"
+        android:textColor="@color/black"
         android:textAllCaps="false"
         android:visibility="gone"
+        android:textSize="20sp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/goldenLogo2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/botaoEditarInfoEstoqueCamera"
@@ -90,13 +106,17 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoEditarInfoEstoqueGaleria"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/icon_choose_gallery"
         android:drawablePadding="10dp"
         android:text="@string/selecionarGaleria"
+        android:textColor="@color/black"
         android:textAllCaps="false"
         android:visibility="gone"
+        android:textSize="20sp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/gray"
         app:layout_constraintBottom_toBottomOf="@+id/botaoEditarInfoEstoqueCamera"
         app:layout_constraintEnd_toEndOf="@+id/botaoEditarImagemEstoque"
         app:layout_constraintTop_toTopOf="@+id/botaoEditarInfoEstoqueCamera"
@@ -113,6 +133,21 @@
         app:layout_constraintEnd_toEndOf="@+id/imageViewImagemEditarEstoque"
         app:layout_constraintStart_toStartOf="@+id/imageViewImagemEditarEstoque"
         app:layout_constraintTop_toTopOf="@+id/imageViewImagemEditarEstoque"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textoRemoverImagemEstoque"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:text="@string/textoRemoverImagemEstoque"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewImagemEditarEstoque"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

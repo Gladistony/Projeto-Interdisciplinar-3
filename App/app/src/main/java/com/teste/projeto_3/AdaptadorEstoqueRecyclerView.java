@@ -47,6 +47,9 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            // Carregamento desnecessário do drawable com o mesmo valor padrão. Verificar depois.
+            holder.imagemEstoque.setImageResource(R.drawable.icon_image);
         }
     }
 

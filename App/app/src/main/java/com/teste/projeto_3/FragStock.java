@@ -7,6 +7,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -129,7 +131,6 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                     @Override
                     public void onComplete(String urlImagem) {
                         if (urlImagem != null) {
-                            imagemBase64 = "";
                             enviarEstoque(nome, descricao, urlImagem);
                         } else {
                             requireActivity().runOnUiThread(() ->
@@ -153,6 +154,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             estoque.setDescricao(descricao);
             estoque.setImagem(urlImagem);
 
+            imagemBase64 = "";
+
             // Converter o objeto User para JSON
             String userJson = gson.toJson(estoque);
 
@@ -170,22 +173,20 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                                 // Atualizando o objeto principal User com o novo estoque
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     viewModel.getUser().getValue().getEstoque().add(estoque);
-                                    if (viewModel.getUser().getValue().getEstoque().isEmpty()) {
+                                    if (!viewModel.getUser().getValue().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 } else {// Login por login
                                     viewModel.getUser().getValue().getData().getEstoque().add(estoque);
-                                    if (viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
+                                    if (!viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 }
                                 adaptadorItemEstoque.adicionarArrayEstoque(estoque);
-
-                                Toast.makeText(requireContext(), "Novo Stock adicionado com sucesso", Toast.LENGTH_SHORT).show();
                             });
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                Toast.makeText(requireContext(), "Erro ao remover o Stock", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Erro ao criar o Stock", Toast.LENGTH_SHORT).show();
                             });
                         }
                     } catch (Exception e) {
@@ -270,16 +271,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             imagemBase64 = base64;
 
                             // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
-                            Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                            Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
                                 @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                     Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
                                     imagemCarregandoCriarEstoque.setVisibility(View.GONE);
                                     return false;
                                 }
 
                                 @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                     imagemCarregandoCriarEstoque.setVisibility(View.GONE);
                                     cg.deletarImagemUri(uri);
                                     return false;
@@ -302,16 +303,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                     requireActivity().runOnUiThread(() -> {
                         if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
                             imagemBase64 = base64;
-                            Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                            Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
                                 @Override
-                                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                     Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
                                     imagemCarregandoCriarEstoque.setVisibility(View.GONE);
                                     return false;
                                 }
 
                                 @Override
-                                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                     imagemCarregandoCriarEstoque.setVisibility(View.GONE);
                                     return false;
                                 }
@@ -358,6 +359,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         Button botaoApagarEstoque = dialog.findViewById(R.id.botaoApagarEstoque);
 
         ImageView imagemEditarEstoque = dialog.findViewById(R.id.imageViewImagemEditarEstoque);
+        TextView textoRemoverImagemEstoque = dialog.findViewById(R.id.textoRemoverImagemEstoque);
         Button botaoSelecionarCamera = dialog.findViewById(R.id.botaoEditarInfoEstoqueCamera);
         Button botaoSelecionarGaleria = dialog.findViewById(R.id.botaoEditarInfoEstoqueGaleria);
         Button botaoEnviarImagem = dialog.findViewById(R.id.botaoEditarInfoEstoqueEnviarImagem);
@@ -365,6 +367,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
         botaoEditarImagemEstoque.setOnClickListener(v -> {
             if (imagemEditarEstoque.getVisibility() == View.GONE) {
+                textoRemoverImagemEstoque.setVisibility(View.VISIBLE);
                 imagemEditarEstoque.setVisibility(View.VISIBLE);
                 botaoSelecionarCamera.setVisibility(View.VISIBLE);
                 botaoSelecionarGaleria.setVisibility(View.VISIBLE);
@@ -382,16 +385,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                                     imagemBase64 = base64;
 
                                     // Método assíncrono para exibir a imagem na tela e apagar o arquivo logo em seguida
-                                    Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                    Glide.with(requireActivity()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
                                         @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                             requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show());
                                             progressBarImagemEditarEstoque.setVisibility(View.GONE);
                                             return false;
                                         }
 
                                         @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                             progressBarImagemEditarEstoque.setVisibility(View.GONE);
                                             cg.deletarImagemUri(uri);
                                             return false;
@@ -414,16 +417,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             requireActivity().runOnUiThread(() -> {
                                 if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
                                     imagemBase64 = base64;
-                                    Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                    Glide.with(requireContext()).load(uri).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
                                         @Override
-                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
                                             requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show());
                                             progressBarImagemEditarEstoque.setVisibility(View.GONE);
                                             return false;
                                         }
 
                                         @Override
-                                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                        public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
                                             progressBarImagemEditarEstoque.setVisibility(View.GONE);
                                             return false;
                                         }
@@ -445,6 +448,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                 });
             } else {
                 imagemEditarEstoque.setVisibility(View.GONE);
+                textoRemoverImagemEstoque.setVisibility(View.GONE);
                 botaoSelecionarCamera.setVisibility(View.GONE);
                 botaoSelecionarGaleria.setVisibility(View.GONE);
                 botaoEnviarImagem.setVisibility(View.GONE);

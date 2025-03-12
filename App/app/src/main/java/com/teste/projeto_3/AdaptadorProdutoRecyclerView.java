@@ -47,16 +47,14 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            // Carregamento desnecessário do drawable com o mesmo valor padrão. Verificar depois.
+            holder.imagemProduto.setImageResource(R.drawable.icon_image);
         }
         holder.nomeProduto.setText(produto.get(position).getNome());
         holder.descricaoProduto.setText(produto.get(position).getDescricao());
         holder.precoMedioProduto.setText("Preço médio: R$" + formatadorDouble.format(produto.get(position).getPreco_medio()));
-
-        if (produto.get(position).getLista_quantidades().size() == 0) {
-
-        }
         holder.quantidadeProduto.setText("Quantidade: " + Integer.toString(produto.get(position).getQuantidade()));
-
         holder.dataValidadeProduto.setText("Validade: " + produto.get(position).getData_validade().get(produto.get(position).getData_validade().size() - 1));
 
         Double precoTotal = 0.0;

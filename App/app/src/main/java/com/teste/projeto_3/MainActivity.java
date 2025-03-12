@@ -72,18 +72,10 @@ public class MainActivity extends AppCompatActivity{
                                         finish();
                                         break;
 
-                                    case 3: // Conta não está ativa
-                                        Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
-                                        intentTelaValidacao.putExtra("usuario", responseAutoLogin.getUsuario());
-                                        intentTelaValidacao.putExtra("senha", responseAutoLogin.getSenha());
-                                        startActivity(intentTelaValidacao);
-                                        finish();
-                                        break;
-
                                     case 4: // Conta não encontrada
                                         criarNovoID();
                                         runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
-                                        Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
+                                        Intent intentTelaLoginNaoEncontrado = new Intent(this, LoginCadastro.class);
                                         startActivity(intentTelaLoginNaoEncontrado);
                                         finish();
                                         break;
@@ -91,7 +83,7 @@ public class MainActivity extends AppCompatActivity{
                                     case 12: // Conexão não encontrada / ID inválido
                                         criarNovoID();
                                         runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
-                                        Intent intentConexaoNaoEncontrado = new Intent(this, TelaLogin.class);
+                                        Intent intentConexaoNaoEncontrado = new Intent(this, LoginCadastro.class);
                                         startActivity(intentConexaoNaoEncontrado);
                                         finish();
                                         break;

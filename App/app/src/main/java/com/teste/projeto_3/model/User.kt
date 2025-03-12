@@ -15,7 +15,7 @@ class User(
     var email: String = "",
     var nome_completo: String = "",
     var criacao: String = "",
-    var ultimo_login: String = "",
+    var ultimo_login: String? = null,
     var url_foto: String? = null, // URL da foto já existente no servidor
     var restante: Double = -1.00,
     var file: String = "",
