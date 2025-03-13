@@ -39,15 +39,12 @@ import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.User;
-
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FragStock extends Fragment implements RecyclerViewInterface {
-    public static AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
+    public AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
     public static SharedViewModel viewModel;
-    public ArrayList<Estoque> arrayEstoque;
     private EnviarRequisicao er;
     private CameraGaleria cg;
     private final Gson gson = new Gson();
@@ -83,20 +80,23 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         FloatingActionButton criarEstoque = view.findViewById(R.id.botaoCriarEstoque);
         criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
 
+        textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
         if (viewModel.getUser().getValue().getData() == null) { // Login por requisição de get_dados
-            arrayEstoque = new ArrayList<>(viewModel.getUser().getValue().getEstoque());
+            adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, viewModel.getUser().getValue().getEstoque());
+            if (!viewModel.getUser().getValue().getEstoque().isEmpty()) {
+                textoEstoqueVazio.setVisibility(View.GONE);
+            }
         } else { // Login por requisição de login
-            arrayEstoque = new ArrayList<>(viewModel.getUser().getValue().getData().getEstoque());
+            adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, viewModel.getUser().getValue().getData().getEstoque());
+            if (!viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
+                textoEstoqueVazio.setVisibility(View.GONE);
+            }
         }
-        adaptadorItemEstoque = new AdaptadorEstoqueRecyclerView(requireContext(), this, arrayEstoque);
         recyclerView.setAdapter(adaptadorItemEstoque);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
-        if (!arrayEstoque.isEmpty()) {
-            textoEstoqueVazio.setVisibility(View.GONE);
-        }
+
 
         return view;
     }
@@ -105,11 +105,9 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
     public void onItemClick(int position) {
         Intent intentProduto = new Intent(requireContext(), TelaProduto.class);
             if (viewModel.getUser().getValue().getData() == null) {// Login por requisição de get_dados
-                intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(viewModel.getUser().getValue().getEstoque().get(position).getProdutos()));
                 intentProduto.putExtra("tituloEstoque", viewModel.getUser().getValue().getEstoque().get(position).getNome());
                 intentProduto.putExtra("idEstoque", viewModel.getUser().getValue().getEstoque().get(position).getId());
             } else { // Login por requisição de login
-                intentProduto.putParcelableArrayListExtra("produto", new ArrayList<>(viewModel.getUser().getValue().getData().getEstoque().get(position).getProdutos()));
                 intentProduto.putExtra("tituloEstoque", viewModel.getUser().getValue().getData().getEstoque().get(position).getNome());
                 intentProduto.putExtra("idEstoque", viewModel.getUser().getValue().getData().getEstoque().get(position).getId());
             }
@@ -119,7 +117,11 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     @Override
     public void onItemLongClick(int position) {
-        dialogEditarEstoque(arrayEstoque.get(position).getId(), position);
+        if (viewModel.getUser().getValue().getData() == null) {
+            dialogEditarEstoque(viewModel.getUser().getValue().getEstoque().get(position).getId(), position);
+        } else {
+            dialogEditarEstoque(viewModel.getUser().getValue().getData().getEstoque().get(position).getId(), position);
+        }
     }
 
     private void criarEstoque(String nome, String descricao) {
@@ -170,19 +172,17 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         if (responseEstoque.getCode() == 0) {
                             requireActivity().runOnUiThread(() -> {
                                 estoque.setId(responseEstoque.getId_estoque());
+                                adaptadorItemEstoque.adicionarArrayEstoque(estoque);
                                 // Atualizando o objeto principal User com o novo estoque
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
-                                    viewModel.getUser().getValue().getEstoque().add(estoque);
                                     if (!viewModel.getUser().getValue().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 } else {// Login por login
-                                    viewModel.getUser().getValue().getData().getEstoque().add(estoque);
                                     if (!viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.GONE);
                                     }
                                 }
-                                adaptadorItemEstoque.adicionarArrayEstoque(estoque);
                             });
                         } else {
                             requireActivity().runOnUiThread(() -> {
@@ -518,18 +518,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         Estoque responseUpload = gson.fromJson(response, Estoque.class);
                         if (responseUpload.getCode() == 0) {
                             requireActivity().runOnUiThread(()-> {
+                                adaptadorItemEstoque.removerEstoque(position);
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
-                                    viewModel.getUser().getValue().getEstoque().remove(position);
                                     if (viewModel.getUser().getValue().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.VISIBLE);
                                     }
                                 } else { // Login por login
-                                    viewModel.getUser().getValue().getData().getEstoque().remove(position);
                                     if (viewModel.getUser().getValue().getData().getEstoque().isEmpty()) {
                                         textoEstoqueVazio.setVisibility(View.VISIBLE);
                                     }
                                 }
-                                adaptadorItemEstoque.removerEstoque(position);
                             });
                         }
                     } catch (Exception e) {
@@ -591,13 +589,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         Estoque responseEstoque = gson.fromJson(response, Estoque.class);
                         if (responseEstoque.getCode() == 0) {
                             requireActivity().runOnUiThread(() -> {
-                                if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
-                                    viewModel.getUser().getValue().getEstoque().get(position).setImagem(urlImagem);
-                                } else { // Login por login
-                                    viewModel.getUser().getValue().getData().getEstoque().get(position).setImagem(urlImagem);
-                                }
                                 adaptadorItemEstoque.alterarImagemEstoque(position, urlImagem);
-
                             });
                         }
                     } catch (Exception e) {

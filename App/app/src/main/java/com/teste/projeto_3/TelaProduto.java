@@ -51,7 +51,6 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
@@ -68,7 +67,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     }
 
     private AdaptadorProdutoRecyclerView adaptadorItemProduto;
-    public ArrayList<Produto> produto;
     DecimalFormat decimalFormat;
     EnviarRequisicao er;
     CameraGaleria cg;
@@ -76,6 +74,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     private final Gson gson = new Gson();
     NumberFormat formatadorPontoVirgula = NumberFormat.getInstance(new Locale("pt", "BR"));
 
+    int posicaoEstoque;
     TextView textoProdutoVazio;
 
     @Override
@@ -92,12 +91,9 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         cg = new CameraGaleria(this, getActivityResultRegistry(),this);
         decimalFormat = new DecimalFormat("#,##0.00", new DecimalFormatSymbols(new Locale("pt", "BR")));
 
-        produto = getIntent().getParcelableArrayListExtra("produto");
-
         textoProdutoVazio = findViewById(R.id.textoProdutoVazio);
-        if (!produto.isEmpty()) {
-            textoProdutoVazio.setVisibility(View.GONE);
-        }
+
+        posicaoEstoque = getIntent().getIntExtra("position", -1);
 
         TextView tituloEstoque = findViewById(R.id.tituloEstoque);
         tituloEstoque.setText(getIntent().getStringExtra("tituloEstoque"));
@@ -112,7 +108,17 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewProduto);
-        adaptadorItemProduto = new AdaptadorProdutoRecyclerView(this, produto, this);
+        if (FragStock.viewModel.getUser().getValue().getData() == null) {
+            adaptadorItemProduto = new AdaptadorProdutoRecyclerView(this, FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos(), this);
+            if (!FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().isEmpty()) {
+                textoProdutoVazio.setVisibility(View.GONE);
+            }
+        } else {
+            adaptadorItemProduto = new AdaptadorProdutoRecyclerView(this, FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos(), this);
+            if (!FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().isEmpty()) {
+                textoProdutoVazio.setVisibility(View.GONE);
+            }
+        }
         recyclerView.setAdapter(adaptadorItemProduto);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -132,7 +138,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.layout_editar_info_produto);
 
-        int posicaoEstoque = getIntent().getIntExtra("position",-1);
         int quantidadeAtual;
         if (FragStock.viewModel.getUser().getValue().getData() == null) {
             quantidadeAtual = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
@@ -160,7 +165,12 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         if (Math.abs(novaQuantidade) == 0) {
                             Toast.makeText(this, "Adicione ou remova uma quantidade válida", Toast.LENGTH_LONG).show();
                         } else {
-                            String idProduto = Integer.toString(produto.get(position).getId());
+                            String idProduto;
+                            if (FragStock.viewModel.getUser().getValue().getData() == null) {
+                                idProduto = Integer.toString(FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().get(position).getId());
+                            } else {
+                                idProduto = Integer.toString(FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().get(position).getId());
+                            }
                             String idEstoque = getIntent().getStringExtra("idEstoque");
                             int subtracao = quantidadeAtual + novaQuantidade;
                             if (subtracao <= 0) {
@@ -238,12 +248,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                 if (subtracao <= 0) { // Produto é removido do estoque
                                     adaptadorItemProduto.removerProduto(position);
 
-                                    int posicaoEstoque = getIntent().getIntExtra("position",-1);
-                                    if (FragStock.viewModel.getUser().getValue().getData() == null) {
-                                        FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().remove(position);
-                                    } else {
-                                        FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().remove(position);
-                                    }
                                     textoProdutoVazio.post(() -> {
                                         if (FragStock.viewModel.getUser().getValue().getData() == null) {
                                             if (FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().isEmpty()) {
@@ -257,7 +261,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     });
                                 } else {
                                     adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
-                                    atualizarQuantidadeProdutoEmEstoque(novaQuantidade, position);
                                 }
                             });
                         }
@@ -270,23 +273,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
     }
-
-    private void atualizarQuantidadeProdutoEmEstoque(int novaQuantidade, int posicaoProduto){
-        int posicaoEstoque = getIntent().getIntExtra("position",-1);
-        int quantidadeAtual;
-        if (FragStock.viewModel.getUser().getValue().getData() == null) {
-            quantidadeAtual = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
-                    .getProdutos().get(posicaoProduto).getQuantidade();
-            FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque)
-                    .getProdutos().get(posicaoProduto).setQuantidade(quantidadeAtual + novaQuantidade);
-        } else {
-            quantidadeAtual = FragStock.viewModel.getUser().getValue().getData()
-                    .getEstoque().get(posicaoEstoque).getProdutos().get(posicaoProduto).getQuantidade();
-            FragStock.viewModel.getUser().getValue().getData()
-                    .getEstoque().get(posicaoEstoque).getProdutos().get(posicaoProduto).setQuantidade(quantidadeAtual + novaQuantidade);
-        }
-    }
-
     private void dialogRegistrarProduto() {
         Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -554,7 +540,6 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     produtoInfo.getData_validade().add(dataValidade);
 
                                     adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
-                                    FragStock.adaptadorItemEstoque.notificarNovoProdutoEstoque(produtoInfo, getIntent().getIntExtra("position", -1));
                                     textoProdutoVazio.setVisibility(View.GONE);
                                 });
                         }

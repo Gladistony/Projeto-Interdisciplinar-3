@@ -12,16 +12,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.teste.projeto_3.model.Produto;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<AdaptadorProdutoRecyclerView.MyViewHolder> {
     Context context;
-    ArrayList<Produto> produto;
+    List<Produto> produto;
     private final RecyclerViewInterface recyclerViewInterface;
     DecimalFormat formatadorDouble = new DecimalFormat("#,##0.00");
 
-    public AdaptadorProdutoRecyclerView(Context context, ArrayList<Produto> produto, RecyclerViewInterface recyclerViewInterface) {
+    public AdaptadorProdutoRecyclerView(Context context, List<Produto> produto, RecyclerViewInterface recyclerViewInterface) {
         this.context = context;
         this.produto = produto;
         this.recyclerViewInterface = recyclerViewInterface;

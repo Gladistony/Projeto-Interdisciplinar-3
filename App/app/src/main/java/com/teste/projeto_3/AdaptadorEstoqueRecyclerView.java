@@ -11,15 +11,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.teste.projeto_3.model.Estoque;
-import com.teste.projeto_3.model.Produto;
-
-import java.util.ArrayList;
+import java.util.List;
 
 public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorEstoqueRecyclerView.MyViewHolder> {
     Context context;
     private final RecyclerViewInterface recyclerViewInterface;
-    ArrayList<Estoque> estoque;
-    public AdaptadorEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, ArrayList<Estoque> estoque) {
+    List<Estoque> estoque;
+    public AdaptadorEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, List<Estoque> estoque) {
         this.context = context;
         this.recyclerViewInterface = recyclerViewInterface;
         this.estoque = estoque;
@@ -71,11 +69,6 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
     public void adicionarArrayEstoque(Estoque novoEstoque) {
         estoque.add(novoEstoque);
         notifyItemInserted(estoque.size() - 1);
-    }
-
-    public void notificarNovoProdutoEstoque(Produto novoProduto, int position) {
-        estoque.get(position).getProdutos().add(novoProduto);
-        notifyItemChanged(position);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
