@@ -101,11 +101,12 @@ async function atualizarCamera() {
 
     const codigoP = document.getElementById("codigo-camera")
     codigoP.textContent = `Codigo da câmera: ${codigoCamera}`;
+    const link = `http://25.16.169.121:7300` //link do server padrão
 
     // Construir a URL com base no tipo de câmera selecionado
     let url = cameraTipo === "ia" 
-        ? `http://127.0.0.1:3000/ver_camera_classe/${codigoCamera}/${connectionId}`
-        : `http://127.0.0.1:3000/ver_camera/${codigoCamera}/${connectionId}`;
+        ? `${link}/ver_camera_classe/${codigoCamera}/${connectionId}`
+        : `${link}/ver_camera/${codigoCamera}/${connectionId}`;
     
     // Atualizar o src do iframe, se ele existir
     if (iframe) {
@@ -152,6 +153,7 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
     const closeList = document.getElementById("close-list");
     
     pegar_video.addEventListener('click', async () => {
+        const link1 = `http://25.16.169.121:7300` //link do server padrão
         try {
             const select_Box = document.getElementById("cameras-estoque");
             const camera_id = select_Box.value;
@@ -164,7 +166,7 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
             }
     
             // Fazer o GET para obter a lista de vídeos
-            const response = await fetch(`http://127.0.0.1:3000/videos/${camera_id}/${connectionId2}`);
+            const response = await fetch(`${link1}/videos/${camera_id}/${connectionId2}`);
             if (!response.ok) {
                 throw new Error("Erro ao buscar listagem de vídeos.");
             }
@@ -172,7 +174,7 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
             const data = await response.json();
             const videos = data.videos;
             videoItems.innerHTML = "";
-    
+
             // Adicionar cada vídeo à lista
             videos.forEach(videoFilename => {
                 const videoItem = document.createElement("button");
@@ -181,8 +183,9 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
     
                 // Adicionar evento de clique para baixar o vídeo
                 videoItem.addEventListener("click", async () => {
+                    const link1 = `http://25.16.169.121:7300` //link do server padrão
                     try {
-                        const downloadResponse = await fetch(`http://127.0.0.1:3000/video/${camera_id}/${videoFilename}/${connectionId2}`);
+                        const downloadResponse = await fetch(`${link1}/video/${camera_id}/${videoFilename}/${connectionId2}`);
                         if (downloadResponse.ok) {
                             const blob = await downloadResponse.blob();
                             const url = window.URL.createObjectURL(blob);
