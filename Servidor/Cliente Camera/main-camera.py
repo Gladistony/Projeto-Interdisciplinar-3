@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import numpy as np
 
-CAMERA_ID = "6e48a36d-8e28-4560-a524-d5fdb89e2f68"
+CAMERA_ID = "fa9869f2-7028-433a-b669-18c4d498a013"
 
 def listar_webcams():
     index = 0
@@ -29,7 +29,7 @@ if escolha not in webcams_disponiveis:
 def capture_and_send():
     cap = cv2.VideoCapture(escolha)
     #url = f"http://44.203.201.20/receive/{CAMERA_ID}"
-    url = f"http://127.0.0.1:3000/receive/{CAMERA_ID}"
+    url = f"http://127.0.0.1:7300/receive/{CAMERA_ID}"
     print("Sending frames to", url)
     while True:
         ret, frame = cap.read()

@@ -5,7 +5,7 @@ from Classes.ClassesFastAPI import *
 from Classes.Manage_Conect import ManageConect
 from Classes.ModuloResposta import generate_response
 import uuid
-from Classes.GLOBAIS import linkhost
+from Classes.GLOBAIS import linkhost, PORT_LOCAL
 import base64
 
 router = APIRouter()
@@ -79,13 +79,13 @@ async def upload_image(item: UploadImg):
     #Verficar o tipo de envio
     gerar_nome_foto = uuid.uuid4()
     destino = f"imagens/{gerar_nome_foto}.jpg"
-    url_foto = f"http://{linkhost}/get_img_url/{gerar_nome_foto}.jpg"
+    url_foto = f"http://{linkhost}:{PORT_LOCAL}/get_img_url/{gerar_nome_foto}.jpg"
 
     if item.destino == "perfil":
         if not os.path.isdir("imagens/perfil"):
             os.mkdir("imagens/perfil")
         destino = f"imagens/perfil/{gerar_nome_foto}.jpg"
-        url_foto = f"http://{linkhost}/get_img_url/perfil/{gerar_nome_foto}.jpg"
+        url_foto = f"http://{linkhost}:{PORT_LOCAL}/get_img_url/perfil/{gerar_nome_foto}.jpg"
         #Atualizar foto de perfil
         database.set_img_url(conect.usuario, url_foto)
     #Salvar o arquivo
