@@ -15,7 +15,7 @@ class HttpHelper {
 
     fun post(method: String, json: String): String {
         // URL do servidor
-        val url = "http://192.168.1.108:3000/$method/"
+        val url = "http://192.168.1.106:7300/$method/"
 
         // Tipo de mídia JSON
         val jsonMediaType = "application/json; charset=utf-8".toMediaType()
@@ -52,7 +52,7 @@ class HttpHelper {
 
     fun get(method: String, body: String): String {
         // URL do servidor
-        val url = "http://192.168.1.108:3000/$method/$body"
+        val url = "http://192.168.1.106:7300/$method/$body"
 
         // Cliente HTTP
         val client = OkHttpClient.Builder()
