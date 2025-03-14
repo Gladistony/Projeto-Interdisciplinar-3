@@ -4,8 +4,13 @@ document.addEventListener('DOMContentLoaded', async function () {
     try {
         const usuarioAtivo = await verificarAtivacao();
 
-        if (usuarioAtivo) {
-            window.location.href = '../Paginas/telaDeHomel.html'; // Redirecionar para a tela de ativação
+        // Recupera o status do login armazenado no localStorage
+        const logado = localStorage.getItem('logado') === 'true';
+
+        if (usuarioAtivo && !logado) {
+            window.location.href = '../Paginas/index.html'; // Redirecionar para a tela de ativação
+        } else {
+            console.log("Usuário está ativo ou não está logado.");
         }
     } catch (error) {
         console.error('Erro durante a verificação da ativação:', error);

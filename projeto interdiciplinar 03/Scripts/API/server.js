@@ -4,7 +4,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const path = require('path'); 
 
-const baseUrl = 'http://127.0.0.1:3000';
+const baseUrl = 'http://25.16.169.121:7300';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -708,5 +708,5 @@ app.post('/logout', async (req, res) => {
 
 // Inicia o servidor na porta 3000
 app.listen(3000, () => {
-    console.log('Servidor rodando na porta 3000');
+    console.log(`Servidor rodando na porta ${baseUrl}`);
 });
