@@ -95,12 +95,20 @@ public class FragPerfil extends Fragment {
             if (dados.getData() == null) { // Login por requisição de get_dados
                 nomeUsuario = dados.getNome_completo();
                 emailUsuario = dados.getEmail();
-                urlFoto = dados.getUrl_foto();
+                if (dados.getUrl_foto() != null) {
+                    urlFoto = dados.getUrl_foto();
+                } else {
+                    urlFoto = "";
+                }
             } else { // Login por requisição de login
                 Data dadosData = dados.getData();
                 nomeUsuario = dadosData.getNome_completo();
                 emailUsuario = dadosData.getEmail();
-                urlFoto = dadosData.getUrl_foto();
+                if (dadosData.getUrl_foto() != null) {
+                    urlFoto = dadosData.getUrl_foto();
+                } else {
+                    urlFoto = "";
+                }
             }
 
             // Atualiza o nome e o email
@@ -108,7 +116,7 @@ public class FragPerfil extends Fragment {
             email.setText(emailUsuario);
 
             // Atualiza a foto de perfil
-            if (urlFoto != null) {
+            if (!urlFoto.isEmpty()) {
                 Glide.with(requireContext()).load(urlFoto).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
@@ -122,6 +130,9 @@ public class FragPerfil extends Fragment {
                         return false;
                     }
                 }).into(fotoPerfil);
+            }
+            else {
+                fotoPerfil.setImageResource(R.drawable.icon_perfil);
             }
         });
 
