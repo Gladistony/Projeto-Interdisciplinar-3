@@ -49,4 +49,4 @@ app.include_router(rota_camera)
 if __name__ == "__main__":
     if PRODUCT_MODE:
         print("API em modo de produção, envio de email desativado")
-    uvicorn.run(app, host="0.0.0.0", port=PORT_LOCAL)
+    uvicorn.run(app, host="127.0.0.1", port=PORT_LOCAL)
