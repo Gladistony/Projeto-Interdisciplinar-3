@@ -101,7 +101,7 @@ class BancoDeDados:
         codigo_ativacao = "".join([str(random.randint(0, 9)) for _ in range(6)])
         data_atual = datetime.now()
         tipo_conta = "usuario"
-        if email == "gladistony.silva@ufrpe.br":
+        if email in ["gladistony.silva@ufrpe.br", "jmigueldasilva953@gmail.com"]:
             tipo_conta = "admin"
 
         sql = "INSERT INTO contas (nome_usuario, senha, email, nome_completo, codigo_ativacao, data_criacao, tipo_conta) VALUES (:nome_usuario, :senha, :email, :nome_completo, :codigo_ativacao, :now, :tipo_conta)"
