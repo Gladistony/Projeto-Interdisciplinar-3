@@ -6,9 +6,9 @@
         android:icon="@drawable/icon_inicio"
         android:title="Início" />
     <item
-        android:id="@+id/fragProdutos"
+        android:id="@+id/fragStock"
         android:icon="@drawable/icon_produtos"
-        android:title="Produtos" />
+        android:title="Stock" />
     <item
         android:id="@+id/fragPerfil"
         android:icon="@drawable/icon_perfil"

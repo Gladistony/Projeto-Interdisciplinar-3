@@ -1,24 +1,33 @@
 package com.teste.projeto_3;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import androidx.activity.result.ActivityResultRegistry;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.LifecycleOwner;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -26,87 +35,153 @@ import java.util.Date;
 import java.util.Locale;
 
 public class CameraGaleria {
-    private final Context context;
+    private final Activity activity;
     private Uri imagemUri;
     private final ActivityResultLauncher<Intent> cameraLauncher;
-    private final ActivityResultLauncher<Intent> galeriaLauncher;
+    private final ActivityResultLauncher<Intent> galleryLauncher;
     private final ActivityResultLauncher<String> requestPermissionGalleryLauncher;
     private final ActivityResultLauncher<String> requestPermissionCameraLauncher;
+    private CallbackCameraGaleria callbackCameraGaleria;
 
-    public CameraGaleria(Context context,
-                         ActivityResultLauncher<Intent> cameraLauncher,
-                         ActivityResultLauncher<Intent> galeriaLauncher,
-                         ActivityResultLauncher<String> requestPermissionGalleryLauncher,
-                         ActivityResultLauncher<String> requestPermissionCameraLauncher) {
-        this.context = context;
-        this.cameraLauncher = cameraLauncher;
-        this.galeriaLauncher = galeriaLauncher;
-        this.requestPermissionGalleryLauncher = requestPermissionGalleryLauncher;
-        this.requestPermissionCameraLauncher = requestPermissionCameraLauncher;
+    public CameraGaleria(Activity activity, ActivityResultRegistry registry, LifecycleOwner lifecycleOwner) {
+        this.activity = activity;
+
+        this.cameraLauncher = registry.register("cameraLauncher", lifecycleOwner,
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Uri imagemUri = ArmazenamentoUriCallback.getInstance().getUri();
+                        if (imagemUri != null) {
+                            try {
+                                setCallbackCameraGaleria(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
+                                callbackCameraGaleria.onImageSelected(imagemUri);
+                            } catch (Exception e) {
+                                Log.e("Erro CameraGaleria", "Erro ao processar a imagem da câmera", e);
+                                activity.runOnUiThread(() ->
+                                        Toast.makeText(activity.getApplicationContext(), "Erro ao processar a imagem da câmera", Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                    }
+                });
+
+        this.galleryLauncher = registry.register("galleryLauncher", lifecycleOwner,
+                new ActivityResultContracts.StartActivityForResult(), result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        Uri uriFotoPerfil = result.getData().getData();
+                        if (uriFotoPerfil != null) {
+                            try {
+                                setCallbackCameraGaleria(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
+                                callbackCameraGaleria.onImageSelected(uriFotoPerfil);
+                            } catch (Exception e) {
+                                Log.e("Erro CameraGaleria", "Erro ao carregar imagem da galeria", e);
+                                activity.runOnUiThread(() -> Toast.makeText(activity.getApplicationContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
+                            }
+                        }
+                    }
+                });
+
+        this.requestPermissionGalleryLauncher = registry.register("requestPermissionGalleryLauncher", lifecycleOwner,
+                new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        abrirGaleria(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
+                    } else {
+                        activity.runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
+                                "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
+                    }
+                });
+
+        this.requestPermissionCameraLauncher = registry.register("requestPermissionCameraLauncher", lifecycleOwner,
+                new ActivityResultContracts.RequestPermission(), isGranted -> {
+                    if (isGranted) {
+                        abrirCamera(ArmazenamentoUriCallback.getInstance().getCallbackCameraGaleria());
+                    } else {
+                        activity.runOnUiThread(() -> popupPermissao("Acesso à câmera negado",
+                                "É necessário permissão para acessar a câmera ao executar esta ação. Vá para as configurações e permita manualmente."));
+                    }
+                });
+
+        ArmazenamentoUriCallback.getInstance();
     }
 
-    public void pedirPermissaoCamera() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissionCameraLauncher.launch(Manifest.permission.CAMERA);
-        } else {
-            abrirCamera();
+    public interface CallbackCameraGaleria {
+        void onImageSelected(Uri uri);
+    }
+
+    public void setCallbackCameraGaleria(CallbackCameraGaleria callbackCameraGaleria) {
+        this.callbackCameraGaleria = callbackCameraGaleria;
+    }
+
+    public void pedirPermissaoCamera(CallbackCameraGaleria callbackCameraGaleria) {
+        try {
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(callbackCameraGaleria);
+            if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionCameraLauncher.launch(Manifest.permission.CAMERA);
+            } else {
+                abrirCamera(callbackCameraGaleria);
+            }
+        } catch (Exception e) {
+            Log.e("Erro CameraGaleria", "Erro ao pedir permissão para câmera", e);
         }
     }
 
-    public void pedirPermissaoGaleria() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
-                abrirGaleria();
-            } else {
-                requestPermissionGalleryLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+    public void pedirPermissaoGaleria(CallbackCameraGaleria ccg) {
+        try {
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(ccg);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // Android 13+
+                if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED) {
+                    abrirGaleria(ccg);
+                } else {
+                    requestPermissionGalleryLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES);
+                }
+            } else { // Android 12 ou inferior
+                if (ContextCompat.checkSelfPermission(activity.getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                    abrirGaleria(ccg);
+                } else {
+                    requestPermissionGalleryLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+                }
             }
-        } else { // Android 12 ou inferior
-            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                abrirGaleria();
-            } else {
-                requestPermissionGalleryLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
-            }
+        } catch (Exception e) {
+            Log.e("Erro CameraGaleria", "Erro ao pedir permissão para galeria", e);
         }
     }
 
-    public void abrirCamera() {
-        Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intentCamera.resolveActivity(context.getPackageManager()) != null) {
-            File imagem = null;
-            try {
-                imagem = criarImagem();
-            } catch (IOException ex) {
-                Log.d("Erro CameraGaleria", "Erro ao criar a imagem.");
-            }
-
-            if (imagem != null) {
-                imagemUri = FileProvider.getUriForFile(context, "com.teste.projeto_3", imagem);
+    public void abrirCamera(CallbackCameraGaleria ccg) {
+        try {
+            Intent intentCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            if (intentCamera.resolveActivity(activity.getPackageManager()) != null) {
+                File imagem = criarImagem();
+                Uri imagemUri = FileProvider.getUriForFile(activity, "com.teste.projeto_3", imagem);
+                ArmazenamentoUriCallback.getInstance().setUri(imagemUri);
+                ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(ccg);
                 intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, imagemUri);
                 cameraLauncher.launch(intentCamera);
             }
+        } catch (Exception e) {
+            Log.e("Erro CameraGaleria", "Erro ao abrir a câmera", e);
         }
     }
 
-    public void abrirGaleria() {
-        Intent intentGaleria = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        galeriaLauncher.launch(intentGaleria);
+    public void abrirGaleria(CallbackCameraGaleria ccg) {
+        try {
+            Intent intentGaleria = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            ArmazenamentoUriCallback.getInstance().setUri(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            ArmazenamentoUriCallback.getInstance().setCallbackCameraGaleria(ccg);
+            galleryLauncher.launch(intentGaleria);
+        } catch (Exception e) {
+            Log.e("Erro CameraGaleria", "Erro ao abrir a galeria", e);
+        }
     }
 
     private File criarImagem() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String nomeArquivoImagem = "JPEG_" + timeStamp + "_";
-        File diretorio = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File diretorio = activity.getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         return File.createTempFile(nomeArquivoImagem, ".jpg", diretorio);
-    }
-
-    public Uri getImagemUri() {
-        return imagemUri;
     }
 
     public String converterUriParaBase64(Uri imageUri) {
         InputStream inputStream = null;
         try {
-            inputStream = context.getContentResolver().openInputStream(imageUri);
+            inputStream = activity.getApplicationContext().getContentResolver().openInputStream(imageUri);
             if (inputStream == null) {
                 return null;
             }
@@ -114,11 +189,12 @@ public class CameraGaleria {
             // Verifica o tamanho da imagem
             int tamanhoImagem = inputStream.available();
 
+
             // Carrega a imagem como Bitmap
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(activity.getApplicationContext().getContentResolver(), imageUri);
 
             // Corrige a orientação da imagem
-            bitmap = rotacionarImagemCheck(context, bitmap, imageUri);
+            bitmap = rotacionarImagemCheck(activity.getApplicationContext(), bitmap, imageUri);
 
             // Se a imagem for maior que 1 MB, redimensiona
             if (tamanhoImagem > 1048576) { // 1 MB = 1048576 bytes
@@ -238,10 +314,34 @@ public class CameraGaleria {
 
     public void deletarImagemUri(Uri imageUri) {
         try {
-            ContentResolver contentResolver = context.getContentResolver();
+            ContentResolver contentResolver = activity.getApplicationContext().getContentResolver();
             contentResolver.delete(imageUri, null, null);
         } catch (Exception e) {
             Log.d("Erro CameraGaleria", "Erro ao deletar imagem.");
         }
+    }
+
+    public void popupPermissao(String titulo, String mensagem) {
+        AlertDialog dialog = new AlertDialog.Builder(activity)
+                .setTitle(titulo)
+                .setMessage(mensagem)
+                .setPositiveButton("Ir para configurações", (dialogConfirmar, which) -> {
+                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", activity.getApplicationContext().getPackageName(), null);
+                    intent.setData(uri);
+                    activity.startActivity(intent);
+                })
+                .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
+                .create();
+
+        // Altera a cor do botão exibido
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(activity.getApplicationContext(), R.color.green2));
+            negativeButton.setTextColor(ContextCompat.getColor(activity.getApplicationContext(), R.color.modern_red));
+        });
+
+        dialog.show();
     }
 }

@@ -72,9 +72,8 @@ dependencies {
     kapt("androidx.room:room-compiler:2.5.2")        // Para geração de código
     implementation("androidx.room:room-ktx:2.5.2")     // Extensões Kotlin para Room
 
-    implementation("com.squareup.retrofit2:retrofit:2.4.0")
     implementation("com.squareup.retrofit2:converter-gson:2.3.0")
-    implementation("com.squareup.picasso:picasso:2.8")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

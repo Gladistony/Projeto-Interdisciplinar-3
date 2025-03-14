@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_background_all_borders_rounded"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tituloCriarEstoque"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/tituloRegistrarProduto"
+        android:textColor="@color/black"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imagemRegistrarProduto"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tituloCriarEstoque"
+        app:srcCompat="@drawable/icon_image" />
+
+    <EditText
+        android:id="@+id/inserirNomeProduto"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="@string/hintNomeProduto"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray3"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selecionarCameraProduto" />
+
+    <EditText
+        android:id="@+id/inserirDescricaoProduto"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="@string/hintDescricaoProduto"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inserirNomeProduto" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/cancelarRegistroProduto"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/goldenLogo2"
+        android:text="@string/buttonCancelar"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/quantidadeProdutoRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/quantidadeProdutoRegistro" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/registrarProdutoEmEstoque"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/goldenLogo2"
+        android:text="@string/buttonCriar"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/quantidadeProdutoRegistro"
+        app:layout_constraintTop_toBottomOf="@+id/quantidadeProdutoRegistro" />
+
+    <TextView
+        android:id="@+id/textoSelecionarImagemProduto"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/textoSelecionarImagemProduto"
+        android:gravity="center"
+        android:textStyle="italic"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:textColor="@color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imagemRegistrarProduto" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/selecionarCameraProduto"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/gray"
+        android:drawableStart="@drawable/icon_camera"
+        android:drawablePadding="5dp"
+        android:text="@string/selecionarCamera"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintStart_toStartOf="@+id/inserirNomeProduto"
+        app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagemProduto" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/selecionarGaleriaProduto"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/gray"
+        android:drawableStart="@drawable/icon_image"
+        android:drawablePadding="5dp"
+        android:text="@string/selecionarGaleria"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="@+id/inserirNomeProduto"
+        app:layout_constraintTop_toBottomOf="@+id/textoSelecionarImagemProduto" />
+
+    <EditText
+        android:id="@+id/editTextPrecoProduto"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray3"
+        android:hint="@string/hintPrecoProduto"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inserirDescricaoProduto" />
+
+    <EditText
+        android:id="@+id/inserirDataValidadeProduto"
+        android:layout_width="330dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:ems="10"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray3"
+        android:hint="@string/hintDataValidadeProduto"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextPrecoProduto" />
+
+    <EditText
+        android:id="@+id/quantidadeProdutoRegistro"
+        android:layout_width="330dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="@string/hintQuantidadeProduto"
+        android:inputType="number"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/inserirDataValidadeProduto" />
+
+    <ProgressBar
+        android:id="@+id/imagemCarregandoRegistrarProduto"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:indeterminateBehavior="repeat"
+        android:progressTint="@color/green"
+        android:visibility="gone"
+        android:layout_marginTop="25dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tituloCriarEstoque" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

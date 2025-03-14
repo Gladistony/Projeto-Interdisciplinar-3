@@ -1,21 +1,19 @@
 package com.teste.projeto_3;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import android.provider.Settings;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,73 +27,29 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Data;
 import com.teste.projeto_3.model.User;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FragPerfil extends Fragment {
     EnviarRequisicao er;
     private final Gson gson = new Gson();
     private ImageView fotoPerfil;
     private CameraGaleria cg;
-    private Uri uriFotoPerfil;
     private ProgressBar animacaoCarregandoImagem;
     private SharedViewModel viewModel;
-
-    // Variáveis com métodos individuais da classe para câmera e galeria
-    public final ActivityResultLauncher<Intent> cameraLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    uriFotoPerfil = cg.getImagemUri();
-                    if (uriFotoPerfil != null) {
-                        try {
-                            //Bitmap imageBitmap = MediaStore.Images.Media.getBitmap(requireContext().getContentResolver(), uriFotoPerfil);
-                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
-                            upload_img(imagemBase64);
-                            cg.deletarImagemUri(uriFotoPerfil);
-                        } catch (Exception e) {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Erro ao processar a alteração da foto de perfil", Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                }
-            });
-    public final ActivityResultLauncher<Intent> galleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    uriFotoPerfil = result.getData().getData();
-                    if (uriFotoPerfil != null) {
-                        try {
-                            //Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imagemSelecionada);
-                            String imagemBase64 = cg.converterUriParaBase64(uriFotoPerfil);
-                            upload_img(imagemBase64);
-                        } catch (Exception e) {
-                            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao carregar imagem", Toast.LENGTH_SHORT).show());
-                        }
-                    }
-                }
-            });
-
-    public final ActivityResultLauncher<String> requestCameraPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    cg.abrirCamera();
-                } else {
-                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à câmera negado",
-                            "É necessário permissão para acessar a câmera ao executar esta ação. Vá para as configurações e permita manualmente."));
-                }
-            });
-    public final ActivityResultLauncher<String> requestPermissionGalleryLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
-                if (isGranted) {
-                    cg.abrirGaleria();
-                } else {
-                    requireActivity().runOnUiThread(() -> popupPermissao("Acesso à galeria negado",
-                            "É necessário permissão para acessar a galeria ao executar esta ação. Vá para as configurações e permita manualmente."));
-                }
-            });
+    private String imagemBase64 = "";
 
     public FragPerfil() {
         // Required empty public constructor
@@ -105,7 +59,7 @@ public class FragPerfil extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         er = new EnviarRequisicao(requireContext());
-        cg = new CameraGaleria(requireContext(), cameraLauncher, galleryLauncher, requestPermissionGalleryLauncher, requestCameraPermissionLauncher);
+        cg = new CameraGaleria(requireActivity(), requireActivity().getActivityResultRegistry(), requireActivity());
         viewModel = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
     }
 
@@ -141,12 +95,20 @@ public class FragPerfil extends Fragment {
             if (dados.getData() == null) { // Login por requisição de get_dados
                 nomeUsuario = dados.getNome_completo();
                 emailUsuario = dados.getEmail();
-                urlFoto = dados.getUrl_foto();
+                if (dados.getUrl_foto() != null) {
+                    urlFoto = dados.getUrl_foto();
+                } else {
+                    urlFoto = "";
+                }
             } else { // Login por requisição de login
                 Data dadosData = dados.getData();
                 nomeUsuario = dadosData.getNome_completo();
                 emailUsuario = dadosData.getEmail();
-                urlFoto = dadosData.getUrl_foto();
+                if (dadosData.getUrl_foto() != null) {
+                    urlFoto = dadosData.getUrl_foto();
+                } else {
+                    urlFoto = "";
+                }
             }
 
             // Atualiza o nome e o email
@@ -154,14 +116,23 @@ public class FragPerfil extends Fragment {
             email.setText(emailUsuario);
 
             // Atualiza a foto de perfil
-            if (urlFoto != null) {
-                try {
-                    Picasso.get().load(urlFoto).into(fotoPerfil);
-                } catch (Exception e) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil", Toast.LENGTH_SHORT).show()
-                    );
-                }
+            if (!urlFoto.isEmpty()) {
+                Glide.with(requireContext()).load(urlFoto).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                        animacaoCarregandoImagem.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                        animacaoCarregandoImagem.setVisibility(View.GONE);
+                        return false;
+                    }
+                }).into(fotoPerfil);
+            }
+            else {
+                fotoPerfil.setImageResource(R.drawable.icon_perfil);
             }
         });
 
@@ -172,6 +143,7 @@ public class FragPerfil extends Fragment {
         if (er.possuiInternet(requireContext())) {
             User userLogin = new User();
             userLogin.setId(er.obterMemoriaInterna("idConexao"));
+            Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
 
             // Converter o objeto User para JSON
             String userJson = gson.toJson(userLogin);
@@ -241,14 +213,46 @@ public class FragPerfil extends Fragment {
         LinearLayout escolherGaleria = dialog.findViewById(R.id.escolherGaleria);
         LinearLayout escolherUrl = dialog.findViewById(R.id.escolherUrl);
 
-        escolherGaleria.setOnClickListener(v -> {
-            cg.pedirPermissaoGaleria();
-            dialog.dismiss();
-        });
-        escolherCamera.setOnClickListener(v -> {
-            cg.pedirPermissaoCamera();
-            dialog.dismiss();
-        });
+        escolherCamera.setOnClickListener(v -> cg.pedirPermissaoCamera(new CameraGaleria.CallbackCameraGaleria() {
+            @Override
+            public void onImageSelected(Uri uri) {
+                animacaoCarregandoImagem.setVisibility(View.VISIBLE);
+                dialog.dismiss();
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                            imagemBase64 = base64;
+                            cg.deletarImagemUri(uri);
+                            upload_img(base64);
+                            dialog.dismiss();
+                        }
+                    });
+                });
+                executor.shutdown();
+            }
+        }));
+
+        escolherGaleria.setOnClickListener(v -> cg.pedirPermissaoGaleria(new CameraGaleria.CallbackCameraGaleria() {
+            @Override
+            public void onImageSelected(Uri uri) {
+                animacaoCarregandoImagem.setVisibility(View.VISIBLE);
+                dialog.dismiss();
+                ExecutorService executor = Executors.newSingleThreadExecutor();
+                executor.execute(() -> {
+                    String base64 = cg.converterUriParaBase64(uri);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!requireActivity().isDestroyed() || !requireActivity().isFinishing()) {
+                            imagemBase64 = base64;
+                            upload_img(base64);
+                            dialog.dismiss();
+                        }
+                    });
+                });
+                executor.shutdown();
+            }
+        }));
         escolherUrl.setOnClickListener(v -> {
             popupUrlImagem();
             dialog.dismiss();
@@ -263,7 +267,6 @@ public class FragPerfil extends Fragment {
 
     private void upload_img(String imagemBase64) {
         if (er.possuiInternet(requireContext())) {
-            animacaoCarregandoImagem.setVisibility(View.VISIBLE);
             User user = new User();
             user.setId(er.obterMemoriaInterna("idConexao"));
             user.setDestino("perfil");
@@ -271,6 +274,8 @@ public class FragPerfil extends Fragment {
 
             // Converter o objeto User para JSON
             String userJson = gson.toJson(user);
+
+            imagemBase64 = ""; // Limpa a base64 de imagem
 
             er.post("upload_img", userJson, response -> {
                 if (response.startsWith("Erro")) {
@@ -290,16 +295,26 @@ public class FragPerfil extends Fragment {
                         if (responseUpload.getCode() == 0) {
                             try {
                                 requireActivity().runOnUiThread(() -> {
-                                    Picasso.get().load(responseUpload.getUrl()).into(fotoPerfil);
-                                    animacaoCarregandoImagem.setVisibility(View.GONE);
-                                    viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
-                                        if (dados.getData() == null) {
-                                            dados.setUrl_foto(responseUpload.getUrl());
-                                        } else {
-                                            dados.getData().setUrl_foto(responseUpload.getUrl());
+                                    Glide.with(requireContext()).load(responseUpload.getUrl()).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<Drawable>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                            Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                            animacaoCarregandoImagem.setVisibility(View.GONE);
+                                            return false;
                                         }
-                                    });
+
+                                        @Override
+                                        public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                            animacaoCarregandoImagem.setVisibility(View.GONE);
+                                            return false;
+                                        }
+                                    }).into(fotoPerfil);
                                 });
+                                if (viewModel.getUser().getValue().getData() == null) {
+                                    viewModel.getUser().getValue().setUrl_foto(responseUpload.getUrl());
+                                } else {
+                                    viewModel.getUser().getValue().getData().setUrl_foto(responseUpload.getUrl());
+                                }
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
                                     Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show();
@@ -344,6 +359,7 @@ public class FragPerfil extends Fragment {
                     } else if (!url.startsWith("http")) {
                         requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "URL inválida. Deve começar com HTTP ou HTTPS", Toast.LENGTH_SHORT).show());
                     } else {
+                        animacaoCarregandoImagem.setVisibility(View.VISIBLE);
                         set_img_url(url);
                     }
                 })
@@ -360,33 +376,8 @@ public class FragPerfil extends Fragment {
         dialog.show();
     }
 
-    private void popupPermissao(String titulo, String mensagem) {
-        AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
-                .setTitle(titulo)
-                .setMessage(mensagem)
-                .setPositiveButton("Ir para configurações", (dialogConfirmar, which) -> {
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                    Uri uri = Uri.fromParts("package", requireContext().getPackageName(), null);
-                    intent.setData(uri);
-                    startActivity(intent);
-                })
-                .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
-                .create();
-
-        // Altera a cor do botão exibido
-        dialog.setOnShowListener(dialogInterface -> {
-            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-            Button negativeButton = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green2));
-            negativeButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.modern_red));
-        });
-
-        dialog.show();
-    }
-
     private void set_img_url(String url) {
         if (er.possuiInternet(requireContext())) {
-            requireActivity().runOnUiThread(() -> animacaoCarregandoImagem.setVisibility(View.VISIBLE));
             User user = new User();
             user.setId(er.obterMemoriaInterna("idConexao"));
             user.setUrl_foto(url);
@@ -407,16 +398,28 @@ public class FragPerfil extends Fragment {
                         if (responseUpload.getCode() == 0) {
                             try {
                                 requireActivity().runOnUiThread(() -> {
-                                    Picasso.get().load(url).into(fotoPerfil);
-                                    animacaoCarregandoImagem.setVisibility(View.GONE);
-                                    viewModel.getUser().observe(getViewLifecycleOwner(), dados -> {
-                                        if (dados.getData() == null) {
-                                            dados.setUrl_foto(responseUpload.getUrl());
-                                        } else {
-                                            dados.getData().setUrl_foto(responseUpload.getUrl());
+                                    Glide.with(requireContext()).load(url).diskCacheStrategy(DiskCacheStrategy.ALL).listener(new RequestListener<>() {
+                                        @Override
+                                        public boolean onLoadFailed(@Nullable GlideException e, Object model, @NonNull Target<Drawable> target, boolean isFirstResource) {
+                                            Toast.makeText(requireContext(), "Erro ao carregar a imagem na tela", Toast.LENGTH_LONG).show();
+                                            animacaoCarregandoImagem.setVisibility(View.GONE);
+                                            return false;
                                         }
-                                    });
+
+                                        @Override
+                                        public boolean onResourceReady(@NonNull Drawable resource, @NonNull Object model, Target<Drawable> target, @NonNull DataSource dataSource, boolean isFirstResource) {
+                                            animacaoCarregandoImagem.setVisibility(View.GONE);
+                                            return false;
+                                        }
+                                    }).into(fotoPerfil);
                                 });
+
+                                if (viewModel.getUser().getValue().getData() == null) {
+                                    viewModel.getUser().getValue().setUrl_foto(url);
+                                } else {
+                                    viewModel.getUser().getValue().getData().setUrl_foto(url);
+                                }
+
                             } catch (Exception e) {
                                 requireActivity().runOnUiThread(() -> {
                                     Toast.makeText(requireContext(), "Erro ao definir a imagem de perfil na interface gráfica", Toast.LENGTH_SHORT).show();
