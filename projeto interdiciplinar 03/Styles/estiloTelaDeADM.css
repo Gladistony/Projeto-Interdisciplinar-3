@@ -259,3 +259,13 @@ h3 {
 .title {
     color: #3498db;
 }
+
+#camera {
+    height: 200px;
+    border-radius: 5px;
+}
+
+.cameras-container {
+    height: 600px;
+    overflow: auto;
+}

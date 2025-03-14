@@ -16,7 +16,7 @@
         "header main main" !important;
     }
 </style>
-<body>
+<body id="body">
     <h1 id="h1">stock 1</h1>
     <header>
         <nav>
@@ -39,6 +39,7 @@
                 <!--câmeras-->
             </select>
             <button id="camera-select"><i id="camera-select" class="material-icons">switch_camera</i></button>
+            <i id="pegar_video" class="material-icons">videocam</i></button>
         </section>
 
         <section id="camera-inputs">
@@ -54,6 +55,7 @@
             </div>
             <div  id="botao-camera">
                 <button type="submit" id="addPd">Cadastrar câmera</button>
+                <button id="closeproduto">Fechar</button>
             </div>
         </form>
         </section>
@@ -104,6 +106,14 @@
             </section>
         </section>
     </main>
+
+    <div id="video-list">
+        <h3>Lista de Vídeos</h3>
+        <div>
+            <div id="video-items"></div>
+        </div>
+        <button id="close-list">Fechar</button>
+    </div>    
 
     <script type="module" src="../Scripts/API/produtos.js"></script>
     <script type="module" src="../Scripts/telaDeCamera.js"></script>
