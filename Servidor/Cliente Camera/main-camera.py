@@ -18,7 +18,7 @@ def listar_webcams():
         index += 1
     return webcams
 
-webcams_disponiveis = [0,1,2,3]#listar_webcams()
+webcams_disponiveis = listar_webcams()
 print("Webcams disponíveis:", webcams_disponiveis)
 escolha = int(input("Escolha a webcam: "))
 if escolha not in webcams_disponiveis:
