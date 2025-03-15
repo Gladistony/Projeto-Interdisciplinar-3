@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import numpy as np
 
-CAMERA_ID = "fa9869f2-7028-433a-b669-18c4d498a013"
+CAMERA_ID = "c2039538-91c2-4cfe-9afd-3703296fdcb4"
 
 def listar_webcams():
     index = 0
@@ -18,7 +18,7 @@ def listar_webcams():
         index += 1
     return webcams
 
-webcams_disponiveis = listar_webcams()
+webcams_disponiveis = [0,1,2,3]#listar_webcams()
 print("Webcams disponíveis:", webcams_disponiveis)
 escolha = int(input("Escolha a webcam: "))
 if escolha not in webcams_disponiveis:
