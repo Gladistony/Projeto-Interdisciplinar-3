@@ -4,9 +4,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.Uri;
-
-import java.io.File;
 
 public class EnviarRequisicao {
 
@@ -24,26 +21,10 @@ public class EnviarRequisicao {
         }).start();
     }
 
-    /*public void postMultidata(String method, String json, File file, Callback callback) {
+    public void get(String method, String body, Callback callback) {
         new Thread(() -> {
             HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.post(method, json, file);
-            callback.onResponse(response);
-        }).start();
-    } */
-
-    public void get(String method, String json, Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.get(method, json);
-            callback.onResponse(response);
-        }).start();
-    }
-
-    public void ativarConta(String usuario, String senha, Callback callback) {
-        new Thread(() -> {
-            HttpHelper httpHelper = new HttpHelper();
-            String response = httpHelper.ativarConta(usuario, senha);
+            String response = httpHelper.get(method, body);
             callback.onResponse(response);
         }).start();
     }
@@ -60,7 +41,6 @@ public class EnviarRequisicao {
                 .getString(keyString, "Chave não possui valor");
     }
 
-    // Interface de callback para tratar respostas
     public interface Callback {
         void onResponse(String response);
     }

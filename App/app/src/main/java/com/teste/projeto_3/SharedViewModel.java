@@ -10,7 +10,7 @@ public class SharedViewModel extends ViewModel {
     private final MutableLiveData<User> user = new MutableLiveData<>(new User());
 
     public void setUser(User newUser) {
-        user.postValue(newUser);
+        user.setValue(newUser);
     }
 
     public LiveData<User> getUser() {

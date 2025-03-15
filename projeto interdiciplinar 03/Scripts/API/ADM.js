@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const inicio = paginaAtual * estoquesPorPagina;
             const fim = inicio + estoquesPorPagina;
             const estoquesPagina = dadosUser.data.estoque.slice(inicio, fim);
+            const link = `http://25.16.169.121:7300`;
 
             estoquesPagina.forEach(estoque => {
 
@@ -108,10 +109,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                         <p><span class="title">id</span>:${camera.id}</p>
                         <p><span class="title">Câmera</span>: ${camera.nome} - <span class="title">Descrição</span>: ${camera.descricao}</p>
                         <p><span class="title">Código</span>: ${camera.codigo_camera}</p>
-                        <span class="title">IA</span>
-                        <iframe src="http://127.0.0.1:3000/ver_camera_classe/${camera.codigo_camera}/${connectionId}" frameborder="0" id="camera"></iframe>
                         <span class="title">Padrão</span>
-                        <iframe src="http://127.0.0.1:3000/ver_camera/${camera.codigo_camera}/${connectionId}" frameborder="0" id="camera"></iframe>
+                        <iframe src="${link}/ver_camera/${camera.codigo_camera}/${connectionId}" frameborder="0" id="camera"></iframe>
                     </div>
                 `).join('') : '<p class="sem-cameras">Sem câmeras</p>'}
                 </div>

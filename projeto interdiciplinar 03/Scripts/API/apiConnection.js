@@ -89,36 +89,48 @@ async function realizarLogin(id, usuario, senha) {
 async function ativarConta(id, usuario, codigo) {
     try {
         const url = `${API_URL}/ativar/${usuario}/${codigo}`;
-        console.log("URL de requisição:", url); // Log para verificar a URL
+        console.log("URL de requisição:", url);
 
         const response = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         });
 
-        if (!response.ok) {
-            throw new Error(`Erro na ativação da conta: ${response.statusText}`);
-        }
+        const responseText = await response.text();
+        console.log("HTML recebido:", responseText);
 
-        const result = await response.json();
+        // Converte o HTML retornado em um documento analisável
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(responseText, 'text/html');
 
-        // Armazena o status do usuário após a ativação
-        if (result.status === "sucesso") {
+        // Localiza a mensagem dentro do elemento <p>
+        const mensagemElemento = doc.querySelector('.container p'); // Substitua com base na estrutura real
+        const mensagem = mensagemElemento ? mensagemElemento.textContent.trim() : '';
+
+        console.log("Mensagem extraída:", mensagem);
+
+        // Verifica o conteúdo da mensagem para determinar o status
+        if (mensagem.includes("Conta já está ativa")) {
+            console.log("A conta já está ativada.");
             localStorage.setItem('usuarioAtivo', true);
-            localStorage.setItem('connectionId', id); // Armazena o ID de conexão
+            localStorage.setItem('connectionId', id);
+            return { status: "já ativa", mensagem };
+        } else if (mensagem.includes("Operação realizada com sucesso") || mensagem.includes("Conta ativada com sucesso")) {
+            console.log("Ativação bem-sucedida!");
+            localStorage.setItem('usuarioAtivo', true);
+            localStorage.setItem('connectionId', id);
+            return { status: "sucesso", mensagem };
         } else {
+            console.error("Erro detectado na mensagem.");
             localStorage.removeItem('usuarioAtivo');
             localStorage.removeItem('connectionId');
-            throw new Error('Erro na ativação da conta.');
+            throw new Error(mensagem || 'Erro desconhecido durante a ativação.');
         }
-
-        return result;
     } catch (error) {
         console.error('Erro durante o processo de ativação da conta:', error);
         throw error;
     }
 }
-
 
 // Função para obter os dados do usuário
 async function getDadosUsuario() {

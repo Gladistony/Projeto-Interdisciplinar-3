@@ -1,6 +1,5 @@
 package com.teste.projeto_3;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,19 +8,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.teste.projeto_3.model.User;
 
 public class TelaPrincipalActivity extends AppCompatActivity {
 
     private FragmentManager fragmentManager;
+
+    SharedViewModel viewModel;
     private Fragment perfilFrag;
     private Fragment inicioFrag;
-    private Fragment produtosFrag;
+    private Fragment stockFrag;
     private Fragment atualFrag;
 
     @Override
@@ -49,19 +50,18 @@ public class TelaPrincipalActivity extends AppCompatActivity {
         fragmentManager = getSupportFragmentManager();
 
         // Cria o objeto para compartilhar os dados do login para os fragments
-        Intent dados = getIntent();
-        User user = dados.getParcelableExtra("dados"); // Dados da tela de login ou get_dados
-        SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
+        User user = getIntent().getParcelableExtra("dados"); // Dados da tela de login ou get_dados
+        viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
         viewModel.setUser(user);
 
         inicioFrag = new FragInicio();
         perfilFrag = new FragPerfil();
-        produtosFrag = new FragProdutos();
+        stockFrag = new FragStock();
 
         atualFrag = inicioFrag;
         fragmentManager.beginTransaction()
                 .add(R.id.fragmentContainerView, inicioFrag, "Inicio")
-                .add(R.id.fragmentContainerView, produtosFrag, "Produtos").hide(produtosFrag)
+                .add(R.id.fragmentContainerView, stockFrag, "Stock").hide(stockFrag)
                 .add(R.id.fragmentContainerView, perfilFrag, "Perfil").hide(perfilFrag)
                 .commit();
 
@@ -72,8 +72,8 @@ public class TelaPrincipalActivity extends AppCompatActivity {
                 fragmentSelecionado = inicioFrag;
             } else if (item.getItemId() == R.id.fragPerfil) {
                 fragmentSelecionado = perfilFrag;
-            } else if (item.getItemId() == R.id.fragProdutos) {
-                fragmentSelecionado = produtosFrag;
+            } else if (item.getItemId() == R.id.fragStock) {
+                fragmentSelecionado = stockFrag;
             }
 
             if (fragmentSelecionado != atualFrag) {

@@ -22,8 +22,37 @@
     <string name="button_sair_logoff">Sair da conta</string>
     <string name="text_default">Lorem ipsum dolor sit amet</string>
     <string name="add"> mais</string>
+    <string name="tituloStock">Stock</string>
+    <string name="tituloStockTelaProduto">Nome do Stock Selecionado</string>
     <string name="linear_layout_camera"> Abrir câmera</string>
     <string name="linear_layout_galeria"> Selecionar da galeria</string>
     <string name="linear_layout_url"> Inserir URL de imagem</string>
+    <string name="textoEstoqueVazio">Você não possui Stocks cadastrados. Clique no botão + para adicionar.</string>
+    <string name="textoProdutoVazio">Este Stock não possui produtos cadastrados. Clique no botão + para adicionar.</string>
+    <string name="tituloCriarNovoEstoque">Criar novo estoque</string>
+    <string name="tituloEditarInfoEstoque">Editar Stock</string>
+    <string name="textoEditarImagemEstoque">Alterar imagem</string>
+    <string name="textoRemoverImagemEstoque">Para remover a imagem atual do estoque, não selecione nenhuma imagem e pressione o botão \"Enviar imagem\".</string>
+    <string name="botaoEditarInfoEstoqueEnviarImagem">Enviar imagem</string>
+    <string name="textoApagarEstoque">Excluir estoque</string>
+    <string name="tituloRegistrarProduto">Registrar produto</string>
+    <string name="textoSelecionarImagemEstoque">Selecione uma imagem para o Stock. Não é obrigatório definir uma imagem.</string>
+    <string name="textoSelecionarImagemProduto">Selecione uma imagem para o produto. Não é obrigatório definir uma imagem.</string>
+    <string name="hintNomeEstoque">Nome do Stock</string>
+    <string name="hintNomeProduto">Nome</string>
+    <string name="hintDataValidadeProduto">Data de validade</string>
+    <string name="hintPrecoProduto">Preço (R$)</string>
+    <string name="hintQuantidadeProduto">Quantidade</string>
+    <string name="hintDescricaoProduto">Descrição</string>
+    <string name="hintDescricaoEstoque">Descrição do Stock</string>
+    <string name="buttonCriar">Criar</string>
+    <string name="buttonCancelar">Cancelar</string>
+    <string name="selecionarCamera">Câmera</string>
+    <string name="selecionarGaleria">Galeria</string>
+    <string name="tituloEditarProduto">Editar produto</string>
+    <string name="textoEditarQuantidadeProduto">Adicionar/remover quantidade</string>
+    <string name="hintEditarQuantidade">Nova quantidade</string>
+    <string name="botaoAlterarQuantidadeProduto">Alterar</string>
+    <string name="textoAdicionarRemoverProduto">Insira um valor negativo para remover quantidades</string>
 
 </resources>

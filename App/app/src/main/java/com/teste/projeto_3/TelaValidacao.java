@@ -97,7 +97,7 @@ public class TelaValidacao extends AppCompatActivity {
 
                 try {
                     // Fazer a requisição
-                    er.ativarConta(usuario, codigoValidacao, response -> {
+                    er.get("ativar", usuario + "/" + codigoValidacao, response -> {
                         if (response.startsWith("Erro")) {
                             runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
                         } else {
