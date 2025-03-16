@@ -8,3 +8,6 @@ yolov8n.pt
 /Servidor Refatorado/Classes/Rotas/__pycache__
 /Servidor Refatorado/imagens
 /Servidor Refatorado/Banco de Dados
+/servidor_refatorado/Classes/__pycache__
+/servidor_refatorado/Banco de Dados
+/venv
