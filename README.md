@@ -102,3 +102,46 @@ Para utilizar a funcionalidade de câmera, siga os passos abaixo:
    ```
 
 Agora a câmera estará operando corretamente e integrada ao sistema!
+
+## 📱 Instalação e utilização do aplicativo Android
+
+1. **Baixe o repositório do GitHub do projeto**
+
+**a) Opção 1: através do navegador**
+
+Na página do GitHub do projeto, baixe o repositório da branch **main** no formato **.zip**. 
+
+Para evitar problemas do Android Studio com caracteres que não são do formado **ASCII** (tais como õ, é, á, ç), crie uma nova pasta em seu disco local **C:/** e extraia o repositório dentro desta pasta. O nome da pasta deverá conter apenas caracteres ASCII.
+
+
+**b) Opção 2: através do aplicativo desktop GitHub**
+
+No aplicativo do GitHub, crie um clone do repositório utilizando a URL
+
+```sh
+https://github.com/Gladistony/Projeto-Interdisciplinar-3.git
+```
+Para evitar problemas do Android Studio com caracteres que não são do formado **ASCII** (tais como õ, é, á, ç), crie uma nova pasta em seu disco local **C:/** e extraia o repositório dentro desta pasta. O nome da pasta deverá conter apenas caracteres ASCII.
+
+2. **Instalando o Android Studio**
+
+Acesse o website do [Android Studio](https://developer.android.com/studio/archive?hl=en) e baixe a versão **Android Studio Ladybug | 2024.2.1 Patch 2 October 31, 2024**.
+
+❌ Evite utilizar a página do Android Studio no idioma *Português - Brasil*, pois poderá encontrar um erro ao obter as informações da página. Dê preferência a versão em inglês da página.
+
+Siga os passos indicados pelo instalador do Android Studio para completar a instalação do programa.
+
+3. **Abrindo o repositório no Android Studio**
+
+Na tela inicial do Android Studio, importe o projeto ao selecionar a opção **Open**, navegue até a pasta onde se encontra o repositório baixado anteriormente e selecione a pasta no seguinte formato
+
+```sh
+C:\pasta-criada-para-exportacao\Projeto-Interdisciplinar-3\App
+```
+Aguarde até que o Android Studio complete a importação do projeto.
+
+4. **Instalando o aplicativo no dispositivo Android**
+
+Após completar a importação, conecte o dispositivo Android em seu computador através do cabo USB e clique no botão verde **Run** localizado no centro do topo superior ou pressione as teclas **Shift + F10** em seu teclado. Aguarde a instalação no dispositivo Android.
+
+Agora você poderá utilizar o aplicativo do StockView em seu dispositivo Android!
