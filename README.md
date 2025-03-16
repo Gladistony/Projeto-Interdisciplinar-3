@@ -19,7 +19,6 @@ O projeto StockView tem como objetivo criar uma plataforma integrada (web e apli
 
 - **Professor**: [Waldemar Ferreira](https://github.com/)
 
-
 ## 🚀 Tecnologias Utilizadas
 
 O projeto está sendo desenvolvido utilizando as seguintes tecnologias:
@@ -44,14 +43,20 @@ Para instalar e configurar o StockView corretamente, siga os passos abaixo:
    venv\Scripts\activate  # Windows
    ```
 
-2. **Instalar os requisitos do projeto:**
+2. **Acessar a pasta do servidor:**
+   ```sh
+   cd servidor_refatorado
+   ```
+
+3. **Instalar os requisitos do projeto:**
    ```sh
    pip install -r requirements.txt
    ```
 
-3. **Executar o servidor da API:**
+4. **Executar o servidor da API:**
    ```sh
    python main.py
    ```
 
 Agora o servidor estará rodando e pronto para ser utilizado!
+
