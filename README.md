@@ -53,10 +53,52 @@ Para instalar e configurar o StockView corretamente, siga os passos abaixo:
    pip install -r requirements.txt
    ```
 
-4. **Executar o servidor da API:**
+4. **Copiar e editar o arquivo de configuração:**
+   ```sh
+   copy config.json C:/  # Windows
+   cp config.json /  # Linux/Mac
+   ```
+   Edite o arquivo `C:/config.json` com as seguintes variáveis:
+   ```json
+   {
+       "PORT_LOCAL": 3000,
+       "PRODUCT_MODE": true,
+       "HOST_URL": "127.0.0.1",
+       "START_QUESTION_CAMERA_ID": true,
+       "START_QUESTION_CAMERA": true,
+       "DEFAULT_CAMERA": 0
+   }
+   ```
+   - **PORT_LOCAL**: Porta onde o servidor está rodando.
+   - **PRODUCT_MODE**: Quando ativado, desativa o serviço de envio de e-mail pelo Gmail. Em vez disso, os e-mails aparecem no console do VS Code.
+   - **HOST_URL**: IP do servidor. Para testes locais, mantenha `127.0.0.1`.
+   - **START_QUESTION_CAMERA_ID**: Faz com que o aplicativo da câmera pergunte automaticamente qual ID usar.
+   - **START_QUESTION_CAMERA**: Lista todas as câmeras e permite escolher uma. Se desativado, a câmera padrão (`DEFAULT_CAMERA`) será usada.
+
+5. **Executar o servidor da API:**
    ```sh
    python main.py
    ```
 
 Agora o servidor estará rodando e pronto para ser utilizado!
 
+### Inicialização da Câmera
+
+Para utilizar a funcionalidade de câmera, siga os passos abaixo:
+
+1. **Abrir a pasta `Cliente Camera` em outro terminal:**
+   ```sh
+   cd "Cliente Camera"
+   ```
+
+2. **Instalar as bibliotecas necessárias:**
+   ```sh
+   pip install opencv-python asyncio aiohttp numpy
+   ```
+
+3. **Executar o script da câmera:**
+   ```sh
+   python main-camera.py
+   ```
+
+Agora a câmera estará operando corretamente e integrada ao sistema!
