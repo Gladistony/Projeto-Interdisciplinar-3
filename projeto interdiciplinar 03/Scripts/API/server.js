@@ -4,17 +4,29 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const path = require('path'); 
 
-const baseUrl = 'http://25.16.169.121:7300';
+const baseUrl = 'http://127.0.0.1:3000';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/Styles', express.static(path.join(__dirname, '..', '..', 'Styles')));
+app.use('/Scripts', express.static(path.join(__dirname, '..', '..', 'Scripts')));
+app.use('/IMG', express.static(path.join(__dirname, '..', '..', 'IMG')));
 
-// Rota básica para verificar se o servidor está funcionando
 app.get('/', (req, res) => {
-    res.send('Servidor funcionando corretamente!');
+    res.sendFile(path.join(__dirname, '..', '..', 'Paginas', 'index.html')); // Subindo dois níveis para acessar "Paginas"
+});
+
+// Rota dinâmica para outras páginas HTML na pasta "Paginas"
+app.get('/:page', (req, res) => {
+    const page = req.params.page;
+    const filePath = path.join(__dirname, '..', '..', 'Paginas', `${page}`); // Subindo dois níveis
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.status(404).send('Página não encontrada!');
+        }
+    });
 });
 
 // Endpoint para obter o ID de conexão
@@ -707,6 +719,6 @@ app.post('/logout', async (req, res) => {
 });
 
 // Inicia o servidor na porta 3000
-app.listen(7300, () => {
-    console.log(`Servidor rodando na porta ${baseUrl}`);
+app.listen(3000, () => {
+    console.log(`Servidor rodando no ${baseUrl}`);
 });

@@ -1,4 +1,4 @@
-const API_URL = 'http://25.16.169.121:7300';
+const API_URL = 'http://127.0.0.1:3000';
 
 // Função para obter o ID de conexão
 async function getConnectionId() {

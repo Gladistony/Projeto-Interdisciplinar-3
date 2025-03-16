@@ -101,7 +101,7 @@ async function atualizarCamera() {
 
     const codigoP = document.getElementById("codigo-camera")
     codigoP.textContent = `Codigo da câmera: ${codigoCamera}`;
-    const link = `http://25.16.169.121:7300` //link do server padrão
+    const link = `http://127.0.0.1:3000` //link do server padrão
 
     // Construir a URL com base no tipo de câmera selecionado
     let url = cameraTipo === "ia" 
@@ -153,7 +153,7 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
     const closeList = document.getElementById("close-list");
     
     pegar_video.addEventListener('click', async () => {
-        const link1 = `http://25.16.169.121:7300` //link do server padrão
+        const link1 = `http://127.0.0.1:3000` //link do server padrão
         try {
             const select_Box = document.getElementById("cameras-estoque");
             const camera_id = select_Box.value;
@@ -183,7 +183,7 @@ cameraTipoDropdown.addEventListener("change", atualizarCamera);
     
                 // Adicionar evento de clique para baixar o vídeo
                 videoItem.addEventListener("click", async () => {
-                    const link1 = `http://25.16.169.121:7300` //link do server padrão
+                    const link1 = `http://127.0.0.1:3000` //link do server padrão
                     try {
                         const downloadResponse = await fetch(`${link1}/video/${camera_id}/${videoFilename}/${connectionId2}`);
                         if (downloadResponse.ok) {
