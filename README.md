@@ -105,6 +105,12 @@ Agora a câmera estará operando corretamente e integrada ao sistema!
 
 ## 📱 Instalação e utilização do aplicativo Android
 
+### Instalando através do arquivo APK
+
+Para instalar uma versão já compilada do APK, você pode baixá-la nas **release notes** do repositório ou [**clicando aqui**](https://github.com/Gladistony/Projeto-Interdisciplinar-3/releases/download/first-release/StockView.apk).
+
+### Instalando através do Android Studio
+
 1. **Baixe o repositório do GitHub do projeto**
 
 **a) Opção 1: através do navegador**
