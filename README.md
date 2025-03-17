@@ -216,7 +216,7 @@ Antes de iniciar, edite os seguintes arquivos com os endereços e portas que des
     ```js
     const link = `http://127.0.0.1:4000`;
     ```
-
+   esses são os lugares para você colocar o seu endereço 
 ---
 
 ### 3. Iniciando o servidor Node.js
@@ -224,7 +224,7 @@ Antes de iniciar, edite os seguintes arquivos com os endereços e portas que des
 1. Abra o terminal e navegue até o diretório do arquivo `server.js`:
 
    ```sh
-   cd C:\projeto interdiciplinar 03\Scripts\API
+   cd C:seu-caminho\projeto interdiciplinar 03\Scripts\API
    ```
 
 2. Execute o comando para iniciar o servidor:
