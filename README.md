@@ -151,3 +151,104 @@ Aguarde até que o Android Studio complete a importação do projeto.
 Após completar a importação, conecte o dispositivo Android em seu computador através do cabo USB e clique no botão verde **Run** localizado no centro do topo superior ou pressione as teclas **Shift + F10** em seu teclado. Aguarde a instalação no dispositivo Android.
 
 Agora você poderá utilizar o aplicativo do StockView em seu dispositivo Android!
+
+# 🌐 Utilizando o site do projeto
+
+## Pré-requisitos
+
+- **Node.js**: Certifique-se de que o Node.js está instalado no sistema.
+- **Configuração de endereços e portas**: Ajuste os arquivos necessários antes de iniciar o servidor.
+
+---
+
+### 1. Instalando o Node.js
+
+1. Acesse o site oficial do Node.js: [https://nodejs.org](https://nodejs.org).
+2. Baixe a versão recomendada para seu sistema operacional.
+3. Siga as instruções do instalador para concluir a instalação.
+4. Após a instalação, verifique se o Node.js foi instalado corretamente, executando o comando no terminal:
+
+   ```sh
+   node -v
+   ```
+
+   Se tudo estiver certo, ele exibirá a versão instalada do Node.js.
+
+---
+
+### 2. Configurando os endereços e portas do servidor
+
+Antes de iniciar, edite os seguintes arquivos com os endereços e portas que desejar mantendo os mesmo endereço para todos:
+
+- **Arquivo**: `Scripts/API/server.js`
+  - **Linha 7**:
+    ```js
+    const baseUrl = 'http://127.0.0.1:4000';
+    ```
+  - **Linha 723**:
+  vc tem que escolher a mesma porta do endereço
+    ```js
+    app.listen(4000, () => { 
+    ```
+
+- **Arquivo**: `Scripts/API/apiConnection.js`
+  - **Linha 1**:
+    ```js
+    const API_URL = 'http://127.0.0.1:4000';
+    ```
+
+- **Arquivo**: `Scripts/telaDeCamera.js`
+  - **Linha 104**:
+    ```js
+    const link = `http://127.0.0.1:4000`; //link do server padrão
+    ```
+  - **Linha 156**:
+    ```js
+    const link1 = `http://127.0.0.1:4000`; //link do server padrão
+    ```
+  - **Linha 186**:
+    ```js
+    const link1 = `http://127.0.0.1:4000`; //link do server padrão
+    ```
+
+- **Arquivo**: `Scripts/API/ADM.js`
+  - **Linha 74**:
+    ```js
+    const link = `http://127.0.0.1:4000`;
+    ```
+
+---
+
+### 3. Iniciando o servidor Node.js
+
+1. Abra o terminal e navegue até o diretório do arquivo `server.js`:
+
+   ```sh
+   cd C:\projeto interdiciplinar 03\Scripts\API
+   ```
+
+2. Execute o comando para iniciar o servidor:
+
+   ```sh
+   node server.js
+   ```
+
+3. Certifique-se de que o servidor iniciou corretamente e está ouvindo na porta configurada.
+
+---
+
+### 4. Acessando o site
+
+Com o servidor rodando, abra o navegador e acesse o endereço configurado. Para acessar o **index**, é importante incluir a `/` no final do link. Por exemplo:
+
+```
+http://127.0.0.1:4000/
+```
+
+Agora o site estará disponível e pronto para uso.
+
+---
+
+## 🛠 Problemas ou dúvidas?
+
+Se surgir qualquer problema ou se precisar de ajuda adicional, fique à vontade para entrar em contato! 😊
