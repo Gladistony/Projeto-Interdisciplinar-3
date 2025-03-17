@@ -10,5 +10,7 @@ yolov8n.pt
 /Servidor Refatorado/Banco de Dados
 /servidor_refatorado/Classes/__pycache__
 /servidor_refatorado/Banco de Dados
-/venv
 venv/
+/servidor_refatorado/Classes/Rotas/__pycache__/
+*.pyc
+servidor_refatorado/Classes/Rotas/__pycache__/rota_usuario.cpython-312.pyc/

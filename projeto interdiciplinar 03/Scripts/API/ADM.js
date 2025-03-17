@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             const inicio = paginaAtual * estoquesPorPagina;
             const fim = inicio + estoquesPorPagina;
             const estoquesPagina = dadosUser.data.estoque.slice(inicio, fim);
-            const link = `http://127.0.0.1:3000`;
+            const link = `http://127.0.0.1:4000`;
 
             estoquesPagina.forEach(estoque => {
 

@@ -4,7 +4,7 @@ const fetch = (...args) => import('node-fetch').then(({ default: fetch }) => fet
 const app = express();
 const path = require('path'); 
 
-const baseUrl = 'http://127.0.0.1:3000';
+const baseUrl = 'http://127.0.0.1:4000';
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -13,6 +13,7 @@ app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use('/Styles', express.static(path.join(__dirname, '..', '..', 'Styles')));
 app.use('/Scripts', express.static(path.join(__dirname, '..', '..', 'Scripts')));
 app.use('/IMG', express.static(path.join(__dirname, '..', '..', 'IMG')));
+app.use('/Paginas', express.static(path.join(__dirname, '..', '..', 'Paginas')));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'Paginas', 'index.html')); // Subindo dois níveis para acessar "Paginas"
@@ -719,6 +720,6 @@ app.post('/logout', async (req, res) => {
 });
 
 // Inicia o servidor na porta 3000
-app.listen(3000, () => {
+app.listen(4000, () => {
     console.log(`Servidor rodando no ${baseUrl}`);
 });
