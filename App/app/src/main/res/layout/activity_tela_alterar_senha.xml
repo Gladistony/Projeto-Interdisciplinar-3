@@ -94,4 +94,18 @@
         app:layout_constraintTop_toBottomOf="@+id/novaSenhaRepetida"
         tools:layout_editor_absoluteX="40dp" />
 
+    <ProgressBar
+        android:id="@+id/progressBarAlterarSenha"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:indeterminateTint="@color/green2"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonAlterar"
+        app:layout_constraintEnd_toEndOf="@+id/buttonAlterar"
+        app:layout_constraintStart_toStartOf="@+id/buttonAlterar"
+        app:layout_constraintTop_toTopOf="@+id/buttonAlterar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

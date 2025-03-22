@@ -21,13 +21,13 @@
         style="@style/Edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="72dp"
         android:ems="10"
         android:hint="@string/type_usuario_login"
         android:inputType="textEmailAddress"
         android:singleLine="true"
         app:layout_constraintTop_toBottomOf="@+id/containerComponents"
-        tools:layout_editor_absoluteX="20dp" />
+        tools:layout_editor_absoluteX="24dp" />
 
     <EditText
         android:id="@+id/senha"
@@ -54,6 +54,20 @@
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
         app:layout_constraintStart_toStartOf="@+id/containerComponents"
         app:layout_constraintTop_toBottomOf="@+id/senha" />
+
+    <ProgressBar
+        android:id="@+id/progressBarBotaoLogin"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:indeterminateTint="@color/green2"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/button_login"
+        app:layout_constraintEnd_toEndOf="@+id/button_login"
+        app:layout_constraintStart_toStartOf="@+id/button_login"
+        app:layout_constraintTop_toTopOf="@+id/button_login"
+        tools:visibility="visible" />
 
     <Button
         android:id="@+id/toggle_password_button"

@@ -20,6 +20,7 @@
     <string name="button_alterar_foto_perfil">Alterar foto de perfil</string>
     <string name="button_alterar_senha">Alterar senha</string>
     <string name="button_sair_logoff">Sair da conta</string>
+    <string name="text_saindo_conta">Saindo...</string>
     <string name="text_default">Lorem ipsum dolor sit amet</string>
     <string name="add"> mais</string>
     <string name="tituloStock">Stock</string>
