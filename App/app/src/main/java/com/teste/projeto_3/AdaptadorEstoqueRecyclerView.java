@@ -71,6 +71,11 @@ public class AdaptadorEstoqueRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemInserted(estoque.size() - 1);
     }
 
+    public void atualizarEstoque(List<Estoque> estoqueAtualizado) {
+        this.estoque = estoqueAtualizado;
+        notifyDataSetChanged();
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemEstoque;
         public TextView nomeEstoque;

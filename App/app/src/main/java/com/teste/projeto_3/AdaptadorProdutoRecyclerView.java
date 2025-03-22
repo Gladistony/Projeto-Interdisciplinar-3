@@ -84,6 +84,11 @@ public class AdaptadorProdutoRecyclerView extends RecyclerView.Adapter<Adaptador
         notifyItemChanged(position);
     }
 
+    public void atualizarListaProduto(List<Produto> produtoAtualizado) {
+        this.produto = produtoAtualizado;
+        notifyDataSetChanged();
+    }
+
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public ImageView imagemProduto;
         public TextView nomeProduto;

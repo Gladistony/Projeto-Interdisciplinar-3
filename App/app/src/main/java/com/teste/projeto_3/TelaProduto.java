@@ -32,6 +32,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -77,6 +78,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
     int posicaoEstoque;
     TextView textoProdutoVazio;
 
+    private SwipeRefreshLayout swipeRefreshLayoutProduto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +108,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
         Button botaoFecharTelaProduto = findViewById(R.id.botaoVoltarTelaProduto);
         botaoFecharTelaProduto.setOnClickListener(v -> finish());
+
+        swipeRefreshLayoutProduto = findViewById(R.id.swipeRefreshLayoutProduto);
+        swipeRefreshLayoutProduto.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                get_estoque();
+            }
+        });
 
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewProduto);
@@ -223,6 +234,23 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.show();
     }
 
+    public void popupAvisarEstoqueApagado() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Aviso")
+                .setMessage("Não foi possível concluir a operação, pois este Stock foi apagado através de outro dispositivo. Por favor, volte e atualize sua tela de Stocks.")
+                .setPositiveButton("OK", (dialogConfirmar, which) -> {
+                    finish();
+                })
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.green2));
+        });
+
+        dialog.show();
+    }
+
     public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position, int subtracao){
         if (er.possuiInternet(this)) {
 
@@ -263,9 +291,11 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
                                 }
                             });
+                        } else if (responseEstoque.getCode() == 26) {
+                            runOnUiThread(() -> popupAvisarEstoqueApagado());
                         }
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao registrar o produto no Stock", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(this, "Erro ao modificar o produto do Stock", Toast.LENGTH_SHORT).show());
                     }
                 }
             });
@@ -378,6 +408,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             if (stringNomeProduto.isEmpty() || stringDescricaoProduto.isEmpty() ||
                     stringQuantidadeProduto.isEmpty() || stringPrecoProduto.isEmpty() || stringDataValidadeProduto.isEmpty()) {
                 runOnUiThread(() -> Toast.makeText(this, "Preencha todas as informações do produto", Toast.LENGTH_SHORT).show());
+            } else if (Integer.parseInt(stringQuantidadeProduto) == 0){
+                runOnUiThread(() -> Toast.makeText(this, "Insira uma quantidade maior que 0", Toast.LENGTH_SHORT).show());
             } else {
                 if (imagemCarregandoRegistrarProduto.getVisibility() == View.VISIBLE) {
                     runOnUiThread(()->Toast.makeText(this, "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
@@ -542,6 +574,12 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     adaptadorItemProduto.adicionarArrayProduto(produtoInfo);
                                     textoProdutoVazio.setVisibility(View.GONE);
                                 });
+                        } else if (responseEstoque.getCode() == 26) {
+                            /*
+                            Ainda é possível adicionar produtos à estoques não existentes.
+                            Quando atualizar, verificar se esta verificação ainda funciona.
+                             */
+                            runOnUiThread(() -> popupAvisarEstoqueApagado());
                         }
                     } catch (Exception e) {
                         runOnUiThread(() -> Toast.makeText(this, "Erro ao registrar o produto no Stock", Toast.LENGTH_SHORT).show());
@@ -634,6 +672,80 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show()
             );
             callback.onCompleteUploadImg(null);
+        }
+    }
+
+    private void get_estoque() {
+        if (er.possuiInternet(this)) {
+
+            Estoque estoque = new Estoque();
+            estoque.setId(er.obterMemoriaInterna("idConexao"));
+
+            // Converter o objeto User para JSON
+            String jsonGetEstoqueAtualizarProduto = gson.toJson(estoque);
+
+            // Fazer a requisição
+            er.post("get_estoque", jsonGetEstoqueAtualizarProduto, response -> {
+                if (response.startsWith("Erro")) {
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, response, Toast.LENGTH_LONG).show();
+                        swipeRefreshLayoutProduto.setRefreshing(false);
+                    });
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseEstoque = gson.fromJson(response, User.class);
+                        if (responseEstoque.getCode() == 0) {
+                            posicaoEstoque = getIntent().getIntExtra("position", -1);
+                            runOnUiThread(() -> {
+                                String idEstoqueAtual;
+                                if (FragStock.viewModel.getUser().getValue().getData() == null) { // Login por get_dados
+                                    idEstoqueAtual = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getId();
+                                } else { // Login por login
+                                    idEstoqueAtual = FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getId();
+                                }
+
+                                int posicaoEstoqueResponse = -1;
+                                for (int i = 0; i < responseEstoque.getEstoque().size(); i++) {
+                                    if (responseEstoque.getEstoque().get(i).getId().equals(idEstoqueAtual)) {
+                                        posicaoEstoqueResponse = i;
+                                        break;
+                                    }
+                                }
+
+                                if (posicaoEstoqueResponse != -1) { // Se é diferente, o estoque ainda existe
+
+                                    if (FragStock.viewModel.getUser().getValue().getData() == null) {
+                                        FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).setProdutos(responseEstoque.getEstoque().get(posicaoEstoqueResponse).getProdutos());
+                                    } else {
+                                        FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).setProdutos(responseEstoque.getEstoque().get(posicaoEstoqueResponse).getProdutos());
+                                    }
+
+                                    if (responseEstoque.getEstoque().get(posicaoEstoqueResponse).getProdutos().isEmpty()) {
+                                        textoProdutoVazio.setVisibility(View.VISIBLE);
+                                    } else {
+                                        textoProdutoVazio.setVisibility(View.GONE);
+                                    }
+                                    adaptadorItemProduto.atualizarListaProduto(responseEstoque.getEstoque().get(posicaoEstoqueResponse).getProdutos());
+                                    swipeRefreshLayoutProduto.setRefreshing(false);
+                                } else {
+                                    popupAvisarEstoqueApagado();
+                                }
+                            });
+                        }
+                    } catch (Exception e) {
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Erro ao atualizar a lista de produtos", Toast.LENGTH_SHORT).show();
+                            swipeRefreshLayoutProduto.setRefreshing(false);
+                        });
+                    }
+                }
+            });
+        } else {
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayoutProduto.setRefreshing(false);
+            });
         }
     }
 }
