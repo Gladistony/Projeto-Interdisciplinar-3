@@ -58,6 +58,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.8.7")
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     testImplementation(libs.junit)
 
     // DEPENDÊNCIAS PARA ACESSAR A API

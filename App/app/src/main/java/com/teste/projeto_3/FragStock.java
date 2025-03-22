@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -49,7 +50,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
     private CameraGaleria cg;
     private final Gson gson = new Gson();
     private String imagemBase64 = "";
-
+    private SwipeRefreshLayout swipeRefreshLayoutEstoque;
     private TextView textoEstoqueVazio;
 
     public interface CallbackImagem {
@@ -79,6 +80,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
         FloatingActionButton criarEstoque = view.findViewById(R.id.botaoCriarEstoque);
         criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
+
+        swipeRefreshLayoutEstoque = view.findViewById(R.id.swipeRefreshLayoutEstoque);
+        swipeRefreshLayoutEstoque.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                get_estoque();
+            }
+        });
 
         textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
@@ -529,6 +538,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                                     }
                                 }
                             });
+                        } else if (responseUpload.getCode() == 26) {
+                            requireActivity().runOnUiThread(() -> popupAvisarEstoqueApagado());
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() ->
@@ -591,6 +602,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             requireActivity().runOnUiThread(() -> {
                                 adaptadorItemEstoque.alterarImagemEstoque(position, urlImagem);
                             });
+                        } else if (responseEstoque.getCode() == 26) {
+                            requireActivity().runOnUiThread(() -> popupAvisarEstoqueApagado());
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao alterar a imagem do Stock", Toast.LENGTH_SHORT).show());
@@ -600,6 +613,24 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         } else {
             requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
         }
+    }
+
+    public void popupAvisarEstoqueApagado() {
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setTitle("Aviso")
+                .setMessage("Não foi possível concluir a operação, pois este Stock foi apagado através de outro dispositivo. Por favor, atualize sua lista de Stocks.")
+                .setPositiveButton("OK", (dialogConfirmar, which) -> {
+                })
+                .setCancelable(false)
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(requireContext(), R.color.green2));
+            positiveButton.setOnClickListener(c -> dialog.dismiss());
+        });
+
+        dialog.show();
     }
 
     private void upload_img(String imagemBase64, CallbackResponseUpload callback) {
@@ -645,6 +676,58 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                     Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show()
             );
             callback.onCompleteUploadImg(null);
+        }
+    }
+
+    private void get_estoque() {
+        if (er.possuiInternet(requireContext())) {
+
+            Estoque estoque = new Estoque();
+            estoque.setId(er.obterMemoriaInterna("idConexao"));
+
+            // Converter o objeto User para JSON
+            String jsonGetEstoque = gson.toJson(estoque);
+
+            // Fazer a requisição
+            er.post("get_estoque", jsonGetEstoque, response -> {
+                if (response.startsWith("Erro")) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
+                        swipeRefreshLayoutEstoque.setRefreshing(false);
+                    });
+                } else {
+                    try {
+                        // Processar resposta da requisição
+                        User responseEstoque = gson.fromJson(response, User.class);
+                        if (responseEstoque.getCode() == 0) {
+                            requireActivity().runOnUiThread(() -> {
+                                if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
+                                    viewModel.getUser().getValue().setEstoque(responseEstoque.getEstoque());
+                                } else { // Login por login
+                                    viewModel.getUser().getValue().getData().setEstoque(responseEstoque.getEstoque());
+                                }
+                                if (responseEstoque.getEstoque().isEmpty()) {
+                                    textoEstoqueVazio.setVisibility(View.VISIBLE);
+                                } else {
+                                    textoEstoqueVazio.setVisibility(View.GONE);
+                                }
+                                adaptadorItemEstoque.atualizarEstoque(responseEstoque.getEstoque());
+                                swipeRefreshLayoutEstoque.setRefreshing(false);
+                            });
+                        }
+                    } catch (Exception e) {
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), "Erro ao alterar a imagem do Stock", Toast.LENGTH_SHORT).show();
+                            swipeRefreshLayoutEstoque.setRefreshing(false);
+                        });
+                    }
+                }
+            });
+        } else {
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayoutEstoque.setRefreshing(false);
+            });
         }
     }
 }
