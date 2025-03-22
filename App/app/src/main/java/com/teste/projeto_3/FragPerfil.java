@@ -141,6 +141,7 @@ public class FragPerfil extends Fragment {
 
     private void deslogar() {
         if (er.possuiInternet(requireContext())) {
+            Dialog dialog = dialogSaindoConta();
             User userLogin = new User();
             userLogin.setId(er.obterMemoriaInterna("idConexao"));
             Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
@@ -150,26 +151,30 @@ public class FragPerfil extends Fragment {
 
             er.post("logout", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
-                    );
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    });
                 } else {
                     try {
                         // Processar resposta da requisição
                         User responseLogin = gson.fromJson(response, User.class);
                         if (responseLogin.getCode() == 0) {
                             Intent intentLoginCadastro = new Intent(requireContext(), LoginCadastro.class);
+                            dialog.dismiss();
                             startActivity(intentLoginCadastro);
-                            requireActivity().finish(); // Fechar Activity associada
+                            requireActivity().finish();
                         } else {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Erro ao deslogar", Toast.LENGTH_SHORT).show()
-                            );
+                            requireActivity().runOnUiThread(() -> {
+                                Toast.makeText(requireContext(), "Erro ao sair da conta", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            });
                         }
                     } catch (Exception e) {
-                        requireActivity().runOnUiThread(() ->
-                                Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show()
-                        );
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                        });
                     }
                 }
             });
@@ -184,7 +189,9 @@ public class FragPerfil extends Fragment {
         AlertDialog dialog = new android.app.AlertDialog.Builder(requireContext())
                 .setTitle("Sair da conta")
                 .setMessage("Você tem certeza que deseja sair?")
-                .setPositiveButton("Sair", (dialogConfirmar, which) -> deslogar())
+                .setPositiveButton("Sair", (dialogConfirmar, which) -> {
+                    deslogar();
+                    })
                 .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
                 .create();
 
@@ -441,5 +448,20 @@ public class FragPerfil extends Fragment {
                 animacaoCarregandoImagem.setVisibility(View.GONE);
             });
         }
+    }
+
+    private Dialog dialogSaindoConta() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.layout_dialog_saindo_logoff);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().getAttributes().windowAnimations = R.style.FadeInOutMiddle;
+        dialog.getWindow().setGravity(Gravity.CENTER);
+        dialog.show();
+        return dialog;
     }
 }

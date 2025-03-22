@@ -5,7 +5,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +23,10 @@ public class FormCadastro extends AppCompatActivity {
 
     EnviarRequisicao er;
 
+    ProgressBar progressBarBotaoCadastro;
+
+    Button botaoCadastro;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +40,8 @@ public class FormCadastro extends AppCompatActivity {
             return insets;
         });
         er = new EnviarRequisicao(getApplicationContext());
+        botaoCadastro = findViewById(R.id.bt_cadastrar);
+        progressBarBotaoCadastro = findViewById(R.id.progressBarBotaoCadastrar);
     }
 
     // Alternar exibição de senha
@@ -57,6 +65,7 @@ public class FormCadastro extends AppCompatActivity {
     // Método de cadastro
     public void cadastrar(View v) {
         if (er.possuiInternet(getApplicationContext())) {
+            runOnUiThread(() -> changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar)));
 
             // Referência aos campos do formulário
             EditText editTextNome = findViewById(R.id.edit_nome);
@@ -79,18 +88,27 @@ public class FormCadastro extends AppCompatActivity {
             // Validar campos obrigatórios
             if (editTextNome.getText().toString().isEmpty() || editTextEmail.getText().toString().isEmpty() ||
                     editTextSenha.getText().toString().isEmpty() || editTextUsuario.getText().toString().isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios!", Toast.LENGTH_SHORT).show();
+                    changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar));
+                });
             } else {
                 er.post("cadastro", userJson, response -> {
                     if (response.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, response, Toast.LENGTH_LONG).show();
+                            changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar));
+                        });
                     } else {
                         try {
                             // Processar resposta da requisição
                             User responseCadastro = gson.fromJson(response, User.class);
                             switch (responseCadastro.getCode()) {
                                 case 19: // Sucesso de cadastro
-                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Conta criada com sucesso! Entre para continuar.", Toast.LENGTH_LONG).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(getApplicationContext(), "Conta criada com sucesso! Entre para continuar.", Toast.LENGTH_LONG).show();
+                                        changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar));
+                                    });
                                     Intent intentTelaLogin = new Intent(this, MainActivity.class);
                                     startActivity(intentTelaLogin);
                                     finish();
@@ -100,17 +118,43 @@ public class FormCadastro extends AppCompatActivity {
                                 case 8: // Senha inválida
                                 case 9: //Email inválido
                                 case 18: // Insira nome completo
-                                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(getApplicationContext(), responseCadastro.getMessage(), Toast.LENGTH_LONG).show();
+                                        changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar));
+                                    });
                                     break;
                             }
                         } catch (Exception e) {
-                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                                changeButtonMode(botaoCadastro, progressBarBotaoCadastro, getString(R.string.cadastrar));
+                            });
                         }
                     }
                 });
             }
         } else {
-            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+
+    public void voltar(View v) {
+        finish();
+    }
+
+    private void changeButtonMode(Button button, ProgressBar progressBar, String buttonString) {
+        if (progressBar.getVisibility() == View.GONE){
+            progressBar.setVisibility(View.VISIBLE);
+            button.setText("");
+            button.setClickable(false);
+            button.setAlpha(0.8f);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            button.setText(buttonString);
+            button.setClickable(true);
+            button.setAlpha(1f);
         }
     }
 }

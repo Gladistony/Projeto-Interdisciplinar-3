@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -28,6 +29,9 @@ public class TelaAlterarSenha extends AppCompatActivity {
 
     EnviarRequisicao er;
 
+    ProgressBar progressBarAlterarSenha;
+    Button botaoAlterarSenha;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +43,8 @@ public class TelaAlterarSenha extends AppCompatActivity {
             return insets;
         });
         er = new EnviarRequisicao(getApplicationContext());
+        progressBarAlterarSenha = findViewById(R.id.progressBarAlterarSenha);
+        botaoAlterarSenha = findViewById(R.id.buttonAlterar);
     }
 
     public void voltar(View v){
@@ -72,6 +78,7 @@ public class TelaAlterarSenha extends AppCompatActivity {
 
     public void alterarSenha(View v) {
         if (er.possuiInternet(getApplicationContext())) {
+            runOnUiThread(() -> changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha)));
 
             EditText senhaAtual = findViewById(R.id.senhaAtual);
             EditText novaSenha = findViewById(R.id.novaSenha);
@@ -79,19 +86,31 @@ public class TelaAlterarSenha extends AppCompatActivity {
 
             // Se algum dos campos estão vazios
             if (senhaAtual.getText().toString().isEmpty() || novaSenha.getText().toString().isEmpty() || novaSenhaRepetida.getText().toString().isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+                    changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                });
             }
             // A senha nova não coincide com a que foi digitada novamente
             else if (!novaSenha.getText().toString().equals(novaSenhaRepetida.getText().toString())){
-                runOnUiThread(() -> Toast.makeText(this, "A nova senha digitada não coincide com a confirmação", Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "A nova senha digitada não coincide com a confirmação", Toast.LENGTH_LONG).show();
+                    changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                });
             }
             // Nova senha igual a senha atual
             else if (senhaAtual.getText().toString().equals(novaSenha.getText().toString())) {
-                runOnUiThread(() -> Toast.makeText(this, "A senha atual e a nova senha não podem ser iguais", Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "A senha atual e a nova senha não podem ser iguais", Toast.LENGTH_LONG).show();
+                    changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                });
             }
             // A senha é menor que 8 caracteres
             else if (novaSenha.getText().toString().length() < 8){
-                runOnUiThread(() -> Toast.makeText(this, "A nova senha deve ter no mínimo 8 caracteres", Toast.LENGTH_LONG).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "A nova senha deve ter no mínimo 8 caracteres", Toast.LENGTH_LONG).show();
+                    changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                });
             } else {
                 // Obtém o usuário através do ViewModel
                 SharedViewModel viewModel = new ViewModelProvider(this).get(SharedViewModel.class);
@@ -116,29 +135,43 @@ public class TelaAlterarSenha extends AppCompatActivity {
                 // Fazer a requisição
                 er.post("charge", userJson, response -> { // Provavelmente é um erro de digitação em "change"
                     if (response.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, response, Toast.LENGTH_LONG).show();
+                            changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                        });
                     } else {
                         try {
                             // Processar resposta da requisição
                             User responseAlterar = gson.fromJson(response, User.class);
                             switch (responseAlterar.getCode()) {
                                 case 0: // Senha alterada com sucesso
-                                    runOnUiThread(() -> showPopupSucesso());
+                                    runOnUiThread(() -> {
+                                        changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                                        showPopupSucesso();
+                                    });
                                     break;
 
                                 case 1: // Senha incorreta
-                                    runOnUiThread(() -> Toast.makeText(this, responseAlterar.getMessage(), Toast.LENGTH_SHORT).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(this, responseAlterar.getMessage(), Toast.LENGTH_SHORT).show();
+                                        changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                                    });
                                     break;
 
                             }
                         } catch (Exception e) {
-                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                                changeButtonMode(botaoAlterarSenha, progressBarAlterarSenha, getString(R.string.button_alterar_senha));
+                            });
                         }
                     }
                 });
             }
         } else {
-            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+            });
         }
     }
 
@@ -157,6 +190,20 @@ public class TelaAlterarSenha extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private void changeButtonMode(Button button, ProgressBar progressBar, String buttonString) {
+        if (progressBar.getVisibility() == View.GONE){
+            progressBar.setVisibility(View.VISIBLE);
+            button.setText("");
+            button.setClickable(false);
+            button.setAlpha(0.8f);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            button.setText(buttonString);
+            button.setClickable(true);
+            button.setAlpha(1f);
+        }
     }
 
 }

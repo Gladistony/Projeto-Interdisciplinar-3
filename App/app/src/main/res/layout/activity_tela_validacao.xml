@@ -42,9 +42,12 @@
 
     <TextView
         android:id="@+id/descricaoValidacao"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
+        android:gravity="center"
         android:text="@string/text_validacao"
         android:textSize="15sp"
         android:textColor="@color/black"
@@ -66,7 +69,7 @@
         app:layout_constraintTop_toBottomOf="@+id/descricaoValidacao" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button"
+        android:id="@+id/botaoValidarCodigo"
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,7 +82,7 @@
         />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button2"
+        android:id="@+id/botaoValidarEmail"
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -88,7 +91,35 @@
         android:text="@string/text_validar_email"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/botaoValidarCodigo" />
+
+    <ProgressBar
+        android:id="@+id/progressBarValidarCodigo"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:indeterminateTint="@color/green2"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/botaoValidarCodigo"
+        app:layout_constraintEnd_toEndOf="@+id/botaoValidarCodigo"
+        app:layout_constraintStart_toStartOf="@+id/botaoValidarCodigo"
+        app:layout_constraintTop_toTopOf="@+id/botaoValidarCodigo"
+        tools:visibility="visible" />
+
+    <ProgressBar
+        android:id="@+id/progressBarValidarEmail"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="4dp"
+        android:indeterminateTint="@color/green2"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/botaoValidarEmail"
+        app:layout_constraintEnd_toEndOf="@+id/botaoValidarEmail"
+        app:layout_constraintStart_toStartOf="@+id/botaoValidarEmail"
+        app:layout_constraintTop_toTopOf="@+id/botaoValidarEmail"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

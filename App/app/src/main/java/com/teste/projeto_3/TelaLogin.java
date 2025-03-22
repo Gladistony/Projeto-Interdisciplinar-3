@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +26,10 @@ public class TelaLogin extends AppCompatActivity{
     EditText usuario;
     EditText senha;
 
+    Button botaoLogin;
+
+    ProgressBar progressBarBotaoLogin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,16 +41,22 @@ public class TelaLogin extends AppCompatActivity{
             return insets;
         });
         er = new EnviarRequisicao(getApplicationContext());
-
+        botaoLogin = findViewById(R.id.button_login);
+        progressBarBotaoLogin = findViewById(R.id.progressBarBotaoLogin);
     }
 
     public void login(View v) {
         if (er.possuiInternet(getApplicationContext())) {
+            runOnUiThread(() -> changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar)));
+
             usuario = findViewById(R.id.usuario);
             senha = findViewById(R.id.senha);
 
             if (usuario.getText().toString().isEmpty() || senha.getText().toString().isEmpty()) {
-                runOnUiThread(() -> Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show());
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Por favor, preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+                    changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                });
             } else {
                 Log.d("ID obtido", er.obterMemoriaInterna("idConexao"));
                 // Criando o objeto User
@@ -60,7 +72,10 @@ public class TelaLogin extends AppCompatActivity{
                 // Fazer a requisição
                 er.post("login", userJson, response -> {
                     if (response.startsWith("Erro")) {
-                        runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, response, Toast.LENGTH_LONG).show();
+                            changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                        });
                     } else {
                         try {
                             // Processar resposta da requisição
@@ -74,14 +89,23 @@ public class TelaLogin extends AppCompatActivity{
                                     break;
 
                                 case 1: // Senha incorreta
-                                    runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                        changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                                    });
                                     break;
 
                                 case 2: // Conta bloqueada por excesso de tentativas
                                     if (responseLogin.getMessage().endsWith("ativação novamente necessária")) {
-                                        runOnUiThread(() -> Toast.makeText(this, "Ativação de conta necessária por excesso de tentativas.", Toast.LENGTH_SHORT).show());
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(this, "Ativação de conta necessária por excesso de tentativas.", Toast.LENGTH_SHORT).show();
+                                            changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                                        });
                                     } else {
-                                        runOnUiThread(() -> Toast.makeText(this, "Conta bloqueada por excesso de tentativas. Aguarde " + segToMin(responseLogin.getRestante()) + ".", Toast.LENGTH_SHORT).show());
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(this, "Conta bloqueada por excesso de tentativas. Aguarde " + segToMin(responseLogin.getRestante()) + ".", Toast.LENGTH_SHORT).show();
+                                            changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                                        });
                                     }
                                     break;
 
@@ -89,15 +113,22 @@ public class TelaLogin extends AppCompatActivity{
                                     Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
                                     intentTelaValidacao.putExtra("usuario", usuario.getText().toString());
                                     intentTelaValidacao.putExtra("senha", senha.getText().toString());
+                                    runOnUiThread(() -> changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar)));
                                     startActivity(intentTelaValidacao);
                                     finish();
                                     break;
 
                                 case 4: // Conta não encontrada
-                                    runOnUiThread(() -> Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(this, responseLogin.getMessage(), Toast.LENGTH_SHORT).show();
+                                        changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                                    });
                                     break;
                                 case 12: // Conexão não encontrada
-                                    runOnUiThread(() -> Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show());
+                                    runOnUiThread(() -> {
+                                        Toast.makeText(this, "Houve um problema na conexão. Por favor, reinicie o aplicativo.", Toast.LENGTH_SHORT).show();
+                                        changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                                    });
                                     break;
 
                                 case 14: // Usuário já logado
@@ -105,13 +136,18 @@ public class TelaLogin extends AppCompatActivity{
 
                             }
                         } catch (Exception e) {
-                            runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                            runOnUiThread(() -> {
+                                Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                                changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                            });
                         }
                     }
                 });
             }
         } else {
-            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+            });
         }
     }
 
@@ -164,7 +200,10 @@ public class TelaLogin extends AppCompatActivity{
             // Fazer a requisição
             er.post("get_dados", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> {
+                        Toast.makeText(this, response, Toast.LENGTH_LONG).show();
+                        changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                    });
                 } else {
                     try {
                         // Processar resposta da requisição
@@ -182,6 +221,7 @@ public class TelaLogin extends AppCompatActivity{
                                     Intent intentTelaValidacao = new Intent(this, TelaValidacao.class);
                                     intentTelaValidacao.putExtra("usuario", responseAutoLogin.getUsuario());
                                     intentTelaValidacao.putExtra("senha", responseAutoLogin.getSenha());
+                                    runOnUiThread(() -> changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar)));
                                     startActivity(intentTelaValidacao);
                                     finish();
                                     break;
@@ -189,6 +229,7 @@ public class TelaLogin extends AppCompatActivity{
                                 case 4: // Conta não encontrada
                                     runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
                                     Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
+                                    runOnUiThread(() -> changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar)));
                                     startActivity(intentTelaLoginNaoEncontrado);
                                     finish();
                                     break;
@@ -196,12 +237,31 @@ public class TelaLogin extends AppCompatActivity{
                             }
                         }
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                            Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                            changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
+                        });
                     }
                 }
             });
         } else {
-            runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
+            runOnUiThread(() -> {
+                Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show();
+            });
+        }
+    }
+    
+    private void changeButtonMode(Button button, ProgressBar progressBar, String buttonString) {
+        if (progressBar.getVisibility() == View.GONE){
+            progressBar.setVisibility(View.VISIBLE);
+            button.setText("");
+            button.setClickable(false);
+            button.setAlpha(0.8f);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            button.setText(buttonString);
+            button.setClickable(true);
+            button.setAlpha(1f);
         }
     }
 }
