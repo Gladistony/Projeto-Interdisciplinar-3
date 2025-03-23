@@ -160,7 +160,7 @@ public class FragPerfil extends Fragment {
                         // Processar resposta da requisição
                         User responseLogin = gson.fromJson(response, User.class);
                         if (responseLogin.getCode() == 0) {
-                            Intent intentLoginCadastro = new Intent(requireContext(), LoginCadastro.class);
+                            Intent intentLoginCadastro = new Intent(requireContext(), TelaLogin.class);
                             dialog.dismiss();
                             startActivity(intentLoginCadastro);
                             requireActivity().finish();

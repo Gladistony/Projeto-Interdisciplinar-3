@@ -39,6 +39,9 @@ public class TelaValidacao extends AppCompatActivity {
         progressBarValidarEmail = findViewById(R.id.progressBarValidarEmail);
         botaoValidarCodigo = findViewById(R.id.botaoValidarCodigo);
         botaoValidarEmail = findViewById(R.id.botaoValidarEmail);
+
+        Button voltar = findViewById(R.id.botaoVoltarValidacao);
+        voltar.setOnClickListener(v -> finish());
     }
 
     public void validarPorEmail(View v) {
@@ -71,7 +74,7 @@ public class TelaValidacao extends AppCompatActivity {
                                     Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
                                     intentTelaPrincipal.putExtra("dados", responseLogin);
                                     startActivity(intentTelaPrincipal);
-                                    finish();
+                                    finishAffinity();
                                     break;
 
                                 case 3: // Conta não está ativa
@@ -195,7 +198,7 @@ public class TelaValidacao extends AppCompatActivity {
                                 Intent intentTelaPrincipal = new Intent(this, TelaPrincipalActivity.class);
                                 intentTelaPrincipal.putExtra("dados", responseLogin);
                                 startActivity(intentTelaPrincipal);
-                                finish();
+                                finishAffinity();
                                 break;
 
                             case 1: // Senha incorreta

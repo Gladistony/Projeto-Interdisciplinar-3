@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
@@ -30,6 +31,10 @@ public class TelaLogin extends AppCompatActivity{
 
     ProgressBar progressBarBotaoLogin;
 
+    LinearLayout linearLayoutAbrirTelaCadastro;
+
+    LinearLayout linearLayoutEsqueciSenha;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +48,21 @@ public class TelaLogin extends AppCompatActivity{
         er = new EnviarRequisicao(getApplicationContext());
         botaoLogin = findViewById(R.id.button_login);
         progressBarBotaoLogin = findViewById(R.id.progressBarBotaoLogin);
+        linearLayoutAbrirTelaCadastro = findViewById(R.id.linearLayoutAbrirTelaCadastro);
+        linearLayoutAbrirTelaCadastro.setOnClickListener(v -> abrirTelaCadastro());
+
+        linearLayoutEsqueciSenha = findViewById(R.id.linearLayoutEsqueciSenha);
+        linearLayoutEsqueciSenha.setOnClickListener(v -> abrirTelaRecuperarSenha());
+    }
+
+    private void abrirTelaCadastro() {
+        Intent intentCadastro = new Intent(this, FormCadastro.class);
+        startActivity(intentCadastro);
+    }
+
+    private void abrirTelaRecuperarSenha() {
+        Intent intentRecuperacao = new Intent(this, TelaRecuperarSenha.class);
+        startActivity(intentRecuperacao);
     }
 
     public void login(View v) {
@@ -98,7 +118,7 @@ public class TelaLogin extends AppCompatActivity{
                                 case 2: // Conta bloqueada por excesso de tentativas
                                     if (responseLogin.getMessage().endsWith("ativação novamente necessária")) {
                                         runOnUiThread(() -> {
-                                            Toast.makeText(this, "Ativação de conta necessária por excesso de tentativas.", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Ativação de conta necessária por excesso de tentativas.", Toast.LENGTH_LONG).show();
                                             changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar));
                                         });
                                     } else {
@@ -115,7 +135,6 @@ public class TelaLogin extends AppCompatActivity{
                                     intentTelaValidacao.putExtra("senha", senha.getText().toString());
                                     runOnUiThread(() -> changeButtonMode(botaoLogin, progressBarBotaoLogin, getString(R.string.entrar)));
                                     startActivity(intentTelaValidacao);
-                                    finish();
                                     break;
 
                                 case 4: // Conta não encontrada
@@ -174,10 +193,6 @@ public class TelaLogin extends AppCompatActivity{
         // volta o cursor para a mesma posição antes de ocultar/exibir
         caixaTexto.setSelection(posicaoCursor);
 
-    }
-
-    public void voltar(View v) {
-        finish();
     }
 
     private String segToMin(double seg) {

@@ -111,7 +111,7 @@ public class FormCadastro extends AppCompatActivity {
                                     });
                                     Intent intentTelaLogin = new Intent(this, MainActivity.class);
                                     startActivity(intentTelaLogin);
-                                    finish();
+                                    finishAffinity();
                                     break;
                                 case 6: // Conta já existe
                                 case 7: // Nome de usuário inválido
