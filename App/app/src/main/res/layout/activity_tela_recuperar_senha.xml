@@ -6,10 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/background"
-    tools:context=".TelaValidacao">
+    tools:context=".TelaRecuperarSenha">
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/botaoVoltarValidacao"
+        android:id="@+id/botaoVoltarRecuperarSenha"
         style="@style/ButtonArrow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,40 +20,41 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tituloValidacao"
+        android:id="@+id/tituloEsqueciASenha"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
-        android:text="@string/title_validacao_conta"
+        android:text="@string/tituloEsqueciASenha"
         android:textAlignment="center"
+        android:textColor="@color/white"
         android:textColorLink="@color/blue"
         android:textSize="40sp"
-        android:textColor="@color/white"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/containerComponents"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <View
         android:id="@+id/containerComponents"
-        style="@style/ContainerTop"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tituloValidacao"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@+id/tituloEsqueciASenha" />
 
     <TextView
-        android:id="@+id/descricaoValidacao"
+        android:id="@+id/descricaoRecuperacaoSenha"
         android:layout_width="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:gravity="center"
-        android:text="@string/text_validacao"
+        android:text="@string/textoDescricaoEsqueciASenha"
         android:textSize="15sp"
         android:textColor="@color/black"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
@@ -61,69 +62,42 @@
         app:layout_constraintTop_toTopOf="@+id/containerComponents" />
 
     <EditText
-        android:id="@+id/codigo_validacao"
+        android:id="@+id/usuarioRecuperarSenha"
         style="@style/Edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="15"
         android:inputType="text"
-        android:hint="@string/type_codigo_validacao"
+        android:hint="@string/hintEsqueciASenha"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
         app:layout_constraintStart_toStartOf="@+id/containerComponents"
-        app:layout_constraintTop_toBottomOf="@+id/descricaoValidacao" />
+        app:layout_constraintTop_toBottomOf="@+id/descricaoRecuperacaoSenha" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/botaoValidarCodigo"
+        android:id="@+id/botaoEnviarRecuperarConta"
         style="@style/Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button"
-        android:onClick="validarPorCodigo"
-        android:text="@string/validar_conta"
+        android:text="@string/botaoEnviarEmailEsqueciASenha"
         app:layout_constraintEnd_toEndOf="@+id/containerComponents"
         app:layout_constraintStart_toStartOf="@+id/containerComponents"
-        app:layout_constraintTop_toBottomOf="@+id/codigo_validacao"
+        app:layout_constraintTop_toBottomOf="@+id/usuarioRecuperarSenha"
         />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/botaoValidarEmail"
-        style="@style/Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/button"
-        android:onClick="validarPorEmail"
-        android:text="@string/text_validar_email"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/botaoValidarCodigo" />
-
     <ProgressBar
-        android:id="@+id/progressBarValidarCodigo"
+        android:id="@+id/progressBarEnviarRecuperarSenha"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:elevation="4dp"
         android:indeterminateTint="@color/green2"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/botaoValidarCodigo"
-        app:layout_constraintEnd_toEndOf="@+id/botaoValidarCodigo"
-        app:layout_constraintStart_toStartOf="@+id/botaoValidarCodigo"
-        app:layout_constraintTop_toTopOf="@+id/botaoValidarCodigo"
-        tools:visibility="visible" />
-
-    <ProgressBar
-        android:id="@+id/progressBarValidarEmail"
-        style="?android:attr/progressBarStyle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:elevation="4dp"
-        android:indeterminateTint="@color/green2"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/botaoValidarEmail"
-        app:layout_constraintEnd_toEndOf="@+id/botaoValidarEmail"
-        app:layout_constraintStart_toStartOf="@+id/botaoValidarEmail"
-        app:layout_constraintTop_toTopOf="@+id/botaoValidarEmail"
+        app:layout_constraintBottom_toBottomOf="@+id/botaoEnviarRecuperarConta"
+        app:layout_constraintEnd_toEndOf="@+id/botaoEnviarRecuperarConta"
+        app:layout_constraintStart_toStartOf="@+id/botaoEnviarRecuperarConta"
+        app:layout_constraintTop_toTopOf="@+id/botaoEnviarRecuperarConta"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity{
                                     case 4: // Conta não encontrada
                                         criarNovoID();
                                         runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Conta não encontrada.", Toast.LENGTH_SHORT).show());
-                                        Intent intentTelaLoginNaoEncontrado = new Intent(this, LoginCadastro.class);
+                                        Intent intentTelaLoginNaoEncontrado = new Intent(this, TelaLogin.class);
                                         startActivity(intentTelaLoginNaoEncontrado);
                                         finish();
                                         break;
@@ -83,22 +83,18 @@ public class MainActivity extends AppCompatActivity{
                                     case 12: // Conexão não encontrada / ID inválido
                                         criarNovoID();
                                         runOnUiThread(() -> Toast.makeText(this, "Erro na conexão automática. Por favor, entre novamente.", Toast.LENGTH_SHORT).show());
-                                        Intent intentConexaoNaoEncontrado = new Intent(this, LoginCadastro.class);
+                                        Intent intentConexaoNaoEncontrado = new Intent(this, TelaLogin.class);
                                         startActivity(intentConexaoNaoEncontrado);
                                         finish();
                                         break;
-
-                                    default:
-                                        startActivity(new Intent(MainActivity.this, LoginCadastro.class));
-                                        finish();
                                 }
                             } else {
-                                startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                                startActivity(new Intent(MainActivity.this, TelaLogin.class));
                                 finish();
                             }
                         } catch (Exception e) {
                             runOnUiThread(() -> Toast.makeText(this, "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
-                            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+                            startActivity(new Intent(MainActivity.this, TelaLogin.class));
                             finish();
                         }
                     }
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity{
             }
         } else {
             runOnUiThread(() -> Toast.makeText(this, "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
-            startActivity(new Intent(MainActivity.this, LoginCadastro.class));
+            startActivity(new Intent(MainActivity.this, TelaLogin.class));
             finish();
         }
     }
