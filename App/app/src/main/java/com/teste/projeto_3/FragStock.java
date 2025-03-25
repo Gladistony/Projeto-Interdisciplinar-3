@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,9 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     TextView textoEnviandoRequisicao;
 
+    int quantidadeRequisicoesEnviando = 0;
+
+    float alturaEmPixels;
     public interface CallbackImagem {
         void onComplete(String urlImagem);
     }
@@ -107,14 +111,17 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         imagemFalha = view.findViewById(R.id.imagemEnviandoEstoqueFalha);
         textoEnviandoRequisicao = view.findViewById(R.id.textoEnviandoEstoque);
 
+        // Abaixo, 40 é o tamanho em dp do FrameLayout para exibir resultado da requisição. Se mudar lá, mudar aqui também.
+        alturaEmPixels = getResources().getDisplayMetrics().density * 40;
+
         Button botaoEnviando = view.findViewById(R.id.botaoEnviando);
         Button botaoSucesso = view.findViewById(R.id.botaoSucesso);
         Button botaoFalha = view.findViewById(R.id.botaoFalha);
         backgroundEnviandoEstoque = view.findViewById(R.id.frameLayoutEnviandoEstoque);
 
-        botaoEnviando.setOnClickListener(v-> mostrarLayout());
-        botaoSucesso.setOnClickListener(v-> sucessoReq());
-        botaoFalha.setOnClickListener(v-> falhaReq());
+        botaoEnviando.setOnClickListener(v-> enviandoRequisicao());
+        botaoSucesso.setOnClickListener(v-> sucessoRequisicao());
+        botaoFalha.setOnClickListener(v-> falhaRequisicao());
 
 
         textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
@@ -133,20 +140,64 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         recyclerView.setAdapter(adaptadorItemEstoque);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-
-
         return view;
     }
 
-    private void mostrarLayout() {
-        float alturaEmPixels = getResources().getDisplayMetrics().density * 40;
+    private void enviandoRequisicao() {
+        quantidadeRequisicoesEnviando++;
+        if (quantidadeRequisicoesEnviando == 1) {
+            backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_enviando_requisicao));
+            textoEnviandoRequisicao.setText("Processando Stocks...");
+            imagemSucesso.setVisibility(View.GONE);
+            imagemFalha.setVisibility(View.GONE);
+            progressBarEnviandoEstoque.setVisibility(View.VISIBLE);
+            mostrarProcessoRequisicao();
+        }
+    }
 
-        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_enviando_requisicao));
-        textoEnviandoRequisicao.setText("Criando 1 novo(s) Stock(s)");
+    private void sucessoRequisicao() {
+        quantidadeRequisicoesEnviando--;
+        if (quantidadeRequisicoesEnviando == 0) { // Essa verificação garante relevância maior ao popup de falha caso aconteça
+            backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_sucesso));
+            textoEnviandoRequisicao.setText("Todos os processamentos concluídos");
+            imagemSucesso.setVisibility(View.VISIBLE);
+            imagemFalha.setVisibility(View.GONE);
+            progressBarEnviandoEstoque.setVisibility(View.GONE);
+        }
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (quantidadeRequisicoesEnviando == 0) {
+                    ocultarProcessoRequisicao();
+                }
+            }
+        }, 2000);
+    }
+
+    private void falhaRequisicao() {
+        quantidadeRequisicoesEnviando--;
+        // popup de falha não possui a verificação para garantir a relevância de exibir na tela imediatamente
+        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_falha));
+        textoEnviandoRequisicao.setText("Falha no processamento");
         imagemSucesso.setVisibility(View.GONE);
-        imagemFalha.setVisibility(View.GONE);
-        progressBarEnviandoEstoque.setVisibility(View.VISIBLE);
+        imagemFalha.setVisibility(View.VISIBLE);
+        progressBarEnviandoEstoque.setVisibility(View.GONE);
 
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (quantidadeRequisicoesEnviando == 0) {
+                        ocultarProcessoRequisicao();
+                    }
+                }
+            }, 2000);
+
+    }
+
+    private void mostrarProcessoRequisicao() {
         ObjectAnimator animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", 0f, -alturaEmPixels);
         ObjectAnimator animBotao = ObjectAnimator.ofFloat(botaoCriarEstoque, "translationY", 0f, -alturaEmPixels);
 
@@ -156,20 +207,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         animatorSet.start();
     }
 
-    private void sucessoReq() {
-        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_sucesso));
-        textoEnviandoRequisicao.setText("1 Stock cadastrado com sucesso");
-        imagemSucesso.setVisibility(View.VISIBLE);
-        imagemFalha.setVisibility(View.GONE);
-        progressBarEnviandoEstoque.setVisibility(View.GONE);
-    }
+    private void ocultarProcessoRequisicao() {
+        ObjectAnimator animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", -alturaEmPixels, 0f);
+        ObjectAnimator animBotao = ObjectAnimator.ofFloat(botaoCriarEstoque, "translationY", -alturaEmPixels, 0f);
 
-    private  void falhaReq() {
-        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_falha));
-        textoEnviandoRequisicao.setText("Falha ao criar 1 Stock");
-        imagemSucesso.setVisibility(View.GONE);
-        imagemFalha.setVisibility(View.VISIBLE);
-        progressBarEnviandoEstoque.setVisibility(View.GONE);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animLayout, animBotao);
+        animatorSet.setDuration(200);
+        animatorSet.start();
     }
 
     @Override
@@ -197,6 +242,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     private void criarEstoque(String nome, String descricao) {
         if (er.possuiInternet(requireContext())) {
+            enviandoRequisicao();
             if (imagemBase64.isEmpty()) {
                 enviarEstoque(nome, descricao, imagemBase64);
             } else {
@@ -206,9 +252,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         if (urlImagem != null) {
                             enviarEstoque(nome, descricao, urlImagem);
                         } else {
-                            requireActivity().runOnUiThread(() ->
-                                    Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show()
-                            );
+                            requireActivity().runOnUiThread(() -> {
+                                falhaRequisicao();
+                                Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show();
+                            });
                         }
                     }
                 });
@@ -235,7 +282,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             // Fazer a requisição
             er.post("criar_estoque", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show());
+                    requireActivity().runOnUiThread(() -> {
+                        falhaRequisicao();
+                        Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
+                    });
                 } else {
                     try {
                         // Processar resposta da requisição
@@ -244,6 +294,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             requireActivity().runOnUiThread(() -> {
                                 estoque.setId(responseEstoque.getId_estoque());
                                 adaptadorItemEstoque.adicionarArrayEstoque(estoque);
+                                sucessoRequisicao();
                                 // Atualizando o objeto principal User com o novo estoque
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     if (!viewModel.getUser().getValue().getEstoque().isEmpty()) {
@@ -258,10 +309,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         } else {
                             requireActivity().runOnUiThread(() -> {
                                 Toast.makeText(requireContext(), "Erro ao criar o Stock", Toast.LENGTH_SHORT).show();
+                                falhaRequisicao();
                             });
                         }
                     } catch (Exception e) {
-                        requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show());
+                        requireActivity().runOnUiThread(() -> {
+                            Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
+                            falhaRequisicao();
+                        });
                     }
                 }
             });
