@@ -1,4 +1,6 @@
 package com.teste.projeto_3;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -24,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -53,6 +56,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
     private SwipeRefreshLayout swipeRefreshLayoutEstoque;
     private TextView textoEstoqueVazio;
 
+    public FloatingActionButton botaoCriarEstoque;
+
+    private FrameLayout linear;
+
     public interface CallbackImagem {
         void onComplete(String urlImagem);
     }
@@ -78,8 +85,8 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         // Infla o layout do fragment
         View view = inflater.inflate(R.layout.fragment_frag_stock, container, false);
 
-        FloatingActionButton criarEstoque = view.findViewById(R.id.botaoCriarEstoque);
-        criarEstoque.setOnClickListener(v -> dialogCriarEstoque());
+        botaoCriarEstoque = view.findViewById(R.id.botaoCriarEstoque);
+        botaoCriarEstoque.setOnClickListener(v -> dialogCriarEstoque());
 
         swipeRefreshLayoutEstoque = view.findViewById(R.id.swipeRefreshLayoutEstoque);
         swipeRefreshLayoutEstoque.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -88,6 +95,10 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                 get_estoque();
             }
         });
+
+        Button botaoTeste = view.findViewById(R.id.botaoTeste);
+        linear = view.findViewById(R.id.frameLayoutEnviandoEstoque);
+        botaoTeste.setOnClickListener(v-> mostrarLayout());
 
         textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
@@ -108,6 +119,18 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
 
         return view;
+    }
+
+    private void mostrarLayout() {
+        float alturaEmPixels = getResources().getDisplayMetrics().density * 40;
+
+        ObjectAnimator animLayout = ObjectAnimator.ofFloat(linear, "translationY", 0f, -alturaEmPixels);
+        ObjectAnimator animBotao = ObjectAnimator.ofFloat(botaoCriarEstoque, "translationY", 0f, -alturaEmPixels);
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animLayout, animBotao);
+        animatorSet.setDuration(200);
+        animatorSet.start();
     }
 
     @Override
