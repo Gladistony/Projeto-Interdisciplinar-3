@@ -121,7 +121,7 @@
             android:id="@+id/textoEnviandoEstoque"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="45dp"
+            android:layout_marginStart="40dp"
             android:layout_marginTop="10dp"
             android:layout_weight="0"
             android:text="@string/text_default"
@@ -131,11 +131,27 @@
     </FrameLayout>
 
     <Button
-        android:id="@+id/botaoTeste"
+        android:id="@+id/botaoFalha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Falha"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/swipeRefreshLayoutEstoque" />
+        app:layout_constraintTop_toBottomOf="@+id/botaoSucesso" />
+
+    <Button
+        android:id="@+id/botaoSucesso"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sucesso"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/botaoEnviando" />
+
+    <Button
+        android:id="@+id/botaoEnviando"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enviando"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/containerTop" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

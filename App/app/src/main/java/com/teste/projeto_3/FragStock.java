@@ -58,7 +58,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     public FloatingActionButton botaoCriarEstoque;
 
-    private FrameLayout linear;
+    private FrameLayout backgroundEnviandoEstoque;
+
+    ProgressBar progressBarEnviandoEstoque;
+    ImageView imagemSucesso;
+    ImageView imagemFalha;
+
+    TextView textoEnviandoRequisicao;
 
     public interface CallbackImagem {
         void onComplete(String urlImagem);
@@ -96,9 +102,20 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             }
         });
 
-        Button botaoTeste = view.findViewById(R.id.botaoTeste);
-        linear = view.findViewById(R.id.frameLayoutEnviandoEstoque);
-        botaoTeste.setOnClickListener(v-> mostrarLayout());
+        progressBarEnviandoEstoque = view.findViewById(R.id.progressBarEnviandoEstoque);
+        imagemSucesso = view.findViewById(R.id.imagemEnviandoEstoqueSucesso);
+        imagemFalha = view.findViewById(R.id.imagemEnviandoEstoqueFalha);
+        textoEnviandoRequisicao = view.findViewById(R.id.textoEnviandoEstoque);
+
+        Button botaoEnviando = view.findViewById(R.id.botaoEnviando);
+        Button botaoSucesso = view.findViewById(R.id.botaoSucesso);
+        Button botaoFalha = view.findViewById(R.id.botaoFalha);
+        backgroundEnviandoEstoque = view.findViewById(R.id.frameLayoutEnviandoEstoque);
+
+        botaoEnviando.setOnClickListener(v-> mostrarLayout());
+        botaoSucesso.setOnClickListener(v-> sucessoReq());
+        botaoFalha.setOnClickListener(v-> falhaReq());
+
 
         textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
         RecyclerView recyclerView = view.findViewById(R.id.recyclerViewEstoque);
@@ -124,13 +141,35 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
     private void mostrarLayout() {
         float alturaEmPixels = getResources().getDisplayMetrics().density * 40;
 
-        ObjectAnimator animLayout = ObjectAnimator.ofFloat(linear, "translationY", 0f, -alturaEmPixels);
+        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_enviando_requisicao));
+        textoEnviandoRequisicao.setText("Criando 1 novo(s) Stock(s)");
+        imagemSucesso.setVisibility(View.GONE);
+        imagemFalha.setVisibility(View.GONE);
+        progressBarEnviandoEstoque.setVisibility(View.VISIBLE);
+
+        ObjectAnimator animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", 0f, -alturaEmPixels);
         ObjectAnimator animBotao = ObjectAnimator.ofFloat(botaoCriarEstoque, "translationY", 0f, -alturaEmPixels);
 
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(animLayout, animBotao);
         animatorSet.setDuration(200);
         animatorSet.start();
+    }
+
+    private void sucessoReq() {
+        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_sucesso));
+        textoEnviandoRequisicao.setText("1 Stock cadastrado com sucesso");
+        imagemSucesso.setVisibility(View.VISIBLE);
+        imagemFalha.setVisibility(View.GONE);
+        progressBarEnviandoEstoque.setVisibility(View.GONE);
+    }
+
+    private  void falhaReq() {
+        backgroundEnviandoEstoque.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.drawable_falha));
+        textoEnviandoRequisicao.setText("Falha ao criar 1 Stock");
+        imagemSucesso.setVisibility(View.GONE);
+        imagemFalha.setVisibility(View.VISIBLE);
+        progressBarEnviandoEstoque.setVisibility(View.GONE);
     }
 
     @Override

@@ -13,4 +13,6 @@
     <color name="goldenLogo2">#ac7c5c</color>
     <color name="gray3">#BDBDBD</color>
     <color name="modern_red">#A52A2A</color>
+    <color name="sucesso">#B1FFA0</color>
+    <color name="falha">#FFA0A0</color>
 </resources>
