@@ -12,6 +12,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,7 +28,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -43,12 +43,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
+import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
 import com.teste.projeto_3.model.User;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class FragStock extends Fragment implements RecyclerViewInterface {
     public AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
+
+    public AdaptadorResultadoEstoqueRecyclerView adaptadorResultadoEstoqueRecyclerView;
     public static SharedViewModel viewModel;
     private EnviarRequisicao er;
     private CameraGaleria cg;
@@ -59,7 +65,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     public FloatingActionButton botaoCriarEstoque;
 
-    private FrameLayout backgroundEnviandoEstoque;
+    private ConstraintLayout backgroundEnviandoEstoque;
 
     ProgressBar progressBarEnviandoEstoque;
     ImageView imagemSucesso;
@@ -69,7 +75,19 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     int quantidadeRequisicoesEnviando = 0;
 
+    ImageView iconeExpandirEnviandoRequisicaoEstoque;
+
+    ImageView iconeFecharEnviandoRequisicaoEstoque;
+
+    RecyclerView recyclerViewResultadoRequisicaoEnviandoEstoque;
+
+    ConstraintLayout layoutElementosRequisicaoEstoque;
+
     float alturaEmPixels;
+
+    float alturaEmPixelsEnviandoRequisicao;
+
+    boolean detalheEnviarRequisicaoExibido = false;
     public interface CallbackImagem {
         void onComplete(String urlImagem);
     }
@@ -111,17 +129,31 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         imagemFalha = view.findViewById(R.id.imagemEnviandoEstoqueFalha);
         textoEnviandoRequisicao = view.findViewById(R.id.textoEnviandoEstoque);
 
-        // Abaixo, 40 é o tamanho em dp do FrameLayout para exibir resultado da requisição. Se mudar lá, mudar aqui também.
+        // Abaixo, 40 é o tamanho vertical em dp do ConstraintLayout para exibir resultado da requisição. Se mudar lá, mudar aqui também.
         alturaEmPixels = getResources().getDisplayMetrics().density * 40;
+
+        // Abaixo, 140 é o tamanho vertical em dp do RecyclerView (que é 100) + ConstraintLayout para exibir resultado da requisição. Se mudar lá, mudar aqui também.
+        alturaEmPixelsEnviandoRequisicao = getResources().getDisplayMetrics().density * 140;
 
         Button botaoEnviando = view.findViewById(R.id.botaoEnviando);
         Button botaoSucesso = view.findViewById(R.id.botaoSucesso);
         Button botaoFalha = view.findViewById(R.id.botaoFalha);
         backgroundEnviandoEstoque = view.findViewById(R.id.frameLayoutEnviandoEstoque);
 
-        botaoEnviando.setOnClickListener(v-> enviandoRequisicao());
-        botaoSucesso.setOnClickListener(v-> sucessoRequisicao());
-        botaoFalha.setOnClickListener(v-> falhaRequisicao());
+        botaoEnviando.setOnClickListener(v-> mostrarProcessoRequisicao());
+        botaoSucesso.setOnClickListener(v-> ocultarProcessoRequisicao());
+        //botaoFalha.setOnClickListener(v-> falhaRequisicao());
+
+        iconeExpandirEnviandoRequisicaoEstoque = view.findViewById(R.id.iconeExpandirEnviandoRequisicaoEstoque);
+        iconeFecharEnviandoRequisicaoEstoque = view.findViewById(R.id.iconeFecharEnviadoRequisicaoEstoque);
+        layoutElementosRequisicaoEstoque = view.findViewById(R.id.layoutElementosRequisicaoEstoque);
+        recyclerViewResultadoRequisicaoEnviandoEstoque = view.findViewById(R.id.recyclerViewResultadoRequisicaoEstoque);
+
+        layoutElementosRequisicaoEstoque.setOnClickListener(v-> mostrarDetalheProcessoRequisicao());
+
+        iconeFecharEnviandoRequisicaoEstoque.setOnClickListener(v-> fecharProcessoRequisicao());
+
+
 
 
         textoEstoqueVazio = view.findViewById(R.id.textoEstoqueVazio);
@@ -140,9 +172,26 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         recyclerView.setAdapter(adaptadorItemEstoque);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
+
+        List<ResultadoRequisicaoEstoque> lree = new ArrayList<>();
+        ResultadoRequisicaoEstoque rre1 = new ResultadoRequisicaoEstoque();
+        ResultadoRequisicaoEstoque rre2 = new ResultadoRequisicaoEstoque();
+        rre1.setTextoResultado("Sucesso");
+        rre2.setTextoResultado("Falha");
+        rre1.setIconeResultado(0);
+        rre2.setIconeResultado(1);
+        lree.add(rre1);
+        lree.add(rre2);
+
+        adaptadorResultadoEstoqueRecyclerView = new AdaptadorResultadoEstoqueRecyclerView(requireContext(), this, lree);
+        RecyclerView recyclerViewEnviandoEstoque = view.findViewById(R.id.recyclerViewResultadoRequisicaoEstoque);
+        recyclerViewEnviandoEstoque.setAdapter(adaptadorResultadoEstoqueRecyclerView);
+        recyclerViewEnviandoEstoque.setLayoutManager(new LinearLayoutManager(requireContext()));
+
         return view;
     }
 
+    /*
     private void enviandoRequisicao() {
         quantidadeRequisicoesEnviando++;
         if (quantidadeRequisicoesEnviando == 1) {
@@ -196,6 +245,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             }, 2000);
 
     }
+     */
 
     private void mostrarProcessoRequisicao() {
         ObjectAnimator animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", 0f, -alturaEmPixels);
@@ -216,6 +266,36 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
         animatorSet.setDuration(200);
         animatorSet.start();
     }
+
+    private void fecharProcessoRequisicao() {
+        detalheEnviarRequisicaoExibido = false;
+        backgroundEnviandoEstoque.setTranslationY(0);
+        recyclerViewResultadoRequisicaoEnviandoEstoque.setTranslationY(0);
+        botaoCriarEstoque.setTranslationY(0);
+    }
+
+    private void mostrarDetalheProcessoRequisicao() {
+        ObjectAnimator animLayout;
+        ObjectAnimator animRecyclerView;
+        ObjectAnimator animRotacao;
+        if (detalheEnviarRequisicaoExibido) {
+            animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", -alturaEmPixelsEnviandoRequisicao, -alturaEmPixels);
+            animRecyclerView = ObjectAnimator.ofFloat(recyclerViewResultadoRequisicaoEnviandoEstoque, "translationY", -alturaEmPixelsEnviandoRequisicao, -alturaEmPixels);
+            animRotacao = ObjectAnimator.ofFloat(iconeExpandirEnviandoRequisicaoEstoque, "rotation", 270f, 90f);
+            detalheEnviarRequisicaoExibido = false;
+        } else {
+            animLayout = ObjectAnimator.ofFloat(backgroundEnviandoEstoque, "translationY", -alturaEmPixels, -alturaEmPixelsEnviandoRequisicao);
+            animRecyclerView = ObjectAnimator.ofFloat(recyclerViewResultadoRequisicaoEnviandoEstoque, "translationY", -alturaEmPixels, -alturaEmPixelsEnviandoRequisicao);
+            animRotacao = ObjectAnimator.ofFloat(iconeExpandirEnviandoRequisicaoEstoque, "rotation", 90f, 270f);
+            detalheEnviarRequisicaoExibido = true;
+        }
+
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(animLayout, animRecyclerView, animRotacao);
+        animatorSet.setDuration(200);
+        animatorSet.start();
+    }
+
 
     @Override
     public void onItemClick(int position) {
@@ -242,7 +322,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
 
     private void criarEstoque(String nome, String descricao) {
         if (er.possuiInternet(requireContext())) {
-            enviandoRequisicao();
+            //enviandoRequisicao();
             if (imagemBase64.isEmpty()) {
                 enviarEstoque(nome, descricao, imagemBase64);
             } else {
@@ -253,7 +333,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             enviarEstoque(nome, descricao, urlImagem);
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                falhaRequisicao();
+                                //falhaRequisicao();
                                 Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show();
                             });
                         }
@@ -283,7 +363,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
             er.post("criar_estoque", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     requireActivity().runOnUiThread(() -> {
-                        falhaRequisicao();
+                        //falhaRequisicao();
                         Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show();
                     });
                 } else {
@@ -294,7 +374,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                             requireActivity().runOnUiThread(() -> {
                                 estoque.setId(responseEstoque.getId_estoque());
                                 adaptadorItemEstoque.adicionarArrayEstoque(estoque);
-                                sucessoRequisicao();
+                                //sucessoRequisicao();
                                 // Atualizando o objeto principal User com o novo estoque
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     if (!viewModel.getUser().getValue().getEstoque().isEmpty()) {
@@ -309,13 +389,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface {
                         } else {
                             requireActivity().runOnUiThread(() -> {
                                 Toast.makeText(requireContext(), "Erro ao criar o Stock", Toast.LENGTH_SHORT).show();
-                                falhaRequisicao();
+                                //falhaRequisicao();
                             });
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
                             Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
-                            falhaRequisicao();
+                            //falhaRequisicao();
                         });
                     }
                 }
