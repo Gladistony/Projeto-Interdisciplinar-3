@@ -30,14 +30,17 @@
         app:layout_constraintRight_toRightOf="@+id/containerTop"
         app:layout_constraintTop_toTopOf="@+id/containerTop" />
 
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayoutEstoque"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/containerTop">
+        app:layout_constraintTop_toBottomOf="@+id/containerTop"
+        app:layout_constraintVertical_bias="0.0">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerViewEstoque"
@@ -51,7 +54,6 @@
         </androidx.recyclerview.widget.RecyclerView>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
 
     <TextView
         android:id="@+id/textoEstoqueVazio"
@@ -143,7 +145,10 @@
                 android:layout_weight="0"
                 android:src="@drawable/icon_accept"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/imagemEnviandoEstoqueFalha"
@@ -153,7 +158,20 @@
                 android:layout_weight="0"
                 android:src="@drawable/icon_cancel"
                 android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/imagemEnviandoEstoqueAviso"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:src="@drawable/warning"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/textoEnviandoEstoque"
@@ -173,37 +191,12 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/botaoFalha"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Falha"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/botaoSucesso" />
-
-    <Button
-        android:id="@+id/botaoSucesso"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Sucesso"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/botaoEnviando" />
-
-    <Button
-        android:id="@+id/botaoEnviando"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enviando"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/containerTop" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewResultadoRequisicaoEstoque"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="140dp"
         android:elevation="10dp"
         android:background="@color/gray2"
         app:layout_constraintEnd_toEndOf="@+id/frameLayoutEnviandoEstoque"

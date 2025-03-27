@@ -12,16 +12,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorResultadoEstoqueRecyclerView.MyViewHolder> {
     Context context;
     private final RecyclerViewInterface recyclerViewInterface;
-    List<ResultadoRequisicaoEstoque> resultado;
-    public AdaptadorResultadoEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, List<ResultadoRequisicaoEstoque> resultado) {
+
+    RecyclerView recyclerView; // Adicionado apenas para o smoothScroll do método adicionarRequisicaoEstoque
+    List<ResultadoRequisicaoEstoque> resultado = new ArrayList<>();
+    public AdaptadorResultadoEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, RecyclerView recyclerView) {
         this.context = context;
         this.recyclerViewInterface = recyclerViewInterface;
-        this.resultado = resultado;
+        this.recyclerView = recyclerView;
     }
 
     @NonNull
@@ -33,19 +36,35 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         return new AdaptadorResultadoEstoqueRecyclerView.MyViewHolder(view, recyclerViewInterface);
     }
 
+    public void adicionarRequisicaoEstoque(ResultadoRequisicaoEstoque resultadoRequisicaoEstoque) {
+        resultado.add(resultadoRequisicaoEstoque);
+        notifyItemInserted(resultado.size() -1);
+        recyclerView.smoothScrollToPosition(resultado.size() - 1);
+    }
+
+    public void alterarRequisicaoEstoque(String texto, int icone, int position) {
+        resultado.get(position).setTextoResultado(texto);
+        resultado.get(position).setIconeResultado(icone);
+        notifyItemChanged(position);
+    }
+
+    public ResultadoRequisicaoEstoque getResultado(int index) {
+        return resultado.get(index);
+    }
+
     @Override
     public void onBindViewHolder(@NonNull AdaptadorResultadoEstoqueRecyclerView.MyViewHolder holder, int position) {
         holder.textoResultadoRequisicaoEstoque.setText(resultado.get(position).getTextoResultado());
         int icone = resultado.get(position).getIconeResultado();
-        if (icone == 0) {
+        if (icone == 0) { // 0 = Sucesso
             holder.imagemSucessoEstoque.setVisibility(View.VISIBLE);
             holder.imagemFalhaEstoque.setVisibility(View.GONE);
             holder.progressBarResultadoResquisicaoEstoque.setVisibility(View.GONE);
-        } else if (icone == 1) {
+        } else if (icone == 1) { // 1 = Falha
             holder.imagemSucessoEstoque.setVisibility(View.GONE);
             holder.imagemFalhaEstoque.setVisibility(View.VISIBLE);
             holder.progressBarResultadoResquisicaoEstoque.setVisibility(View.GONE);
-        } else {
+        } else { // 2 = Enviando
             holder.imagemSucessoEstoque.setVisibility(View.GONE);
             holder.imagemFalhaEstoque.setVisibility(View.GONE);
             holder.progressBarResultadoResquisicaoEstoque.setVisibility(View.VISIBLE);
