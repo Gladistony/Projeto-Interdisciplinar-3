@@ -17,13 +17,13 @@ import java.util.List;
 
 public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorResultadoEstoqueRecyclerView.MyViewHolder> {
     Context context;
-    private final RecyclerViewInterface recyclerViewInterface;
+    private final RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface;
 
     RecyclerView recyclerView; // Adicionado apenas para o smoothScroll do método adicionarRequisicaoEstoque
     List<ResultadoRequisicaoEstoque> resultado = new ArrayList<>();
-    public AdaptadorResultadoEstoqueRecyclerView(Context context, RecyclerViewInterface recyclerViewInterface, RecyclerView recyclerView) {
+    public AdaptadorResultadoEstoqueRecyclerView(Context context, RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface, RecyclerView recyclerView) {
         this.context = context;
-        this.recyclerViewInterface = recyclerViewInterface;
+        this.recyclerViewResultadoRequisicaoInterface = recyclerViewResultadoRequisicaoInterface;
         this.recyclerView = recyclerView;
     }
 
@@ -33,7 +33,7 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.layout_resultado_requisicao_recyclerview, parent, false);
 
-        return new AdaptadorResultadoEstoqueRecyclerView.MyViewHolder(view, recyclerViewInterface);
+        return new AdaptadorResultadoEstoqueRecyclerView.MyViewHolder(view, recyclerViewResultadoRequisicaoInterface);
     }
 
     public void adicionarRequisicaoEstoque(ResultadoRequisicaoEstoque resultadoRequisicaoEstoque) {
@@ -42,9 +42,11 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         recyclerView.smoothScrollToPosition(resultado.size() - 1);
     }
 
-    public void alterarRequisicaoEstoque(String texto, int icone, int position) {
-        resultado.get(position).setTextoResultado(texto);
+    public void alterarRequisicaoEstoque(String texto, int icone, String status, String descricaoStatus, int position) {
+        resultado.get(position).setTituloResultado(texto);
         resultado.get(position).setIconeResultado(icone);
+        resultado.get(position).setStatus(status);
+        resultado.get(position).setDescricaoStatus(descricaoStatus);
         notifyItemChanged(position);
     }
 
@@ -54,7 +56,7 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
 
     @Override
     public void onBindViewHolder(@NonNull AdaptadorResultadoEstoqueRecyclerView.MyViewHolder holder, int position) {
-        holder.textoResultadoRequisicaoEstoque.setText(resultado.get(position).getTextoResultado());
+        holder.textoResultadoRequisicaoEstoque.setText(resultado.get(position).getTituloResultado());
         int icone = resultado.get(position).getIconeResultado();
         if (icone == 0) { // 0 = Sucesso
             holder.imagemSucessoEstoque.setVisibility(View.VISIBLE);
@@ -82,12 +84,24 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         public ProgressBar progressBarResultadoResquisicaoEstoque;
         public TextView textoResultadoRequisicaoEstoque;
 
-        public MyViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
+        public MyViewHolder(@NonNull View itemView, RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface) {
             super(itemView);
             imagemSucessoEstoque = itemView.findViewById(R.id.imagemResultadoRequisicaoSucessoEstoque);
             imagemFalhaEstoque = itemView.findViewById(R.id.imagemResultadoRequisicaoFalhaEstoque);
             progressBarResultadoResquisicaoEstoque = itemView.findViewById(R.id.progressBarResultadoRequisicaoEstoque);
             textoResultadoRequisicaoEstoque = itemView.findViewById(R.id.textoResultadoRequisicaoEstoque);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view){
+                    if (recyclerViewResultadoRequisicaoInterface != null) {
+                        int position = getAdapterPosition();
+                        if (position != RecyclerView.NO_POSITION) {
+                            recyclerViewResultadoRequisicaoInterface.onItemClickResultadoRequisicao(position);
+                        }
+                    }
+                }
+            });
         }
     }
 }
