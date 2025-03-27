@@ -45,8 +45,6 @@ import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
 import com.teste.projeto_3.model.User;
 
-import org.w3c.dom.Text;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -271,9 +269,12 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
     }
 
     // Atualiza o conteúdo dentro do recyclerview de lista de requisições
-    private void sucessoRequisicaoEstoque(String descricao, int indiceRequisicaoEnviando, String status, String descricaoStatus) {
+    private void sucessoRequisicaoEstoque(String descricao, int indiceRequisicaoEnviando, String status, String descricaoStatus, boolean requisicaoFalha) {
         quantidadeRequisicoesEnviando--;
         quantidadeRequisicoesSucesso++;
+        if (requisicaoFalha) {
+            quantidadeRequisicoesFalha--;
+        }
         ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoEstoqueRecyclerView.alterarRequisicaoEstoque(
                 descricao + resultadoAtual.getNomeEstoque(),
@@ -285,9 +286,11 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
     }
 
     // Atualiza o conteúdo dentro do recyclerview de lista de requisições
-    private void falhaRequisicaoEstoque(String descricao, int indiceRequisicaoEnviando, String status, String descricaoStatus) {
+    private void falhaRequisicaoEstoque(String descricao, int indiceRequisicaoEnviando, String status, String descricaoStatus, boolean requisicaoFalha) {
         quantidadeRequisicoesEnviando--;
-        quantidadeRequisicoesFalha++;
+        if (!requisicaoFalha) {
+            quantidadeRequisicoesFalha++;
+        }
         ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoEstoqueRecyclerView.alterarRequisicaoEstoque(descricao + resultadoAtual.getNomeEstoque(),
                 1, "Status: " + status,
@@ -320,10 +323,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
 
     @Override
     public void onItemClickResultadoRequisicao(int position) {
-        dialogResultadoRequisicao(position);
+        if (adaptadorResultadoEstoqueRecyclerView.getResultado(position).getIconeResultado() == 2) {
+            requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Por favor, aguarde a requisição ser concluída", Toast.LENGTH_SHORT).show());
+        } else {
+            dialogResultadoRequisicao(position);
+        }
     }
 
-    private void criarEstoque(String nome, String descricao) {
+    private void criarEstoque(String nome, String descricao, boolean requisicaoFalha, int indiceDetalheRequisicao) {
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -332,21 +339,27 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             res.setTituloResultado("Criando Stock: " + nome);
             res.setNomeEstoque(nome);
             res.setMetodoDeEnvio("Criação de Stock");
-            adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
-            int indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount() - 1;
+            int indiceEnviandoAtual;
+            if (requisicaoFalha) {
+                indiceEnviandoAtual = indiceDetalheRequisicao;
+                adaptadorResultadoEstoqueRecyclerView.alterarDetalheRequisicaoEstoque(res, indiceDetalheRequisicao);
+            } else {
+                indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount();
+                adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
+            }
             mostrarProcessoRequisicao();
 
             if (imagemBase64.isEmpty()) {
-                enviarEstoque(nome, descricao, imagemBase64, indiceEnviandoAtual);
+                enviarEstoque(nome, descricao, imagemBase64, indiceEnviandoAtual, requisicaoFalha);
             } else {
                 upload_img(imagemBase64, new CallbackImagem() {
                     @Override
                     public void onComplete(String urlImagem) {
                         if (urlImagem != null) {
-                            enviarEstoque(nome, descricao, urlImagem, indiceEnviandoAtual);
+                            enviarEstoque(nome, descricao, urlImagem, indiceEnviandoAtual, requisicaoFalha);
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceEnviandoAtual, "Falha no upload da imagem", "Falha ao enviar a imagem ao servidor");
+                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceEnviandoAtual, "Falha no upload da imagem", "Falha ao enviar a imagem ao servidor", requisicaoFalha);
                                 mostrarProcessoRequisicao();
                                 Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show();
                             });
@@ -359,7 +372,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         }
     }
 
-    private void enviarEstoque(String nome, String descricao, String urlImagem, int indiceRequisicaoEnviando) {
+    private void enviarEstoque(String nome, String descricao, String urlImagem, int indiceRequisicaoEnviando, boolean requisicaoFalha) {
         if (er.possuiInternet(requireContext())) {
             // Criando o objeto User
             Estoque estoque = new Estoque();
@@ -377,7 +390,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             er.post("criar_estoque", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     requireActivity().runOnUiThread(() -> {
-                        falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, "Falha", response);
+                        falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, "erro", response, requisicaoFalha);
                         mostrarProcessoRequisicao();
                     });
                 } else {
@@ -388,7 +401,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                             requireActivity().runOnUiThread(() -> {
                                 estoque.setId(responseEstoque.getId_estoque());
                                 adaptadorItemEstoque.adicionarArrayEstoque(estoque);
-                                sucessoRequisicaoEstoque("Stock criado: ", indiceRequisicaoEnviando, "sucesso", responseEstoque.getMessage());
+                                sucessoRequisicaoEstoque("Stock criado: ", indiceRequisicaoEnviando, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
 
                                 // Atualizando o objeto principal User com o novo estoque
@@ -404,14 +417,14 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                             });
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, "Falha", responseEstoque.getMessage());
+                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
                             });
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
                             Toast.makeText(requireContext(), "Erro ao processar a resposta. Tente novamente.", Toast.LENGTH_SHORT).show();
-                            falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, "Falha", "Erro ao receber a requisição do servidor");
+                            falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceRequisicaoEnviando, "erro", "Erro ao receber a requisição do servidor", requisicaoFalha);
                             mostrarProcessoRequisicao();
                         });
                     }
@@ -560,7 +573,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                 if (imagemCarregandoCriarEstoque.getVisibility() == View.VISIBLE) {
                     requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
                 } else {
-                    criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString());
+                    criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString(), false, adaptadorResultadoEstoqueRecyclerView.getItemCount());
                     dialog.dismiss();
                 }
             }
@@ -665,7 +678,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                     if (progressBarImagemEditarEstoque.getVisibility() == View.VISIBLE) {
                         requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
                     } else {
-                        uploadImgChargeEstoque(idEstoque, position);
+                        uploadImgChargeEstoque(idEstoque, position, false, adaptadorResultadoEstoqueRecyclerView.getItemCount() -1);
                         dialog.dismiss();
                     }
                 });
@@ -683,7 +696,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                 @Override
                 public void onConfirmacao(boolean confirmou) {
                     if (confirmou) {
-                        apagar_estoque(idEstoque, position);
+                        apagar_estoque(idEstoque, position, false, adaptadorResultadoEstoqueRecyclerView.getItemCount() -1);
                         dialog.dismiss();
                     }
                 }
@@ -721,7 +734,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         dialog.show();
     }
 
-    private void apagar_estoque(String idEstoque, int position) {
+    private void apagar_estoque(String idEstoque, int position, boolean requisicaoFalha, int indiceDetalheRequisicao) {
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -729,8 +742,17 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             res.setIconeResultado(2);
             res.setTituloResultado("Excluindo Stock: " + adaptadorItemEstoque.estoque.get(position).getNome());
             res.setNomeEstoque(adaptadorItemEstoque.estoque.get(position).getNome());
-            adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
-            int indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount() - 1;
+            res.setMetodoDeEnvio("Exclusão de Stock");
+            res.setIdEstoque(idEstoque);
+            res.setPositionEstoqueLista(position);
+            int indiceEnviandoAtual;
+            if (requisicaoFalha) {
+                indiceEnviandoAtual = indiceDetalheRequisicao;
+                adaptadorResultadoEstoqueRecyclerView.alterarDetalheRequisicaoEstoque(res, indiceDetalheRequisicao);
+            } else {
+                indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount();
+                adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
+            }
             mostrarProcessoRequisicao();
 
             Estoque estoque = new Estoque();
@@ -743,7 +765,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             er.post("apagar_estoque", userJson, response -> {
                 if (response.startsWith("Erro")) {
                     requireActivity().runOnUiThread(() -> {
-                        falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, "Falha", response);
+                        falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, "erro", response, requisicaoFalha);
                         mostrarProcessoRequisicao();
                 });
                 } else {
@@ -753,7 +775,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                         if (responseUpload.getCode() == 0) {
                             requireActivity().runOnUiThread(()-> {
                                 adaptadorItemEstoque.removerEstoque(position);
-                                sucessoRequisicaoEstoque("Stock excluído: ", indiceEnviandoAtual, "sucesso", responseUpload.getMessage());
+                                sucessoRequisicaoEstoque("Stock excluído: ", indiceEnviandoAtual, responseUpload.getStatus(), responseUpload.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
                                 if (viewModel.getUser().getValue().getData() == null) { // Login por get_dados
                                     if (viewModel.getUser().getValue().getEstoque().isEmpty()) {
@@ -767,13 +789,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                             });
                         } else if (responseUpload.getCode() == 26) {
                             requireActivity().runOnUiThread(() -> popupAvisarEstoqueApagado());
-                            falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, "Falha", responseUpload.getMessage());
+                            falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, responseUpload.getStatus(), responseUpload.getMessage(), requisicaoFalha);
                             mostrarProcessoRequisicao();
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
                             Toast.makeText(requireContext(), "Erro ao processar a resposta", Toast.LENGTH_SHORT).show();
-                            falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, "Falha", "Erro ao receber a resposta do servidor");
+                            falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, "erro", "Erro ao receber a resposta do servidor",requisicaoFalha);
                             mostrarProcessoRequisicao();
                         });
                     }
@@ -786,7 +808,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         }
     }
 
-    private void uploadImgChargeEstoque(String idEstoque, int position) {
+    private void uploadImgChargeEstoque(String idEstoque, int position, boolean requisicaoFalha, int indiceDetalheRequisicao) {
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -794,23 +816,34 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             res.setIconeResultado(2);
             res.setTituloResultado("Alterando imagem: " + adaptadorItemEstoque.estoque.get(position).getNome());
             res.setNomeEstoque(adaptadorItemEstoque.estoque.get(position).getNome());
-            adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
-            int indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount() - 1;
+            res.setMetodoDeEnvio("Alteração de imagem");
+            int indiceEnviandoAtual;
+            if (requisicaoFalha) {
+                indiceEnviandoAtual = indiceDetalheRequisicao;
+                adaptadorResultadoEstoqueRecyclerView.alterarDetalheRequisicaoEstoque(res, indiceDetalheRequisicao);
+            } else {
+                indiceEnviandoAtual = adaptadorResultadoEstoqueRecyclerView.getItemCount();
+                adaptadorResultadoEstoqueRecyclerView.adicionarRequisicaoEstoque(res);
+            }
             mostrarProcessoRequisicao();
 
             if (imagemBase64.isEmpty()) {
-                charge_estoque_url(idEstoque, imagemBase64, position, indiceEnviandoAtual);
+                charge_estoque_url(idEstoque, imagemBase64, position, requisicaoFalha, indiceEnviandoAtual);
             } else {
                 upload_img(imagemBase64, new CallbackResponseUpload() {
                     @Override
                     public void onCompleteUploadImg(String urlImagem) {
                         if (urlImagem != null) {
-                            imagemBase64 = "";
-                            charge_estoque_url(idEstoque, urlImagem, position, indiceEnviandoAtual);
+                            if (urlImagem.startsWith("O arquivo de imagem")) {
+                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", urlImagem, requisicaoFalha);
+                                mostrarProcessoRequisicao();
+                            } else {
+                                imagemBase64 = "";
+                                charge_estoque_url(idEstoque, urlImagem, position, requisicaoFalha, indiceEnviandoAtual);
+                            }
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                Toast.makeText(requireContext(), "Falha no upload de imagem", Toast.LENGTH_SHORT).show();
-                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "Falha", "Falha ao enviar imagem ao servidor");
+                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", "Erro no upload de imagem", requisicaoFalha);
                                 mostrarProcessoRequisicao();
                             });
                         }
@@ -822,7 +855,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         }
     }
 
-    private void charge_estoque_url(String idEstoque, String urlImagem, int position, int indiceEnviandoAtual) {
+    private void charge_estoque_url(String idEstoque, String urlImagem, int position, boolean requisicaoFalha, int indiceEnviandoAtual) {
         if (er.possuiInternet(requireContext())) {
 
             Estoque estoque = new Estoque();
@@ -837,7 +870,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             er.post("charge_estoque_url", editarImagemEstoque, response -> {
                 if (response.startsWith("Erro")) {
                     requireActivity().runOnUiThread(() -> {
-                    falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "Falha", response);
+                    falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", response, requisicaoFalha);
                     mostrarProcessoRequisicao();
                     });
                 } else {
@@ -847,19 +880,19 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                         if (responseEstoque.getCode() == 0) {
                             requireActivity().runOnUiThread(() -> {
                                 adaptadorItemEstoque.alterarImagemEstoque(position, urlImagem);
-                                sucessoRequisicaoEstoque("Imagem alterada: ", indiceEnviandoAtual, "Sucesso", responseEstoque.getMessage());
+                                sucessoRequisicaoEstoque("Imagem alterada: ", indiceEnviandoAtual, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
                             });
                         } else if (responseEstoque.getCode() == 26) {
                             requireActivity().runOnUiThread(() -> {
                                 popupAvisarEstoqueApagado();
-                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "Falha", responseEstoque.getMessage());
+                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
                             });
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
-                            falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "Falha", "Falha ao alterar a imagem do Stock");
+                            falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", "Falha ao alterar a imagem do Stock", requisicaoFalha);
                             mostrarProcessoRequisicao();
                         });
                     }
@@ -900,15 +933,9 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
 
             er.post("upload_img", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), response, Toast.LENGTH_LONG).show()
-                    );
                     callback.onCompleteUploadImg(null); // Erro no upload
                 } else if (response.startsWith("<html>")) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(requireContext(), "O arquivo de imagem é muito grande", Toast.LENGTH_LONG).show()
-                    );
-                    callback.onCompleteUploadImg(null); // Arquivo muito grande
+                    callback.onCompleteUploadImg("O arquivo de imagem é muito grande. Por favor, tente uma nova requisição com um arquivo mais leve."); // Arquivo muito grande
                 } else {
                     try {
                         // Processar resposta da requisição
@@ -969,10 +996,13 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                                 adaptadorItemEstoque.atualizarEstoque(responseEstoque.getEstoque());
                                 swipeRefreshLayoutEstoque.setRefreshing(false);
                             });
+                        } else {
+                            Toast.makeText(requireContext(), "Erro ao atualizar a lista de Stocks", Toast.LENGTH_SHORT).show();
+                            swipeRefreshLayoutEstoque.setRefreshing(false);
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(requireContext(), "Erro ao alterar a imagem do Stock", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(requireContext(), "Erro ao atualizar a lista de Stocks", Toast.LENGTH_SHORT).show();
                             swipeRefreshLayoutEstoque.setRefreshing(false);
                         });
                     }
@@ -1002,8 +1032,19 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         nomeMetodoRequisicao.setText(adaptadorResultadoEstoqueRecyclerView.getResultado(position).getMetodoDeEnvio());
         statusEstoque.setText(adaptadorResultadoEstoqueRecyclerView.getResultado(position).getStatus());
         descricaoStatusRequisicao.setText(adaptadorResultadoEstoqueRecyclerView.getResultado(position).getDescricaoStatus());
-        if (adaptadorResultadoEstoqueRecyclerView.getResultado(position).getStatus().startsWith("Status: Falha")) {
+        if (adaptadorResultadoEstoqueRecyclerView.getResultado(position).getStatus().equals("Status: erro")) {
             botaoTentarNovamenteRequisicao.setVisibility(View.VISIBLE);
+            botaoTentarNovamenteRequisicao.setOnClickListener(v-> {
+                String metodo = adaptadorResultadoEstoqueRecyclerView.getResultado(position).getMetodoDeEnvio();
+                if (metodo.startsWith("Criação")) {
+                    criarEstoque(nomeEstoque.getText().toString(), adaptadorResultadoEstoqueRecyclerView.getResultado(position).getDescricaoEstoque(), true, position);
+                } else if (metodo.startsWith("Alteração")) {
+                    //TODO
+                } else { // Exclusão
+                    apagar_estoque(adaptadorResultadoEstoqueRecyclerView.getResultado(position).getIdEstoque(), adaptadorResultadoEstoqueRecyclerView.getResultado(position).getPositionEstoqueLista(), true, position);
+                }
+                dialog.dismiss();
+            });
         }
 
         botaoFecharResultadoRequisicao.setOnClickListener(v -> dialog.dismiss());

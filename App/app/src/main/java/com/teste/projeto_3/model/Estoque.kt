@@ -20,10 +20,11 @@ class Estoque(
     var data_validade: MutableList<String> = mutableListOf(),
     var preco: Double = -1.0,
 
+    var status: String = "",
     var message: String = ""
 ) : Parcelable {
 
     override fun toString(): String {
-        return "Estoque(id='$id', nome='$nome', descricao='$descricao', imagem='$imagem', cameras='$cameras', produtos='$produtos', url_foto='$url_foto', id_estoque='$id_estoque', id_produto='$id_produto', quantidade='$quantidade',preco='$preco', data_validade='$data_validade', message='$message')"
+        return "Estoque(id='$id', nome='$nome', descricao='$descricao', imagem='$imagem', cameras='$cameras', produtos='$produtos', url_foto='$url_foto', id_estoque='$id_estoque', id_produto='$id_produto', quantidade='$quantidade',preco='$preco', data_validade='$data_validade', status='$status', message='$message')"
     }
 }
