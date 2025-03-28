@@ -330,7 +330,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         }
     }
 
-    private void criarEstoque(String nome, String descricao, boolean requisicaoFalha, int indiceDetalheRequisicao) {
+    private void criarEstoque(String nome, String descricao, String imagemBase64, boolean requisicaoFalha, int indiceDetalheRequisicao) {
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -338,7 +338,9 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             res.setIconeResultado(2);
             res.setTituloResultado("Criando Stock: " + nome);
             res.setNomeEstoque(nome);
+            res.setDescricaoEstoque(descricao);
             res.setMetodoDeEnvio("Criação de Stock");
+            res.setImagemBase64(imagemBase64);
             int indiceEnviandoAtual;
             if (requisicaoFalha) {
                 indiceEnviandoAtual = indiceDetalheRequisicao;
@@ -349,19 +351,24 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             }
             mostrarProcessoRequisicao();
 
+            // Envia a requisição
             if (imagemBase64.isEmpty()) {
                 enviarEstoque(nome, descricao, imagemBase64, indiceEnviandoAtual, requisicaoFalha);
             } else {
+                adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemBase64(imagemBase64);
                 upload_img(imagemBase64, new CallbackImagem() {
                     @Override
                     public void onComplete(String urlImagem) {
                         if (urlImagem != null) {
-                            enviarEstoque(nome, descricao, urlImagem, indiceEnviandoAtual, requisicaoFalha);
+                            if (urlImagem.startsWith("http://")) {  // Se imagem já foi enviada ao servidor, utiliza o link sem enviá-la novamente.
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemUrl(urlImagem);
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemBase64("");
+                                enviarEstoque(nome, descricao, urlImagem, indiceEnviandoAtual, requisicaoFalha);
+                            }
                         } else {
                             requireActivity().runOnUiThread(() -> {
-                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceEnviandoAtual, "Falha no upload da imagem", "Falha ao enviar a imagem ao servidor", requisicaoFalha);
+                                falhaRequisicaoEstoque("Falha ao criar o Stock ", indiceEnviandoAtual, "erro", "Falha ao enviar a imagem ao servidor", requisicaoFalha);
                                 mostrarProcessoRequisicao();
-                                Toast.makeText(requireContext(), "Falha no upload da imagem", Toast.LENGTH_SHORT).show();
                             });
                         }
                     }
@@ -381,7 +388,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             estoque.setDescricao(descricao);
             estoque.setImagem(urlImagem);
 
-            imagemBase64 = "";
+            imagemBase64 = ""; // Limpa a string com a imagem em Base64
 
             // Converter o objeto User para JSON
             String userJson = gson.toJson(estoque);
@@ -573,7 +580,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                 if (imagemCarregandoCriarEstoque.getVisibility() == View.VISIBLE) {
                     requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
                 } else {
-                    criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString(), false, adaptadorResultadoEstoqueRecyclerView.getItemCount());
+                    criarEstoque(nomeEstoque.getText().toString(), descricaoEstoque.getText().toString(), imagemBase64, false, adaptadorResultadoEstoqueRecyclerView.getItemCount());
                     dialog.dismiss();
                 }
             }
@@ -678,7 +685,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                     if (progressBarImagemEditarEstoque.getVisibility() == View.VISIBLE) {
                         requireActivity().runOnUiThread(()->Toast.makeText(requireContext(), "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
                     } else {
-                        uploadImgChargeEstoque(idEstoque, position, false, adaptadorResultadoEstoqueRecyclerView.getItemCount() -1);
+                        uploadImgChargeEstoque(idEstoque, position, false, adaptadorResultadoEstoqueRecyclerView.getItemCount(), imagemBase64);
                         dialog.dismiss();
                     }
                 });
@@ -788,9 +795,16 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                                 }
                             });
                         } else if (responseUpload.getCode() == 26) {
-                            requireActivity().runOnUiThread(() -> popupAvisarEstoqueApagado());
-                            falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, responseUpload.getStatus(), responseUpload.getMessage(), requisicaoFalha);
-                            mostrarProcessoRequisicao();
+                            requireActivity().runOnUiThread(() -> {
+                                popupAvisarEstoqueApagado();
+                                falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, responseUpload.getStatus(), responseUpload.getMessage(), requisicaoFalha);
+                                mostrarProcessoRequisicao();
+                            });
+                        } else {
+                            requireActivity().runOnUiThread(() -> {
+                                falhaRequisicaoEstoque("Falha ao excluir o Stock ", indiceEnviandoAtual, responseUpload.getStatus(), responseUpload.getMessage(), requisicaoFalha);
+                                mostrarProcessoRequisicao();
+                            });
                         }
                     } catch (Exception e) {
                         requireActivity().runOnUiThread(() -> {
@@ -808,7 +822,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         }
     }
 
-    private void uploadImgChargeEstoque(String idEstoque, int position, boolean requisicaoFalha, int indiceDetalheRequisicao) {
+    private void uploadImgChargeEstoque(String idEstoque, int position, boolean requisicaoFalha, int indiceDetalheRequisicao, String imagemBase64) {
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -817,6 +831,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             res.setTituloResultado("Alterando imagem: " + adaptadorItemEstoque.estoque.get(position).getNome());
             res.setNomeEstoque(adaptadorItemEstoque.estoque.get(position).getNome());
             res.setMetodoDeEnvio("Alteração de imagem");
+            res.setIdEstoque(idEstoque);
             int indiceEnviandoAtual;
             if (requisicaoFalha) {
                 indiceEnviandoAtual = indiceDetalheRequisicao;
@@ -830,25 +845,27 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             if (imagemBase64.isEmpty()) {
                 charge_estoque_url(idEstoque, imagemBase64, position, requisicaoFalha, indiceEnviandoAtual);
             } else {
-                upload_img(imagemBase64, new CallbackResponseUpload() {
-                    @Override
-                    public void onCompleteUploadImg(String urlImagem) {
-                        if (urlImagem != null) {
-                            if (urlImagem.startsWith("O arquivo de imagem")) {
-                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", urlImagem, requisicaoFalha);
-                                mostrarProcessoRequisicao();
+                adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemBase64(imagemBase64);
+                    upload_img(imagemBase64, new CallbackResponseUpload() {
+                        @Override
+                        public void onCompleteUploadImg(String urlImagem) {
+                            if (urlImagem != null) {
+                                if (urlImagem.startsWith("http://")) {
+                                    adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemUrl(urlImagem);
+                                    adaptadorResultadoEstoqueRecyclerView.getResultado(indiceDetalheRequisicao).setImagemBase64("");
+                                    charge_estoque_url(idEstoque, urlImagem, position, requisicaoFalha, indiceEnviandoAtual);
+                                } else if (urlImagem.startsWith("O arquivo de imagem")) {
+                                    falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", urlImagem, requisicaoFalha);
+                                    mostrarProcessoRequisicao();
+                                }
                             } else {
-                                imagemBase64 = "";
-                                charge_estoque_url(idEstoque, urlImagem, position, requisicaoFalha, indiceEnviandoAtual);
+                                requireActivity().runOnUiThread(() -> {
+                                    falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", "Erro no upload de imagem", requisicaoFalha);
+                                    mostrarProcessoRequisicao();
+                                });
                             }
-                        } else {
-                            requireActivity().runOnUiThread(() -> {
-                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, "erro", "Erro no upload de imagem", requisicaoFalha);
-                                mostrarProcessoRequisicao();
-                            });
                         }
-                    }
-                });
+                    });
             }
         } else {
             requireActivity().runOnUiThread(() -> Toast.makeText(requireContext(), "Verifique sua conexão com a internet.", Toast.LENGTH_SHORT).show());
@@ -886,6 +903,11 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
                         } else if (responseEstoque.getCode() == 26) {
                             requireActivity().runOnUiThread(() -> {
                                 popupAvisarEstoqueApagado();
+                                falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
+                                mostrarProcessoRequisicao();
+                            });
+                        } else {
+                            requireActivity().runOnUiThread(()-> {
                                 falhaRequisicaoEstoque("Falha ao alterar imagem de ", indiceEnviandoAtual, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
                                 mostrarProcessoRequisicao();
                             });
@@ -1037,9 +1059,45 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
             botaoTentarNovamenteRequisicao.setOnClickListener(v-> {
                 String metodo = adaptadorResultadoEstoqueRecyclerView.getResultado(position).getMetodoDeEnvio();
                 if (metodo.startsWith("Criação")) {
-                    criarEstoque(nomeEstoque.getText().toString(), adaptadorResultadoEstoqueRecyclerView.getResultado(position).getDescricaoEstoque(), true, position);
+                    if (!adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemUrl().isEmpty()) {
+                        enviarEstoque(
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getNomeEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getDescricaoEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemUrl(),
+                                position,
+                                true
+                                );
+                        } else {
+                        criarEstoque(
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getNomeEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getDescricaoEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemBase64(),
+                                true,
+                                position
+                        );
+                    }
                 } else if (metodo.startsWith("Alteração")) {
-                    //TODO
+
+                    // Verifica se a imagem foi enviada com sucesso, porém a imagem não foi alterada
+                    if (!adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemUrl().isEmpty()) {
+                        charge_estoque_url(
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getIdEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemUrl(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getPositionEstoqueLista(),
+                                true,
+                                position
+                                );
+                    }
+                    // Envia a requisição com a imagemBase64 ao invés da URL já que a URL não foi produzida, pois a imagem não foi enviada
+                    else {
+                        uploadImgChargeEstoque(
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getIdEstoque(),
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getPositionEstoqueLista(),
+                                true,
+                                position,
+                                adaptadorResultadoEstoqueRecyclerView.getResultado(position).getImagemBase64()
+                        );
+                    }
                 } else { // Exclusão
                     apagar_estoque(adaptadorResultadoEstoqueRecyclerView.getResultado(position).getIdEstoque(), adaptadorResultadoEstoqueRecyclerView.getResultado(position).getPositionEstoqueLista(), true, position);
                 }
