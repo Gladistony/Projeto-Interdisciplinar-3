@@ -26,6 +26,7 @@ class ResultadoRequisicaoEstoque(
     var dataValidadeProduto: String = "",
     var quantidadeProduto: String = "",
     var precoProduto: Double = 0.0,
+    var subtracao: Int = 0
 ) {
     override fun toString(): String {
         return "ResultadoRequisicaoEstoque(nomeEstoque='$nomeEstoque', descricaoEstoque='$descricaoEstoque', textoResultado='$tituloResultado', iconeResultado=$iconeResultado, status='$status', descricaoStatus='$descricaoStatus', metodoDeEnvio='$metodoDeEnvio', imagemUrl='$imagemUrl', imagemBase64='$imagemBase64', idEstoque='$idEstoque', positionEstoqueLista='$positionEstoqueLista', idProduto='$idProduto', nomeProduto='$nomeProduto', descricaoProduto='$descricaoProduto', dataValidadeProduto='$dataValidadeProduto', quantidadeProduto='$quantidadeProduto', precoProduto='$precoProduto', positionProdutoLista='$positionProdutoLista')"

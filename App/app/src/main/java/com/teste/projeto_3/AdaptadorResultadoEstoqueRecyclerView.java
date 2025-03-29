@@ -42,6 +42,11 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         recyclerView.smoothScrollToPosition(resultado.size() - 1);
     }
 
+    public void removerRequisicaoEstoque(int indexPosition) {
+        resultado.remove(indexPosition);
+        notifyItemChanged(indexPosition);
+    }
+
     public void alterarDetalheRequisicaoEstoque(ResultadoRequisicaoEstoque resultadoRequisicaoEstoque, int position) {
         resultado.set(position, resultadoRequisicaoEstoque);
         notifyItemChanged(position);

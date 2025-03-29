@@ -255,7 +255,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                             if (subtracao <= 0) {
                                 popupConfirmarQuantidadeProduto(subtracao, quantidadeAtual, idProduto, idEstoque, novaQuantidade, position);
                             } else {
-                                mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                                mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao, false, adaptadorResultadoProdutoRecyclerView.getItemCount());
                             }
                             dialog.dismiss();
                         }
@@ -286,7 +286,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                 .setTitle("Aviso")
                 .setMessage("A quantidade " + novaQuantidade +  " irá remover o produto do estoque" + faltou + "Tem certeza que deseja continuar?")
                 .setPositiveButton("Sim", (dialogConfirmar, which) -> {
-                    mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao);
+                    mudar_produto(idProduto, idEstoque, novaQuantidade, position, subtracao, false, adaptadorResultadoProdutoRecyclerView.getItemCount());
                 })
                 .setNegativeButton("Cancelar", (dialogCancelar, which) -> dialogCancelar.dismiss())
                 .create();
@@ -319,8 +319,51 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         dialog.show();
     }
 
-    public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position, int subtracao){
+    public void popupAvisarProdutoApagado() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Aviso")
+                .setMessage("Não foi possível concluir a operação, pois este produto foi apagado através de outro dispositivo. Por favor, atualize sua tela de produtos.")
+                .setPositiveButton("OK", (dialogConfirmar, which) -> {
+                })
+                .create();
+
+        dialog.setOnShowListener(dialogInterface -> {
+            Button positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            positiveButton.setTextColor(ContextCompat.getColor(this, R.color.green2));
+        });
+
+        dialog.show();
+    }
+
+    public void mudar_produto(String idProduto, String idEstoque, int novaQuantidade, int position, int subtracao, boolean requisicaoFalha, int indiceDetalheRequisicao){
         if (er.possuiInternet(this)) {
+            // Criando o elemento para exibir na lista de requisições
+            quantidadeRequisicoesEnviando++;
+            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            res.setIconeResultado(2);
+            String nomeProduto;
+            if (FragStock.viewModel.getUser().getValue().getData() == null) {
+                nomeProduto = FragStock.viewModel.getUser().getValue().getEstoque().get(posicaoEstoque).getProdutos().get(position).getNome();
+            } else {
+                nomeProduto = FragStock.viewModel.getUser().getValue().getData().getEstoque().get(posicaoEstoque).getProdutos().get(position).getNome();
+            }
+            res.setNomeProduto(nomeProduto);
+            res.setTituloResultado("Alterando quantidade: " + nomeProduto);
+            res.setIdEstoque(idEstoque);
+            res.setIdProduto(idProduto);
+            res.setQuantidadeProduto(Integer.toString(novaQuantidade));
+            res.setPositionProdutoLista(position);
+            res.setSubtracao(subtracao);
+            res.setMetodoDeEnvio("Alteração de quantidade");
+            int indiceEnviandoAtual;
+            if (requisicaoFalha) {
+                indiceEnviandoAtual = indiceDetalheRequisicao;
+                adaptadorResultadoProdutoRecyclerView.alterarDetalheRequisicaoEstoque(res, indiceDetalheRequisicao);
+            } else {
+                indiceEnviandoAtual = adaptadorResultadoProdutoRecyclerView.getItemCount();
+                adaptadorResultadoProdutoRecyclerView.adicionarRequisicaoEstoque(res);
+            }
+            mostrarProcessoRequisicao();
 
             Estoque produtoNovaQuantidade = new Estoque();
             produtoNovaQuantidade.setId(er.obterMemoriaInterna("idConexao"));
@@ -334,7 +377,10 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             // Fazer a requisição
             er.post("mudar_produto", userJson, response -> {
                 if (response.startsWith("Erro")) {
-                    runOnUiThread(() -> Toast.makeText(this, response, Toast.LENGTH_LONG).show());
+                    runOnUiThread(() -> {
+                        falhaRequisicaoProduto("Falha em alterar o produto ", indiceEnviandoAtual, "erro", response, requisicaoFalha);
+                        mostrarProcessoRequisicao();
+                    });
                 } else {
                     try {
                         // Processar resposta da requisição
@@ -342,6 +388,8 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         if (responseEstoque.getCode() == 0 || responseEstoque.getCode() == 28) {
                             runOnUiThread(() -> {
                                 if (subtracao <= 0) { // Produto é removido do estoque
+                                    sucessoRequisicaoProduto("Produto removido: ", indiceDetalheRequisicao, "sucesso", "Produto removido do Stock", requisicaoFalha);
+                                    mostrarProcessoRequisicao();
                                     adaptadorItemProduto.removerProduto(position);
 
                                     textoProdutoVazio.post(() -> {
@@ -356,14 +404,36 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                         }
                                     });
                                 } else {
-                                    adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
+                                    runOnUiThread(() -> {
+                                        sucessoRequisicaoProduto("Quantidade alterada: ", indiceDetalheRequisicao, responseEstoque.getStatus(), responseEstoque.getMessage(), requisicaoFalha);
+                                        mostrarProcessoRequisicao();
+                                        adaptadorItemProduto.editarQuantidadeProduto(novaQuantidade, position);
+                                    });
                                 }
                             });
                         } else if (responseEstoque.getCode() == 26) {
                             runOnUiThread(() -> popupAvisarEstoqueApagado());
+                        } else if (responseEstoque.getCode() == 24) { // Produto não encontrado
+                            runOnUiThread(() -> {
+                                quantidadeRequisicoesEnviando--;
+                                if (requisicaoFalha) {
+                                    quantidadeRequisicoesFalha--;
+                                }
+                                popupAvisarProdutoApagado();
+                                mostrarProcessoRequisicao();
+                                adaptadorResultadoProdutoRecyclerView.removerRequisicaoEstoque(indiceEnviandoAtual);
+                            });
+                        } else {
+                            runOnUiThread(() -> {
+                                falhaRequisicaoProduto("Falha em alterar o produto ", indiceEnviandoAtual, "erro", "Falha em alterar a quantidade do produto", requisicaoFalha);
+                                mostrarProcessoRequisicao();
+                            });
                         }
                     } catch (Exception e) {
-                        runOnUiThread(() -> Toast.makeText(this, "Erro ao modificar o produto do Stock", Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> {
+                            falhaRequisicaoProduto("Falha em alterar o produto ", indiceEnviandoAtual, "erro", "Falha em alterar a quantidade do produto", requisicaoFalha);
+                            mostrarProcessoRequisicao();
+                        });
                     }
                 }
             });
@@ -1075,8 +1145,16 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                             );
                         }
                     }
-                } else {
-
+                } else { // Mudar produto
+                    mudar_produto(
+                            adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdProduto(),
+                            adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdEstoque(),
+                            Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getQuantidadeProduto()),
+                            adaptadorResultadoProdutoRecyclerView.getResultado(position).getPositionProdutoLista(),
+                            adaptadorResultadoProdutoRecyclerView.getResultado(position).getSubtracao(),
+                            true,
+                            position
+                    );
                 }
                 dialog.dismiss();
             });
