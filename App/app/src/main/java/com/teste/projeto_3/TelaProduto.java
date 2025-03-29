@@ -483,7 +483,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                     runOnUiThread(()->Toast.makeText(this, "Por favor, aguarde a imagem ser carregada.", Toast.LENGTH_LONG).show());
                 } else {
                     try {
-                        adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), formatadorPontoVirgula.parse(stringPrecoProduto).doubleValue(), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto, imagemBase64, false, adaptadorResultadoProdutoRecyclerView.getItemCount());
+                        adicionarProdutoEmEstoque(idEstoque, Integer.parseInt(stringQuantidadeProduto), formatadorPontoVirgula.parse(stringPrecoProduto).doubleValue(), stringDataValidadeProduto, stringNomeProduto, stringDescricaoProduto, imagemBase64, null,false, adaptadorResultadoProdutoRecyclerView.getItemCount());
                         dialog.dismiss();
                     } catch (ParseException pe) {
                         runOnUiThread(()->Toast.makeText(this, "Erro interno.", Toast.LENGTH_LONG).show());
@@ -568,7 +568,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         });
     }
 
-    private void adicionarProdutoEmEstoque(int idEstoque, int quantidade, Double preco, String dataValidade, String nomeProduto, String descricaoProduto, String imagemBase64, boolean requisicaoFalha, int indiceDetalheRequisicao) {
+    private void adicionarProdutoEmEstoque(int idEstoque, int quantidade, Double preco, String dataValidade, String nomeProduto, String descricaoProduto, String imagemBase64, String idProduto, boolean requisicaoFalha, int indiceDetalheRequisicao) {
         if (er.possuiInternet(this)) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
@@ -594,10 +594,14 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             mostrarProcessoRequisicao();
 
             if (imagemBase64.isEmpty()) { // Enviar produto sem imagem
+                if (idProduto != null) {
+                    registroProdutoEmEstoque(idEstoque, Integer.parseInt(idProduto), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64, requisicaoFalha, indiceEnviandoAtual);
+                } else {
                 registroProduto(nomeProduto, descricaoProduto, imagemBase64, new CallbackResponseProduto() {
                     @Override
                     public void onCompleteRegistroProduto(Produto produtoRegistrado) {
                         if (produtoRegistrado != null) {
+                            adaptadorResultadoProdutoRecyclerView.resultado.get(indiceDetalheRequisicao).setIdProduto(Integer.toString(produtoRegistrado.getId_produto()));
                             registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64, requisicaoFalha, indiceEnviandoAtual);
                         } else {
                             runOnUiThread(() -> {
@@ -607,22 +611,27 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                         }
                     }
                 }, indiceEnviandoAtual, requisicaoFalha);
-            } else { //Enviar imagem e registrar produto com imagem
+            }
+                }else { //Enviar imagem e registrar produto com imagem
                 if (imagemBase64.startsWith("http://")) {
-                    registroProduto(nomeProduto, descricaoProduto, imagemBase64, new CallbackResponseProduto() {
-                        @Override
-                        public void onCompleteRegistroProduto(Produto produtoRegistrado) {
-                            if (produtoRegistrado != null) {
-                                registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64, requisicaoFalha, indiceEnviandoAtual);
+                    if (idProduto != null) {
+                        registroProdutoEmEstoque(idEstoque, Integer.parseInt(idProduto), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64, requisicaoFalha, indiceEnviandoAtual);
+                    } else {
+                        registroProduto(nomeProduto, descricaoProduto, imagemBase64, new CallbackResponseProduto() {
+                            @Override
+                            public void onCompleteRegistroProduto(Produto produtoRegistrado) {
+                                if (produtoRegistrado != null) {
+                                    adaptadorResultadoProdutoRecyclerView.resultado.get(indiceDetalheRequisicao).setIdProduto(Integer.toString(produtoRegistrado.getId_produto()));
+                                    registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, imagemBase64, requisicaoFalha, indiceEnviandoAtual);
+                                } else {
+                                    runOnUiThread(() -> {
+                                        falhaRequisicaoProduto("Falha ao criar o produto ", indiceEnviandoAtual, "erro", "Falha ao registrar o novo produto", requisicaoFalha);
+                                        mostrarProcessoRequisicao();
+                                    });
+                                }
                             }
-                            else {
-                                runOnUiThread(() -> {
-                                    falhaRequisicaoProduto("Falha ao criar o produto ", indiceEnviandoAtual, "erro", "Falha ao registrar o novo produto", requisicaoFalha);
-                                    mostrarProcessoRequisicao();
-                                });
-                            }
-                        }
-                    }, indiceEnviandoAtual, requisicaoFalha);
+                        }, indiceEnviandoAtual, requisicaoFalha);
+                    }
                 } else {
                     upload_img(imagemBase64, new CallbackResponseUpload() {
                         @Override
@@ -640,6 +649,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     @Override
                                     public void onCompleteRegistroProduto(Produto produtoRegistrado) {
                                         if (produtoRegistrado != null) {
+                                            adaptadorResultadoProdutoRecyclerView.resultado.get(indiceDetalheRequisicao).setIdProduto(Integer.toString(produtoRegistrado.getId_produto()));
                                             registroProdutoEmEstoque(idEstoque, produtoRegistrado.getId_produto(), quantidade, dataValidade, preco, nomeProduto, descricaoProduto, urlImagem, requisicaoFalha, indiceEnviandoAtual);
                                         } else {
                                             runOnUiThread(() -> {
@@ -650,7 +660,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                     }
                                 }, indiceEnviandoAtual, requisicaoFalha);
                             }
-                        }else {
+                        } else {
                                 runOnUiThread(() -> {
                                     falhaRequisicaoProduto("Falha ao criar o produto ", indiceEnviandoAtual, "erro", "Falha no upload de imagem", requisicaoFalha);
                                     mostrarProcessoRequisicao();
@@ -1023,12 +1033,13 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
             botaoTentarNovamenteRequisicao.setOnClickListener(v-> {
                 String metodo = adaptadorResultadoProdutoRecyclerView.getResultado(position).getMetodoDeEnvio();
                 if (metodo.startsWith("Registro de")) {
-                    if (!adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemUrl().isEmpty()) {
-                        adicionarProdutoEmEstoque(
+                    if (adaptadorResultadoProdutoRecyclerView.resultado.get(position).getIdProduto() != null) {
+                        registroProdutoEmEstoque(
                                 Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdEstoque()),
+                                Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdProduto()),
                                 Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getQuantidadeProduto()),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getPrecoProduto(),
                                 adaptadorResultadoProdutoRecyclerView.getResultado(position).getDataValidadeProduto(),
+                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getPrecoProduto(),
                                 adaptadorResultadoProdutoRecyclerView.getResultado(position).getNomeProduto(),
                                 adaptadorResultadoProdutoRecyclerView.getResultado(position).getDescricaoProduto(),
                                 adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemUrl(),
@@ -1036,17 +1047,33 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
                                 position
                         );
                     } else {
-                        adicionarProdutoEmEstoque(
-                                Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdEstoque()),
-                                Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getQuantidadeProduto()),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getPrecoProduto(),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getDataValidadeProduto(),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getNomeProduto(),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getDescricaoProduto(),
-                                adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemBase64(),
-                                true,
-                                position
-                        );
+                        if (!adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemUrl().isEmpty()) {
+                            adicionarProdutoEmEstoque(
+                                    Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdEstoque()),
+                                    Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getQuantidadeProduto()),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getPrecoProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getDataValidadeProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getNomeProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getDescricaoProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemUrl(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdProduto(),
+                                    true,
+                                    position
+                            );
+                        } else {
+                            adicionarProdutoEmEstoque(
+                                    Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdEstoque()),
+                                    Integer.parseInt(adaptadorResultadoProdutoRecyclerView.getResultado(position).getQuantidadeProduto()),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getPrecoProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getDataValidadeProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getNomeProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getDescricaoProduto(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getImagemBase64(),
+                                    adaptadorResultadoProdutoRecyclerView.getResultado(position).getIdProduto(),
+                                    true,
+                                    position
+                            );
+                        }
                     }
                 } else {
 

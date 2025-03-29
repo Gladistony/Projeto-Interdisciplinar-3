@@ -19,7 +19,7 @@ class ResultadoRequisicaoEstoque(
     var positionEstoqueLista: Int = 0,
 
     // Variáveis com informações sobre o produto a ser enviado
-    var idProduto: String = "",
+    var idProduto: String? = null,
     var positionProdutoLista: Int = 0,
     var nomeProduto: String = "",
     var descricaoProduto: String = "",
