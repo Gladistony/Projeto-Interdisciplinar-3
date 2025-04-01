@@ -42,7 +42,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.Gson;
 import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
-import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
+import com.teste.projeto_3.model.ResultadoRequisicao;
 import com.teste.projeto_3.model.User;
 
 import java.util.concurrent.ExecutorService;
@@ -51,7 +51,7 @@ import java.util.concurrent.Executors;
 public class FragStock extends Fragment implements RecyclerViewInterface, RecyclerViewResultadoRequisicaoInterface{
     public AdaptadorEstoqueRecyclerView adaptadorItemEstoque;
 
-    public AdaptadorResultadoEstoqueRecyclerView adaptadorResultadoEstoqueRecyclerView;
+    public AdaptadorResultadoRecyclerView adaptadorResultadoEstoqueRecyclerView;
     public static SharedViewModel viewModel;
     private EnviarRequisicao er;
     private CameraGaleria cg;
@@ -166,7 +166,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
         RecyclerView recyclerViewEnviandoEstoque = view.findViewById(R.id.recyclerViewResultadoRequisicaoEstoque);
-        adaptadorResultadoEstoqueRecyclerView = new AdaptadorResultadoEstoqueRecyclerView(requireContext(), this, recyclerViewEnviandoEstoque);
+        adaptadorResultadoEstoqueRecyclerView = new AdaptadorResultadoRecyclerView(requireContext(), this, recyclerViewEnviandoEstoque);
         recyclerViewEnviandoEstoque.setAdapter(adaptadorResultadoEstoqueRecyclerView);
 
         // Criando um layoutManager que adiciona itens no topo da lista das requisições ao invés do fim
@@ -275,7 +275,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         if (requisicaoFalha) {
             quantidadeRequisicoesFalha--;
         }
-        ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
+        ResultadoRequisicao resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoEstoqueRecyclerView.alterarRequisicaoEstoque(
                 descricao + resultadoAtual.getNomeEstoque(),
                 0,
@@ -291,7 +291,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         if (!requisicaoFalha) {
             quantidadeRequisicoesFalha++;
         }
-        ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
+        ResultadoRequisicao resultadoAtual = adaptadorResultadoEstoqueRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoEstoqueRecyclerView.alterarRequisicaoEstoque(descricao + resultadoAtual.getNomeEstoque(),
                 1, "Status: " + status,
                 "Descrição do resultado: " + descricaoStatus,
@@ -334,7 +334,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
-            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            ResultadoRequisicao res = new ResultadoRequisicao();
             res.setIconeResultado(2);
             res.setTituloResultado("Criando Stock: " + nome);
             res.setNomeEstoque(nome);
@@ -745,7 +745,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
-            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            ResultadoRequisicao res = new ResultadoRequisicao();
             res.setIconeResultado(2);
             res.setTituloResultado("Excluindo Stock: " + adaptadorItemEstoque.estoque.get(position).getNome());
             res.setNomeEstoque(adaptadorItemEstoque.estoque.get(position).getNome());
@@ -826,7 +826,7 @@ public class FragStock extends Fragment implements RecyclerViewInterface, Recycl
         if (er.possuiInternet(requireContext())) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
-            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            ResultadoRequisicao res = new ResultadoRequisicao();
             res.setIconeResultado(2);
             res.setTituloResultado("Alterando imagem: " + adaptadorItemEstoque.estoque.get(position).getNome());
             res.setNomeEstoque(adaptadorItemEstoque.estoque.get(position).getNome());

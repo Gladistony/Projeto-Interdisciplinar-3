@@ -1,6 +1,6 @@
 package com.teste.projeto_3.model
 
-class ResultadoRequisicaoEstoque(
+class ResultadoRequisicao(
     // Variáveis para exibir a resultado da requisição
     var tituloResultado: String = "",       // Resultado da requisição para o RecyclerView
     var status: String = "",                // Status da requisição ("erro" ou "sucesso")

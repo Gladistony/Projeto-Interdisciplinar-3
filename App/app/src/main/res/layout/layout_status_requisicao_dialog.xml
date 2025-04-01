@@ -64,23 +64,37 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textoStatusRequisicao" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoFecharResultadoRequisicao"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
         android:text="@string/botaoFecharRequisicao"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/goldenLogo2"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/botaoTentarNovamenteResultadoRequisicao"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textoDescricaoRequisicao" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/botaoTentarNovamenteResultadoRequisicao"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:text="@string/botaoTentarNovamenteRequisicao"
+        android:textColor="@color/white"
         android:visibility="gone"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
+        android:textSize="20sp"
+        android:background="@drawable/dialog_background_all_borders_rounded"
+        android:backgroundTint="@color/goldenLogo2"
+        android:textAllCaps="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textoDescricaoRequisicao"

@@ -49,7 +49,7 @@ import com.teste.projeto_3.http.EnviarRequisicao;
 import com.teste.projeto_3.model.Estoque;
 import com.teste.projeto_3.model.EstoqueDataValidadeString;
 import com.teste.projeto_3.model.Produto;
-import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
+import com.teste.projeto_3.model.ResultadoRequisicao;
 import com.teste.projeto_3.model.User;
 
 import java.text.DecimalFormat;
@@ -73,7 +73,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
 
     private AdaptadorProdutoRecyclerView adaptadorItemProduto;
 
-    public AdaptadorResultadoEstoqueRecyclerView adaptadorResultadoProdutoRecyclerView;
+    public AdaptadorResultadoRecyclerView adaptadorResultadoProdutoRecyclerView;
     DecimalFormat decimalFormat;
     EnviarRequisicao er;
     CameraGaleria cg;
@@ -183,7 +183,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         iconeFecharEnviandoRequisicaoProduto.setOnClickListener(v-> fecharProcessoRequisicao());
 
         RecyclerView recyclerViewEnviandoProduto = findViewById(R.id.recyclerViewResultadoRequisicaoProduto);
-        adaptadorResultadoProdutoRecyclerView = new AdaptadorResultadoEstoqueRecyclerView(this, this, recyclerViewEnviandoProduto);
+        adaptadorResultadoProdutoRecyclerView = new AdaptadorResultadoRecyclerView(this, this, recyclerViewEnviandoProduto);
         recyclerViewEnviandoProduto.setAdapter(adaptadorResultadoProdutoRecyclerView);
 
         // Criando um layoutManager que adiciona itens no topo da lista das requisições ao invés do fim
@@ -339,7 +339,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         if (er.possuiInternet(this)) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
-            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            ResultadoRequisicao res = new ResultadoRequisicao();
             res.setIconeResultado(2);
             String nomeProduto;
             if (FragStock.viewModel.getUser().getValue().getData() == null) {
@@ -642,7 +642,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         if (er.possuiInternet(this)) {
             // Criando o elemento para exibir na lista de requisições
             quantidadeRequisicoesEnviando++;
-            ResultadoRequisicaoEstoque res = new ResultadoRequisicaoEstoque();
+            ResultadoRequisicao res = new ResultadoRequisicao();
             res.setIconeResultado(2);
             res.setTituloResultado("Registrando produto: " + nomeProduto);
             res.setNomeProduto(nomeProduto);
@@ -1059,7 +1059,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         if (requisicaoFalha) {
             quantidadeRequisicoesFalha--;
         }
-        ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoProdutoRecyclerView.getResultado(indiceRequisicaoEnviando);
+        ResultadoRequisicao resultadoAtual = adaptadorResultadoProdutoRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoProdutoRecyclerView.alterarRequisicaoEstoque(
                 descricao + resultadoAtual.getNomeProduto(),
                 0,
@@ -1075,7 +1075,7 @@ public class TelaProduto extends AppCompatActivity implements RecyclerViewInterf
         if (!requisicaoFalha) {
             quantidadeRequisicoesFalha++;
         }
-        ResultadoRequisicaoEstoque resultadoAtual = adaptadorResultadoProdutoRecyclerView.getResultado(indiceRequisicaoEnviando);
+        ResultadoRequisicao resultadoAtual = adaptadorResultadoProdutoRecyclerView.getResultado(indiceRequisicaoEnviando);
         adaptadorResultadoProdutoRecyclerView.alterarRequisicaoEstoque(descricao + resultadoAtual.getNomeProduto(),
                 1, "Status: " + status,
                 "Descrição do resultado: " + descricaoStatus,

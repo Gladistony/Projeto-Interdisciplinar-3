@@ -10,18 +10,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import com.teste.projeto_3.model.ResultadoRequisicaoEstoque;
+import com.teste.projeto_3.model.ResultadoRequisicao;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<AdaptadorResultadoEstoqueRecyclerView.MyViewHolder> {
+public class AdaptadorResultadoRecyclerView extends RecyclerView.Adapter<AdaptadorResultadoRecyclerView.MyViewHolder> {
     Context context;
     private final RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface;
 
     RecyclerView recyclerView; // Adicionado apenas para o smoothScroll do método adicionarRequisicaoEstoque
-    List<ResultadoRequisicaoEstoque> resultado = new ArrayList<>();
-    public AdaptadorResultadoEstoqueRecyclerView(Context context, RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface, RecyclerView recyclerView) {
+    List<ResultadoRequisicao> resultado = new ArrayList<>();
+    public AdaptadorResultadoRecyclerView(Context context, RecyclerViewResultadoRequisicaoInterface recyclerViewResultadoRequisicaoInterface, RecyclerView recyclerView) {
         this.context = context;
         this.recyclerViewResultadoRequisicaoInterface = recyclerViewResultadoRequisicaoInterface;
         this.recyclerView = recyclerView;
@@ -29,14 +29,14 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
 
     @NonNull
     @Override
-    public AdaptadorResultadoEstoqueRecyclerView.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AdaptadorResultadoRecyclerView.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.layout_resultado_requisicao_recyclerview, parent, false);
 
-        return new AdaptadorResultadoEstoqueRecyclerView.MyViewHolder(view, recyclerViewResultadoRequisicaoInterface);
+        return new AdaptadorResultadoRecyclerView.MyViewHolder(view, recyclerViewResultadoRequisicaoInterface);
     }
 
-    public void adicionarRequisicaoEstoque(ResultadoRequisicaoEstoque resultadoRequisicaoEstoque) {
+    public void adicionarRequisicaoEstoque(ResultadoRequisicao resultadoRequisicaoEstoque) {
         resultado.add(resultadoRequisicaoEstoque);
         notifyItemInserted(resultado.size() -1);
         recyclerView.smoothScrollToPosition(resultado.size() - 1);
@@ -47,7 +47,7 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         notifyItemChanged(indexPosition);
     }
 
-    public void alterarDetalheRequisicaoEstoque(ResultadoRequisicaoEstoque resultadoRequisicaoEstoque, int position) {
+    public void alterarDetalheRequisicaoEstoque(ResultadoRequisicao resultadoRequisicaoEstoque, int position) {
         resultado.set(position, resultadoRequisicaoEstoque);
         notifyItemChanged(position);
     }
@@ -60,12 +60,12 @@ public class AdaptadorResultadoEstoqueRecyclerView extends RecyclerView.Adapter<
         notifyItemChanged(position);
     }
 
-    public ResultadoRequisicaoEstoque getResultado(int index) {
+    public ResultadoRequisicao getResultado(int index) {
         return resultado.get(index);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AdaptadorResultadoEstoqueRecyclerView.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AdaptadorResultadoRecyclerView.MyViewHolder holder, int position) {
         holder.textoResultadoRequisicaoEstoque.setText(resultado.get(position).getTituloResultado());
         int icone = resultado.get(position).getIconeResultado();
         if (icone == 0) { // 0 = Sucesso
