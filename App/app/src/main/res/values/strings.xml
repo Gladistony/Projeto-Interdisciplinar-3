@@ -68,5 +68,10 @@
     <string name="hintEditarQuantidade">Nova quantidade</string>
     <string name="botaoAlterarQuantidadeProduto">Alterar</string>
     <string name="textoAdicionarRemoverProduto">Insira um valor negativo para remover quantidades</string>
+    <string name="textoStatusRequisicao">Status: </string>
+    <string name="descricaoStatusRequisicao">Descrição do resultado: </string>
+    <string name="botaoFecharRequisicao">Fechar</string>
+    <string name="botaoTentarNovamenteRequisicao">Tentar novamente</string>
+
 
 </resources>
